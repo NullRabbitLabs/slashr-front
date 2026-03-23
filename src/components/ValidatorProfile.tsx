@@ -2,6 +2,8 @@ import { useState, useEffect, useRef } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import type { EventListItem } from '@/types/api';
 import { useValidator } from '@/hooks/useValidator';
+import { useIsMobile } from '@/hooks/useIsMobile';
+import { truncateMiddle } from '@/lib/format';
 import { NetworkTag } from './NetworkTag';
 import { EventRow } from './EventRow';
 
@@ -10,6 +12,7 @@ const STAGGER_DELAY = 120;
 export function ValidatorProfile() {
   const { network, address } = useParams<{ network: string; address: string }>();
   const { validator, loading, error } = useValidator(network ?? '', address ?? '');
+  const isMobile = useIsMobile();
 
   // Stagger animation for event history
   const [visibleIds, setVisibleIds] = useState<Set<number>>(new Set());
@@ -44,9 +47,10 @@ export function ValidatorProfile() {
       <div>
         <Link
           to="/"
+          className="back-link"
           style={{
             fontSize: 13,
-            color: 'rgba(255,255,255,0.3)',
+            color: 'rgba(255,255,255,0.45)',
             fontFamily: "'JetBrains Mono', monospace",
           }}
         >
@@ -55,7 +59,7 @@ export function ValidatorProfile() {
         <div
           style={{
             fontSize: 13,
-            color: 'rgba(255,255,255,0.3)',
+            color: 'rgba(255,255,255,0.45)',
             fontFamily: "'JetBrains Mono', monospace",
             padding: '24px 0',
           }}
@@ -74,17 +78,23 @@ export function ValidatorProfile() {
     validator_moniker: validator.moniker,
   }));
 
+  const displayAddress = isMobile
+    ? truncateMiddle(validator.address, 24)
+    : validator.address;
+
   return (
     <div>
       {/* Back link */}
       <Link
         to="/"
+        className="back-link"
         style={{
           display: 'inline-block',
           fontSize: 13,
-          color: 'rgba(255,255,255,0.3)',
+          color: 'rgba(255,255,255,0.45)',
           fontFamily: "'JetBrains Mono', monospace",
           marginBottom: 24,
+          padding: '8px 0',
         }}
       >
         &larr; back to feed
@@ -92,10 +102,18 @@ export function ValidatorProfile() {
 
       {/* Validator header */}
       <div style={{ marginBottom: 32 }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 8 }}>
+        <div
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: 10,
+            marginBottom: 8,
+            flexWrap: 'wrap',
+          }}
+        >
           <h2
             style={{
-              fontSize: 24,
+              fontSize: isMobile ? 20 : 24,
               fontWeight: 700,
               fontFamily: "'Space Grotesk', sans-serif",
               letterSpacing: '-0.02em',
@@ -110,21 +128,23 @@ export function ValidatorProfile() {
         <div
           style={{
             fontSize: 13,
-            color: 'rgba(255,255,255,0.3)',
+            color: 'rgba(255,255,255,0.45)',
             fontFamily: "'JetBrains Mono', monospace",
             marginBottom: 8,
+            wordBreak: 'break-all',
           }}
         >
-          {validator.address}
+          {displayAddress}
         </div>
 
         <div
           style={{
             fontSize: 12,
-            color: 'rgba(255,255,255,0.2)',
+            color: 'rgba(255,255,255,0.4)',
             fontFamily: "'JetBrains Mono', monospace",
             display: 'flex',
-            gap: 16,
+            flexDirection: isMobile ? 'column' : 'row',
+            gap: isMobile ? 4 : 16,
           }}
         >
           <span>first seen {new Date(validator.first_seen).toLocaleDateString()}</span>
@@ -135,14 +155,25 @@ export function ValidatorProfile() {
       {/* Enrichment info */}
       {(validator.stake != null || validator.commission_pct != null || validator.node_ip || validator.hosting_provider || validator.website || validator.in_scan_db) && (
         <div
-          style={{
-            display: 'flex',
-            flexWrap: 'wrap',
-            gap: '12px 24px',
-            marginBottom: 24,
-            paddingBottom: 24,
-            borderBottom: '1px solid rgba(255,255,255,0.06)',
-          }}
+          style={
+            isMobile
+              ? {
+                  display: 'grid',
+                  gridTemplateColumns: '1fr 1fr',
+                  gap: 12,
+                  marginBottom: 24,
+                  paddingBottom: 24,
+                  borderBottom: '1px solid rgba(255,255,255,0.06)',
+                }
+              : {
+                  display: 'flex',
+                  flexWrap: 'wrap' as const,
+                  gap: '12px 24px',
+                  marginBottom: 24,
+                  paddingBottom: 24,
+                  borderBottom: '1px solid rgba(255,255,255,0.06)',
+                }
+          }
         >
           {validator.stake != null && validator.stake_token && (
             <div>
@@ -207,7 +238,7 @@ export function ValidatorProfile() {
       <div
         style={{
           fontSize: 12,
-          color: 'rgba(255,255,255,0.25)',
+          color: 'rgba(255,255,255,0.45)',
           fontFamily: "'JetBrains Mono', monospace",
           textTransform: 'uppercase',
           letterSpacing: '0.08em',
@@ -223,7 +254,7 @@ export function ValidatorProfile() {
         <div
           style={{
             fontSize: 13,
-            color: 'rgba(255,255,255,0.3)',
+            color: 'rgba(255,255,255,0.45)',
             fontFamily: "'JetBrains Mono', monospace",
             padding: '24px 0',
           }}

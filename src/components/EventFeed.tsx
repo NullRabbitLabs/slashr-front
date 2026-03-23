@@ -26,7 +26,7 @@ export function EventFeed({ network, onFilterChange }: EventFeedProps) {
         <span
           style={{
             fontSize: 12,
-            color: 'rgba(255,255,255,0.25)',
+            color: 'rgba(255,255,255,0.45)',
             fontFamily: "'JetBrains Mono', monospace",
             textTransform: 'uppercase',
             letterSpacing: '0.08em',
@@ -36,6 +36,7 @@ export function EventFeed({ network, onFilterChange }: EventFeedProps) {
         </span>
         {network && (
           <button
+            className="btn-ghost"
             onClick={() => onFilterChange(null)}
             style={{
               background: 'none',
@@ -58,7 +59,7 @@ export function EventFeed({ network, onFilterChange }: EventFeedProps) {
         <div
           style={{
             fontSize: 13,
-            color: 'rgba(255,255,255,0.3)',
+            color: 'rgba(255,255,255,0.45)',
             fontFamily: "'JetBrains Mono', monospace",
             padding: '8px 0',
           }}
@@ -80,14 +81,15 @@ export function EventFeed({ network, onFilterChange }: EventFeedProps) {
       {hasMore && (
         <div style={{ padding: '20px 0', textAlign: 'center' }}>
           <button
+            className="btn-ghost"
             onClick={loadMore}
             style={{
               background: 'none',
-              border: '1px solid rgba(255,255,255,0.1)',
+              border: '1px solid rgba(255,255,255,0.12)',
               borderRadius: 4,
-              color: 'rgba(255,255,255,0.4)',
+              color: 'rgba(255,255,255,0.45)',
               fontSize: 12,
-              padding: '8px 24px',
+              padding: '10px 32px',
               cursor: 'pointer',
               fontFamily: "'JetBrains Mono', monospace",
               letterSpacing: '0.03em',

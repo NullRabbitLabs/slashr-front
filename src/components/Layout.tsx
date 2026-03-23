@@ -2,6 +2,7 @@ import type { ReactNode } from 'react';
 import type { StatsResponse } from '@/types/api';
 import { LiveDot } from './LiveDot';
 import { BoltLogo } from './BoltLogo';
+import { useIsMobile } from '@/hooks/useIsMobile';
 
 interface LayoutProps {
   children: ReactNode;
@@ -9,6 +10,7 @@ interface LayoutProps {
 }
 
 export function Layout({ children, stats }: LayoutProps) {
+  const isMobile = useIsMobile();
   const totalEvents = stats?.totals.all_time;
 
   return (
@@ -25,51 +27,39 @@ export function Layout({ children, stats }: LayoutProps) {
       <div
         style={{
           borderBottom: '1px solid rgba(255,255,255,0.06)',
-          padding: '14px 20px',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
         }}
       >
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-          <LiveDot />
-          <span
-            style={{
-              fontSize: 13,
-              color: 'rgba(255,255,255,0.4)',
-              fontFamily: "'JetBrains Mono', monospace",
-            }}
-          >
-            {totalEvents != null
-              ? `tracking ${totalEvents.toLocaleString()} events across 4 networks`
-              : 'watching validators'}
-          </span>
-        </div>
-        <span
+        <div
           style={{
-            fontSize: 12,
-            color: 'rgba(255,255,255,0.25)',
-            fontFamily: "'JetBrains Mono', monospace",
+            maxWidth: 860,
+            margin: '0 auto',
+            padding: isMobile ? '12px 16px' : '12px 20px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
           }}
         >
-          nullrabbit.ai
-        </span>
-      </div>
-
-      <div style={{ maxWidth: 720, margin: '0 auto', padding: '0 20px' }}>
-        {/* Hero */}
-        <div style={{ padding: '48px 0 40px', display: 'flex', alignItems: 'flex-start', gap: 14 }}>
-          <BoltLogo size={42} />
-          <div>
+          {/* Left: brand */}
+          <a
+            href="/"
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: 8,
+              textDecoration: 'none',
+            }}
+          >
+            <BoltLogo size={20} />
             <h1
               style={{
-                fontSize: 48,
+                fontSize: 20,
                 fontWeight: 700,
-                margin: '0 0 12px',
+                margin: 0,
                 letterSpacing: '-0.04em',
                 lineHeight: 1,
                 fontFamily: "'Space Grotesk', sans-serif",
-                background: 'linear-gradient(135deg, #E8E6E1 0%, #E8E6E1 40%, #FF4545 100%)',
+                background:
+                  'linear-gradient(135deg, #E8E6E1 0%, #E8E6E1 40%, #FF4545 100%)',
                 WebkitBackgroundClip: 'text',
                 WebkitTextFillColor: 'transparent',
                 backgroundClip: 'text',
@@ -77,20 +67,35 @@ export function Layout({ children, stats }: LayoutProps) {
             >
               slasher
             </h1>
-            <p
-              style={{
-                fontSize: 15,
-                color: 'rgba(255,255,255,0.45)',
-                margin: 0,
-                lineHeight: 1.6,
-                maxWidth: 480,
-              }}
-            >
-              Every validator penalty, across every major proof-of-stake network, as it
-              happens. No delays. No spin. Just the data.
-            </p>
+          </a>
+
+          {/* Right: live status */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+            <LiveDot />
+            {!isMobile && totalEvents != null && (
+              <span
+                style={{
+                  fontSize: 13,
+                  color: 'rgba(255,255,255,0.45)',
+                  fontFamily: "'JetBrains Mono', monospace",
+                }}
+              >
+                tracking {totalEvents.toLocaleString()} events across 4 networks
+              </span>
+            )}
           </div>
         </div>
+      </div>
+
+      <div
+        style={{
+          maxWidth: 860,
+          margin: '0 auto',
+          padding: isMobile ? '0 16px' : '0 20px',
+        }}
+      >
+        {/* Spacer replacing the old hero */}
+        <div style={{ height: isMobile ? 20 : 32 }} />
 
         {/* Page content */}
         {children}
@@ -102,18 +107,32 @@ export function Layout({ children, stats }: LayoutProps) {
             padding: '20px 0 40px',
             borderTop: '1px solid rgba(255,255,255,0.06)',
             display: 'flex',
-            justifyContent: 'space-between',
+            justifyContent: 'center',
             alignItems: 'center',
             fontSize: 12,
-            color: 'rgba(255,255,255,0.2)',
+            color: 'rgba(255,255,255,0.4)',
             fontFamily: "'JetBrains Mono', monospace",
           }}
         >
-          <span>polling every 30–120s</span>
-          <span>
-            built by{' '}
-            <span style={{ color: 'rgba(255,255,255,0.35)' }}>nullrabbit</span>
-          </span>
+          <a
+            href="https://nullrabbit.ai"
+            target="_blank"
+            rel="noopener noreferrer"
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: 6,
+              color: 'rgba(255,255,255,0.35)',
+              textDecoration: 'none',
+            }}
+          >
+            Built by
+            <img
+              src="/nullrabbit.png"
+              alt="NullRabbit"
+              style={{ height: 16, width: 16, objectFit: 'contain' }}
+            />
+          </a>
         </div>
       </div>
     </div>

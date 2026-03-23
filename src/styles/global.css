@@ -28,3 +28,28 @@ details > summary {
 details > summary::-webkit-details-marker {
   display: none;
 }
+
+/* Hover utilities */
+.event-row {
+  transition: background 0.15s ease;
+}
+
+.event-row:hover {
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.btn-ghost:hover {
+  border-color: rgba(255, 255, 255, 0.2) !important;
+  color: rgba(255, 255, 255, 0.6) !important;
+}
+
+.back-link:hover {
+  color: rgba(255, 255, 255, 0.6) !important;
+}
+
+/* Critical event accent */
+.event-row-critical {
+  border-left: 2px solid #FF4545;
+  padding-left: 12px;
+  margin-left: -14px;
+}

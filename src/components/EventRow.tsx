@@ -2,6 +2,8 @@ import { Link } from 'react-router-dom';
 import type { EventListItem } from '@/types/api';
 import { describeEvent } from '@/lib/constants';
 import { relativeTime, formatUtcTime } from '@/lib/time';
+import { truncateMiddle } from '@/lib/format';
+import { useIsMobile } from '@/hooks/useIsMobile';
 import { NetworkTag } from './NetworkTag';
 import { SeverityMark } from './SeverityMark';
 
@@ -18,14 +20,23 @@ export function EventRow({
   showValidator = true,
   showNetworkTag = true,
 }: EventRowProps) {
+  const isMobile = useIsMobile();
   const resolved = event.resolved_at != null;
+  const isCritical = event.severity === 'critical';
+
+  const displayName =
+    event.validator_moniker ??
+    (isMobile
+      ? truncateMiddle(event.validator_address, 18)
+      : event.validator_address);
 
   return (
     <div
+      className={`event-row${isCritical ? ' event-row-critical' : ''}`}
       style={{
         padding: '14px 0',
         borderBottom: '1px solid rgba(255,255,255,0.04)',
-        opacity: visible ? (resolved ? 0.4 : 1) : 0,
+        opacity: visible ? (resolved ? 0.5 : 1) : 0,
         transform: visible ? 'translateY(0)' : 'translateY(8px)',
         transition: 'opacity 0.4s ease, transform 0.4s ease',
       }}
@@ -39,16 +50,18 @@ export function EventRow({
           marginBottom: 6,
         }}
       >
-        <span
-          style={{
-            fontSize: 11,
-            color: 'rgba(255,255,255,0.2)',
-            fontFamily: "'JetBrains Mono', monospace",
-            minWidth: 62,
-          }}
-        >
-          {formatUtcTime(event.started_at)}
-        </span>
+        {!isMobile && (
+          <span
+            style={{
+              fontSize: 11,
+              color: 'rgba(255,255,255,0.4)',
+              fontFamily: "'JetBrains Mono', monospace",
+              minWidth: 62,
+            }}
+          >
+            {formatUtcTime(event.started_at)}
+          </span>
+        )}
 
         {showNetworkTag && <NetworkTag network={event.network} />}
 
@@ -71,7 +84,7 @@ export function EventRow({
         <span
           style={{
             fontSize: 12,
-            color: 'rgba(255,255,255,0.15)',
+            color: 'rgba(255,255,255,0.35)',
             marginLeft: 'auto',
             fontFamily: "'JetBrains Mono', monospace",
           }}
@@ -81,7 +94,7 @@ export function EventRow({
       </div>
 
       {/* Bottom row: validator name + description */}
-      <div style={{ paddingLeft: 70 }}>
+      <div style={{ paddingLeft: isMobile ? 0 : 70, marginTop: isMobile ? 4 : 0 }}>
         {showValidator && (
           <Link
             to={`/validator/${event.network}/${event.validator_address}`}
@@ -92,13 +105,13 @@ export function EventRow({
               marginRight: 8,
             }}
           >
-            {event.validator_moniker ?? event.validator_address}
+            {displayName}
           </Link>
         )}
         <span
           style={{
             fontSize: 14,
-            color: 'rgba(255,255,255,0.45)',
+            color: 'rgba(255,255,255,0.55)',
             lineHeight: 1.5,
           }}
         >
