@@ -1,6 +1,6 @@
-export type NetworkSlug = 'solana' | 'ethereum' | 'cosmos' | 'sui';
+export type NetworkSlug = 'solana' | 'ethereum' | 'cosmos' | 'sui' | 'polkadot';
 
-export type NetworkTicker = 'SOL' | 'ETH' | 'ATOM' | 'SUI';
+export type NetworkTicker = 'SOL' | 'ETH' | 'ATOM' | 'SUI' | 'DOT';
 
 export type EventType =
   | 'delinquent'
@@ -9,7 +9,9 @@ export type EventType =
   | 'slashed_double_sign'
   | 'slashed_downtime'
   | 'tallying_penalty'
-  | 'duplicate_block';
+  | 'duplicate_block'
+  | 'dot_slashed'
+  | 'dot_not_elected';
 
 export type Severity = 'info' | 'warning' | 'critical';
 
@@ -69,6 +71,14 @@ export interface ValidatorProfile {
   first_seen: string;
   last_seen: string;
   metadata: Record<string, unknown>;
+  stake: number | null;
+  stake_token: string | null;
+  commission_pct: number | null;
+  node_ip: string | null;
+  hosting_provider: string | null;
+  website: string | null;
+  has_contact: boolean;
+  in_scan_db: boolean;
   events: ValidatorEventItem[];
 }
 

@@ -105,6 +105,30 @@ const MOCK_EVENTS: EventListItem[] = [
     penalty_amount: 487,
     penalty_token: 'ATOM',
   },
+  {
+    id: 9,
+    network: 'polkadot',
+    validator_address: '15kUt2i1E',
+    validator_moniker: 'Parity Technologies',
+    event_type: 'dot_slashed',
+    severity: 'critical',
+    started_at: '2026-03-23T07:45:00Z',
+    resolved_at: '2026-03-23T07:45:00Z',
+    penalty_amount: 1250,
+    penalty_token: 'DOT',
+  },
+  {
+    id: 10,
+    network: 'polkadot',
+    validator_address: '13mK9Fpb7',
+    validator_moniker: 'Web3 Foundation',
+    event_type: 'dot_not_elected',
+    severity: 'warning',
+    started_at: '2026-03-23T05:20:00Z',
+    resolved_at: null,
+    penalty_amount: null,
+    penalty_token: null,
+  },
 ];
 
 const MOCK_NETWORKS: NetworkInfo[] = [
@@ -112,6 +136,7 @@ const MOCK_NETWORKS: NetworkInfo[] = [
   { slug: 'ethereum', name: 'Ethereum',   enabled: true, last_run_at: '2026-03-23T14:28:00Z', last_run_status: 'ok', poll_interval_secs: 60 },
   { slug: 'cosmos',   name: 'Cosmos Hub', enabled: true, last_run_at: '2026-03-23T14:25:00Z', last_run_status: 'ok', poll_interval_secs: 60 },
   { slug: 'sui',      name: 'Sui',        enabled: true, last_run_at: '2026-03-23T14:20:00Z', last_run_status: 'ok', poll_interval_secs: 120 },
+  { slug: 'polkadot', name: 'Polkadot',  enabled: true, last_run_at: '2026-03-23T14:22:00Z', last_run_status: 'ok', poll_interval_secs: 60 },
 ];
 
 const MOCK_STATS: StatsResponse = {
@@ -120,8 +145,9 @@ const MOCK_STATS: StatsResponse = {
     { slug: 'ethereum', name: 'Ethereum',   counts: { last_24h: 2,  last_7d: 8,  last_30d: 34,  all_time: 156 } },
     { slug: 'cosmos',   name: 'Cosmos Hub', counts: { last_24h: 3,  last_7d: 12, last_30d: 52,  all_time: 287 } },
     { slug: 'sui',      name: 'Sui',        counts: { last_24h: 5,  last_7d: 19, last_30d: 71,  all_time: 203 } },
+    { slug: 'polkadot', name: 'Polkadot',  counts: { last_24h: 4,  last_7d: 15, last_30d: 58,  all_time: 312 } },
   ],
-  totals: { last_24h: 28, last_7d: 86, last_30d: 346, all_time: 1688 },
+  totals: { last_24h: 32, last_7d: 101, last_30d: 404, all_time: 2000 },
 };
 
 function buildMockValidator(network: NetworkSlug, address: string): ValidatorProfile {
@@ -135,6 +161,14 @@ function buildMockValidator(network: NetworkSlug, address: string): ValidatorPro
     first_seen: first?.started_at ?? '2026-01-15T08:00:00Z',
     last_seen: last?.started_at ?? '2026-03-23T14:00:00Z',
     metadata: {},
+    stake: 114405.43,
+    stake_token: 'SOL',
+    commission_pct: 5,
+    node_ip: '64.34.94.207',
+    hosting_provider: 'OVH SAS',
+    website: 'https://example.com',
+    has_contact: true,
+    in_scan_db: false,
     events: events.map(e => ({
       id: e.id,
       event_type: e.event_type,

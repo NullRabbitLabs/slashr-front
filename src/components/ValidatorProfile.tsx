@@ -132,6 +132,77 @@ export function ValidatorProfile() {
         </div>
       </div>
 
+      {/* Enrichment info */}
+      {(validator.stake != null || validator.commission_pct != null || validator.node_ip || validator.hosting_provider || validator.website || validator.in_scan_db) && (
+        <div
+          style={{
+            display: 'flex',
+            flexWrap: 'wrap',
+            gap: '12px 24px',
+            marginBottom: 24,
+            paddingBottom: 24,
+            borderBottom: '1px solid rgba(255,255,255,0.06)',
+          }}
+        >
+          {validator.stake != null && validator.stake_token && (
+            <div>
+              <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)', fontFamily: "'Inter', sans-serif", marginBottom: 2 }}>Stake</div>
+              <div style={{ fontSize: 13, color: '#E8E6E1', fontFamily: "'JetBrains Mono', monospace" }}>
+                {validator.stake.toLocaleString()} {validator.stake_token}
+              </div>
+            </div>
+          )}
+          {validator.commission_pct != null && (
+            <div>
+              <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)', fontFamily: "'Inter', sans-serif", marginBottom: 2 }}>Commission</div>
+              <div style={{ fontSize: 13, color: '#E8E6E1', fontFamily: "'JetBrains Mono', monospace" }}>{validator.commission_pct}%</div>
+            </div>
+          )}
+          {validator.node_ip && (
+            <div>
+              <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)', fontFamily: "'Inter', sans-serif", marginBottom: 2 }}>Node IP</div>
+              <div style={{ fontSize: 13, color: '#E8E6E1', fontFamily: "'JetBrains Mono', monospace" }}>{validator.node_ip}</div>
+            </div>
+          )}
+          {validator.hosting_provider && (
+            <div>
+              <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)', fontFamily: "'Inter', sans-serif", marginBottom: 2 }}>Hosting</div>
+              <div style={{ fontSize: 13, color: '#E8E6E1', fontFamily: "'JetBrains Mono', monospace" }}>{validator.hosting_provider}</div>
+            </div>
+          )}
+          {validator.website && (
+            <div>
+              <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)', fontFamily: "'Inter', sans-serif", marginBottom: 2 }}>Website</div>
+              <a
+                href={validator.website}
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{ fontSize: 13, color: '#E8E6E1', fontFamily: "'JetBrains Mono', monospace" }}
+              >
+                {validator.website.replace(/^https?:\/\//, '')}
+              </a>
+            </div>
+          )}
+          {validator.in_scan_db && (
+            <div>
+              <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)', fontFamily: "'Inter', sans-serif", marginBottom: 2 }}>&nbsp;</div>
+              <div
+                style={{
+                  fontSize: 11,
+                  color: 'rgba(255,255,255,0.6)',
+                  fontFamily: "'JetBrains Mono', monospace",
+                  border: '1px solid rgba(255,255,255,0.12)',
+                  borderRadius: 3,
+                  padding: '2px 6px',
+                }}
+              >
+                In scan DB
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+
       {/* Event history header */}
       <div
         style={{
