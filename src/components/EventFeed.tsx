@@ -6,10 +6,16 @@ import { EventRow } from './EventRow';
 interface EventFeedProps {
   network: NetworkSlug | null;
   onFilterChange: (network: NetworkSlug | null) => void;
+  initialCursor?: string | null;
+  onCursorChange?: (cursor: string | null) => void;
 }
 
-export function EventFeed({ network, onFilterChange }: EventFeedProps) {
-  const { events, loading, error, hasMore, loadMore, visibleIds } = useEvents(network);
+export function EventFeed({ network, onFilterChange, initialCursor, onCursorChange }: EventFeedProps) {
+  const { events, loading, error, hasMore, loadMore, visibleIds } = useEvents({
+    network,
+    initialCursor,
+    onCursorChange,
+  });
   const { lookup: eventTypeLookup } = useEventTypes();
 
   return (

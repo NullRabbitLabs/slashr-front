@@ -5,13 +5,22 @@ import { fetchEvents } from '@/api/client';
 const POLL_INTERVAL = 30_000;
 const STAGGER_DELAY = 120;
 
-export function useEvents(network: NetworkSlug | null) {
+interface UseEventsOptions {
+  network: NetworkSlug | null;
+  initialCursor?: string | null;
+  onCursorChange?: (cursor: string | null) => void;
+}
+
+export function useEvents({ network, initialCursor, onCursorChange }: UseEventsOptions) {
   const [events, setEvents] = useState<EventListItem[]>([]);
   const [visibleIds, setVisibleIds] = useState<Set<number>>(new Set());
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [hasMore, setHasMore] = useState(false);
   const [cursor, setCursor] = useState<string | null>(null);
+
+  const onCursorChangeRef = useRef(onCursorChange);
+  onCursorChangeRef.current = onCursorChange;
 
   const knownIdsRef = useRef<Set<number>>(new Set());
   const pendingQueueRef = useRef<number[]>([]);
@@ -49,7 +58,11 @@ export function useEvents(network: NetworkSlug | null) {
       staggerTimerRef.current = null;
     }
 
-    fetchEvents({ network: network ?? undefined, limit: 50 })
+    fetchEvents({
+      network: network ?? undefined,
+      cursor: initialCursor ?? undefined,
+      limit: 50,
+    })
       .then(res => {
         if (cancelled) return;
         const newEvents = res.data;
@@ -72,6 +85,7 @@ export function useEvents(network: NetworkSlug | null) {
       });
 
     return () => { cancelled = true; };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [network, startStagger]);
 
   // Polling
@@ -129,6 +143,7 @@ export function useEvents(network: NetworkSlug | null) {
         setEvents(prev => [...prev, ...appended]);
         setHasMore(res.pagination.has_more);
         setCursor(res.pagination.next_cursor);
+        onCursorChangeRef.current?.(res.pagination.next_cursor);
 
         for (const e of appended) {
           knownIdsRef.current.add(e.id);
