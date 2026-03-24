@@ -232,22 +232,24 @@ export function ValidatorProfile() {
               margin: 0,
             }}
           >
-            {validator.moniker ?? validator.address}
+            {validator.moniker ?? displayAddress}
           </h2>
           <NetworkTag network={validator.network} />
         </div>
 
-        <div
-          style={{
-            fontSize: 13,
-            color: 'rgba(255,255,255,0.45)',
-            fontFamily: "'JetBrains Mono', monospace",
-            marginBottom: 8,
-            wordBreak: 'break-all',
-          }}
-        >
-          {displayAddress}
-        </div>
+        {validator.moniker && (
+          <div
+            style={{
+              fontSize: 13,
+              color: 'rgba(255,255,255,0.45)',
+              fontFamily: "'JetBrains Mono', monospace",
+              marginBottom: 8,
+              wordBreak: 'break-all',
+            }}
+          >
+            {displayAddress}
+          </div>
+        )}
 
         <div
           style={{
@@ -298,7 +300,14 @@ export function ValidatorProfile() {
           {validator.commission_pct != null && (
             <div>
               <div style={metaLabelStyle}>Commission</div>
-              <div style={metaValueStyle}>{validator.commission_pct}%</div>
+              <div style={metaValueStyle}>
+                {validator.commission_pct}%
+                {validator.commission_pct === 100 && (
+                  <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.3)', marginLeft: 8 }}>
+                    delegators earn no rewards
+                  </span>
+                )}
+              </div>
             </div>
           )}
           {validator.node_ip && (
@@ -372,6 +381,7 @@ export function ValidatorProfile() {
             showValidator={false}
             showNetworkTag={false}
             showDescription
+            hideNodeIp
           />
         ))
       )}
@@ -404,7 +414,7 @@ export function ValidatorProfile() {
             )}
             {validator.in_scan_db ? (
               <div>
-                <div style={metaLabelStyle}>Security</div>
+                <div style={metaLabelStyle}>Scan status</div>
                 <a
                   href="https://nullrabbit.ai/exposure"
                   target="_blank"
@@ -416,7 +426,7 @@ export function ValidatorProfile() {
               </div>
             ) : validator.node_ip ? (
               <div>
-                <div style={metaLabelStyle}>Security</div>
+                <div style={metaLabelStyle}>Scan status</div>
                 <div style={{ ...metaValueStyle, color: 'rgba(255,255,255,0.35)' }}>
                   Not yet scanned.
                 </div>

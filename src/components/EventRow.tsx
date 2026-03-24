@@ -15,6 +15,7 @@ interface EventRowProps {
   showValidator?: boolean;
   showNetworkTag?: boolean;
   showDescription?: boolean;
+  hideNodeIp?: boolean;
 }
 
 export function EventRow({
@@ -24,6 +25,7 @@ export function EventRow({
   showValidator = true,
   showNetworkTag = true,
   showDescription = false,
+  hideNodeIp = false,
 }: EventRowProps) {
   const isMobile = useIsMobile();
   const resolved = event.resolved_at != null;
@@ -76,7 +78,7 @@ export function EventRow({
 
         <SeverityMark severity={event.severity} />
 
-        {resolved && (
+        {resolved ? (
           <span
             style={{
               fontSize: 10,
@@ -87,6 +89,18 @@ export function EventRow({
             }}
           >
             resolved
+          </span>
+        ) : (
+          <span
+            style={{
+              fontSize: 10,
+              color: 'rgba(255,255,255,0.3)',
+              fontFamily: "'JetBrains Mono', monospace",
+              textTransform: 'uppercase',
+              letterSpacing: '0.05em',
+            }}
+          >
+            ongoing
           </span>
         )}
 
@@ -102,8 +116,11 @@ export function EventRow({
         </span>
       </div>
 
-      {/* Row 2: validator name + short label */}
-      <div style={{ paddingLeft: isMobile ? 0 : 70, marginTop: isMobile ? 4 : 0 }}>
+      {/* Row 2: enrichment metadata (stake, commission, IP) */}
+      <EnrichmentRow event={event} isMobile={isMobile} hideNodeIp={hideNodeIp} />
+
+      {/* Row 3: validator name + label */}
+      <div style={{ paddingLeft: isMobile ? 0 : 70, marginTop: 8 }}>
         {showValidator && (
           <Link
             to={`/validator/${event.network}/${event.validator_address}`}
@@ -129,13 +146,14 @@ export function EventRow({
         >
           {getEventLabel(lookup, event.event_type, event.penalty_amount, event.penalty_token)}
         </span>
+        {/* Row 4: description */}
         {showDescription && eventDescription && (
           <div
             style={{
               fontSize: 12,
               color: 'rgba(255,255,255,0.35)',
               fontFamily: "'Inter', sans-serif",
-              marginTop: 3,
+              marginTop: 6,
               lineHeight: 1.4,
             }}
           >
@@ -143,9 +161,6 @@ export function EventRow({
           </div>
         )}
       </div>
-
-      {/* Row 3: enrichment details */}
-      <EnrichmentRow event={event} isMobile={isMobile} />
     </div>
   );
 }
@@ -162,7 +177,7 @@ const separatorStyle: React.CSSProperties = {
   color: 'rgba(255,255,255,0.15)',
 };
 
-function EnrichmentRow({ event, isMobile }: { event: EventListItem; isMobile: boolean }) {
+function EnrichmentRow({ event, isMobile, hideNodeIp }: { event: EventListItem; isMobile: boolean; hideNodeIp: boolean }) {
   const items: React.ReactNode[] = [];
 
   if (event.validator_stake != null && event.validator_stake_token) {
@@ -181,7 +196,7 @@ function EnrichmentRow({ event, isMobile }: { event: EventListItem; isMobile: bo
     );
   }
 
-  if (event.validator_node_ip && !isMobile) {
+  if (event.validator_node_ip && !isMobile && !hideNodeIp) {
     items.push(
       <span key="ip" style={pillStyle}>
         {stripCidr(event.validator_node_ip)}
@@ -223,7 +238,7 @@ function EnrichmentRow({ event, isMobile }: { event: EventListItem; isMobile: bo
   if (items.length === 0) return null;
 
   return (
-    <div style={{ paddingLeft: isMobile ? 0 : 70, marginTop: 4, display: 'flex', flexWrap: 'wrap', alignItems: 'center' }}>
+    <div style={{ paddingLeft: isMobile ? 0 : 70, marginTop: 2, display: 'flex', flexWrap: 'wrap', alignItems: 'center' }}>
       {items.map((item, i) => (
         <React.Fragment key={i}>
           {i > 0 && <span style={separatorStyle}>·</span>}
