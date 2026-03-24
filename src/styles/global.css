@@ -47,6 +47,10 @@ details > summary::-webkit-details-marker {
   color: rgba(255, 255, 255, 0.6) !important;
 }
 
+.waitlist-input:focus {
+  border-color: rgba(255, 255, 255, 0.2) !important;
+}
+
 /* Critical event accent */
 .event-row-critical {
   border-left: 2px solid #FF4545;

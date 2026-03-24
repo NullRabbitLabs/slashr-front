@@ -3,6 +3,7 @@ import type { StatsResponse } from '@/types/api';
 import { LiveDot } from './LiveDot';
 import { BoltLogo } from './BoltLogo';
 import { useIsMobile } from '@/hooks/useIsMobile';
+import { WaitlistDrawer } from './WaitlistDrawer';
 
 interface LayoutProps {
   children: ReactNode;
@@ -135,6 +136,8 @@ export function Layout({ children, stats }: LayoutProps) {
           </a>
         </div>
       </div>
+
+      <WaitlistDrawer />
     </div>
   );
 }
