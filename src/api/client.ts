@@ -14,6 +14,7 @@ const USE_MOCK = import.meta.env.VITE_USE_MOCK === 'true';
 
 export async function fetchEvents(params?: {
   network?: string;
+  search?: string;
   cursor?: string;
   limit?: number;
 }): Promise<PaginatedResponse<EventListItem>> {
@@ -21,6 +22,7 @@ export async function fetchEvents(params?: {
 
   const qs = new URLSearchParams();
   if (params?.network) qs.set('network', params.network);
+  if (params?.search) qs.set('search', params.search);
   if (params?.cursor) qs.set('cursor', params.cursor);
   if (params?.limit) qs.set('limit', String(params.limit));
   const query = qs.toString();

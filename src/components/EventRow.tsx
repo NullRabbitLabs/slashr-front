@@ -14,6 +14,7 @@ interface EventRowProps {
   eventTypeLookup?: EventTypeLookup;
   showValidator?: boolean;
   showNetworkTag?: boolean;
+  showDescription?: boolean;
 }
 
 export function EventRow({
@@ -22,6 +23,7 @@ export function EventRow({
   eventTypeLookup,
   showValidator = true,
   showNetworkTag = true,
+  showDescription = false,
 }: EventRowProps) {
   const isMobile = useIsMobile();
   const resolved = event.resolved_at != null;
@@ -120,13 +122,26 @@ export function EventRow({
             fontSize: 14,
             color: 'rgba(255,255,255,0.55)',
             lineHeight: 1.5,
-            cursor: eventDescription ? 'help' : undefined,
-            borderBottom: eventDescription ? '1px dotted rgba(255,255,255,0.2)' : undefined,
+            cursor: !showDescription && eventDescription ? 'help' : undefined,
+            borderBottom: !showDescription && eventDescription ? '1px dotted rgba(255,255,255,0.2)' : undefined,
           }}
-          title={eventDescription ?? undefined}
+          title={!showDescription ? (eventDescription ?? undefined) : undefined}
         >
           {getEventLabel(lookup, event.event_type, event.penalty_amount, event.penalty_token)}
         </span>
+        {showDescription && eventDescription && (
+          <div
+            style={{
+              fontSize: 12,
+              color: 'rgba(255,255,255,0.35)',
+              fontFamily: "'Inter', sans-serif",
+              marginTop: 3,
+              lineHeight: 1.4,
+            }}
+          >
+            {eventDescription}
+          </div>
+        )}
       </div>
 
       {/* Row 3: enrichment details */}

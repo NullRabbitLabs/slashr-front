@@ -5,7 +5,7 @@ export function truncateMiddle(text: string, maxLen: number): string {
 }
 
 export function formatStake(amount: number, token: string): string {
-  return `${Math.round(amount).toLocaleString()} ${token}`;
+  return `${Math.round(amount).toLocaleString()} ${token} at risk`;
 }
 
 export function stripCidr(ip: string): string {

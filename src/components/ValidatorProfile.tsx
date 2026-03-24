@@ -1,14 +1,92 @@
-import { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import type { EventListItem } from '@/types/api';
+import type { EventListItem, ValidatorEventItem } from '@/types/api';
 import { useValidator } from '@/hooks/useValidator';
 import { useEventTypes } from '@/hooks/useEventTypes';
 import { useIsMobile } from '@/hooks/useIsMobile';
 import { truncateMiddle } from '@/lib/format';
 import { NetworkTag } from './NetworkTag';
 import { EventRow } from './EventRow';
+import { Sparkline } from './Sparkline';
 
 const STAGGER_DELAY = 120;
+
+// --- Verdict logic ---
+
+interface Verdict {
+  text: string;
+  level: 'neutral' | 'warning' | 'critical';
+}
+
+const VERDICT_COLORS: Record<Verdict['level'], string> = {
+  neutral: 'rgba(255,255,255,0.45)',
+  warning: 'rgba(255,69,69,0.7)',
+  critical: '#FF4545',
+};
+
+function computeVerdict(events: ValidatorEventItem[]): Verdict {
+  if (events.length === 0) {
+    return { text: 'No incidents recorded.', level: 'neutral' };
+  }
+
+  const now = Date.now();
+  const SEVEN_DAYS = 7 * 24 * 60 * 60 * 1000;
+  const TWENTY_FOUR_HOURS = 24 * 60 * 60 * 1000;
+
+  const in7d = events.filter(e => now - new Date(e.started_at).getTime() < SEVEN_DAYS);
+  const in24h = events.filter(e => now - new Date(e.started_at).getTime() < TWENTY_FOUR_HOURS);
+
+  if (in7d.length === 0) {
+    return { text: 'No recent incidents.', level: 'neutral' };
+  }
+
+  if (in24h.length > 0) {
+    return {
+      text: `${in24h.length} incident${in24h.length === 1 ? '' : 's'} in the last 24 hours.`,
+      level: 'critical',
+    };
+  }
+
+  if (in7d.length >= 3) {
+    return {
+      text: `${in7d.length} incidents in 7 days \u2014 this validator is struggling.`,
+      level: 'critical',
+    };
+  }
+
+  return {
+    text: `${in7d.length} incident${in7d.length === 1 ? '' : 's'} in the last 7 days.`,
+    level: 'warning',
+  };
+}
+
+// --- Shared styles ---
+
+const sectionHeadingStyle: React.CSSProperties = {
+  fontSize: 12,
+  color: 'rgba(255,255,255,0.45)',
+  fontFamily: "'JetBrains Mono', monospace",
+  textTransform: 'uppercase',
+  letterSpacing: '0.08em',
+  padding: '0 0 8px',
+  borderBottom: '1px solid rgba(255,255,255,0.06)',
+  marginBottom: 4,
+};
+
+const metaLabelStyle: React.CSSProperties = {
+  fontSize: 11,
+  color: 'rgba(255,255,255,0.4)',
+  fontFamily: "'Inter', sans-serif",
+  marginBottom: 2,
+};
+
+const metaValueStyle: React.CSSProperties = {
+  fontSize: 13,
+  color: '#E8E6E1',
+  fontFamily: "'JetBrains Mono', monospace",
+};
+
+// --- Component ---
 
 export function ValidatorProfile() {
   const { network, address } = useParams<{ network: string; address: string }>();
@@ -41,6 +119,11 @@ export function ValidatorProfile() {
       if (timerRef.current) clearInterval(timerRef.current);
     };
   }, [validator]);
+
+  const verdict = useMemo(
+    () => validator ? computeVerdict(validator.events) : null,
+    [validator],
+  );
 
   if (loading) return null;
 
@@ -92,6 +175,8 @@ export function ValidatorProfile() {
     ? truncateMiddle(validator.address, 24)
     : validator.address;
 
+  const showInfrastructure = validator.node_ip || validator.hosting_provider || validator.in_scan_db;
+
   return (
     <div>
       {/* Back link */}
@@ -109,6 +194,23 @@ export function ValidatorProfile() {
       >
         &larr; back to feed
       </Link>
+
+      {/* Verdict banner */}
+      {verdict && (
+        <div
+          style={{
+            fontSize: 15,
+            color: VERDICT_COLORS[verdict.level],
+            fontFamily: "'Inter', sans-serif",
+            marginBottom: 20,
+          }}
+        >
+          {verdict.text}
+        </div>
+      )}
+
+      {/* Sparkline */}
+      <Sparkline events={validator.events} />
 
       {/* Validator header */}
       <div style={{ marginBottom: 32 }}>
@@ -187,38 +289,38 @@ export function ValidatorProfile() {
         >
           {validator.stake != null && validator.stake_token && (
             <div>
-              <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)', fontFamily: "'Inter', sans-serif", marginBottom: 2 }}>Stake</div>
-              <div style={{ fontSize: 13, color: '#E8E6E1', fontFamily: "'JetBrains Mono', monospace" }}>
-                {validator.stake.toLocaleString()} {validator.stake_token}
+              <div style={metaLabelStyle}>Stake</div>
+              <div style={metaValueStyle}>
+                {validator.stake.toLocaleString()} {validator.stake_token} at risk
               </div>
             </div>
           )}
           {validator.commission_pct != null && (
             <div>
-              <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)', fontFamily: "'Inter', sans-serif", marginBottom: 2 }}>Commission</div>
-              <div style={{ fontSize: 13, color: '#E8E6E1', fontFamily: "'JetBrains Mono', monospace" }}>{validator.commission_pct}%</div>
+              <div style={metaLabelStyle}>Commission</div>
+              <div style={metaValueStyle}>{validator.commission_pct}%</div>
             </div>
           )}
           {validator.node_ip && (
             <div>
-              <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)', fontFamily: "'Inter', sans-serif", marginBottom: 2 }}>Node IP</div>
-              <div style={{ fontSize: 13, color: '#E8E6E1', fontFamily: "'JetBrains Mono', monospace" }}>{validator.node_ip}</div>
+              <div style={metaLabelStyle}>Node IP</div>
+              <div style={metaValueStyle}>{validator.node_ip}</div>
             </div>
           )}
           {validator.hosting_provider && (
             <div>
-              <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)', fontFamily: "'Inter', sans-serif", marginBottom: 2 }}>Hosting</div>
-              <div style={{ fontSize: 13, color: '#E8E6E1', fontFamily: "'JetBrains Mono', monospace" }}>{validator.hosting_provider}</div>
+              <div style={metaLabelStyle}>Hosting</div>
+              <div style={metaValueStyle}>{validator.hosting_provider}</div>
             </div>
           )}
           {validator.website && (
             <div>
-              <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)', fontFamily: "'Inter', sans-serif", marginBottom: 2 }}>Website</div>
+              <div style={metaLabelStyle}>Website</div>
               <a
                 href={validator.website}
                 target="_blank"
                 rel="noopener noreferrer"
-                style={{ fontSize: 13, color: '#E8E6E1', fontFamily: "'JetBrains Mono', monospace" }}
+                style={metaValueStyle}
               >
                 {validator.website.replace(/^https?:\/\//, '')}
               </a>
@@ -226,7 +328,7 @@ export function ValidatorProfile() {
           )}
           {validator.in_scan_db && (
             <div>
-              <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)', fontFamily: "'Inter', sans-serif", marginBottom: 2 }}>&nbsp;</div>
+              <div style={metaLabelStyle}>&nbsp;</div>
               <div
                 style={{
                   fontSize: 11,
@@ -245,18 +347,7 @@ export function ValidatorProfile() {
       )}
 
       {/* Event history header */}
-      <div
-        style={{
-          fontSize: 12,
-          color: 'rgba(255,255,255,0.45)',
-          fontFamily: "'JetBrains Mono', monospace",
-          textTransform: 'uppercase',
-          letterSpacing: '0.08em',
-          padding: '0 0 8px',
-          borderBottom: '1px solid rgba(255,255,255,0.06)',
-          marginBottom: 4,
-        }}
-      >
+      <div style={sectionHeadingStyle}>
         event history
       </div>
 
@@ -280,8 +371,59 @@ export function ValidatorProfile() {
             eventTypeLookup={eventTypeLookup}
             showValidator={false}
             showNetworkTag={false}
+            showDescription
           />
         ))
+      )}
+
+      {/* Infrastructure section */}
+      {showInfrastructure && (
+        <div style={{ marginTop: 32 }}>
+          <div style={sectionHeadingStyle}>
+            infrastructure
+          </div>
+
+          <div
+            style={
+              isMobile
+                ? { display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, padding: '16px 0' }
+                : { display: 'flex', flexWrap: 'wrap' as const, gap: '12px 24px', padding: '16px 0' }
+            }
+          >
+            {validator.node_ip && (
+              <div>
+                <div style={metaLabelStyle}>Node IP</div>
+                <div style={metaValueStyle}>{validator.node_ip}</div>
+              </div>
+            )}
+            {validator.hosting_provider && (
+              <div>
+                <div style={metaLabelStyle}>Hosting</div>
+                <div style={metaValueStyle}>{validator.hosting_provider}</div>
+              </div>
+            )}
+            {validator.in_scan_db ? (
+              <div>
+                <div style={metaLabelStyle}>Security</div>
+                <a
+                  href="https://nullrabbit.ai/exposure"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  style={{ ...metaValueStyle, color: 'rgba(20,241,149,0.6)', textDecoration: 'none' }}
+                >
+                  Security scan data available.
+                </a>
+              </div>
+            ) : validator.node_ip ? (
+              <div>
+                <div style={metaLabelStyle}>Security</div>
+                <div style={{ ...metaValueStyle, color: 'rgba(255,255,255,0.35)' }}>
+                  Not yet scanned.
+                </div>
+              </div>
+            ) : null}
+          </div>
+        </div>
       )}
     </div>
   );

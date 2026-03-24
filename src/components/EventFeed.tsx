@@ -1,22 +1,24 @@
-import type { NetworkSlug } from '@/types/api';
 import { useEvents } from '@/hooks/useEvents';
 import { useEventTypes } from '@/hooks/useEventTypes';
 import { EventRow } from './EventRow';
 
 interface EventFeedProps {
-  network: NetworkSlug | null;
-  onFilterChange: (network: NetworkSlug | null) => void;
+  network: string | null;
+  search: string;
   initialCursor?: string | null;
   onCursorChange?: (cursor: string | null) => void;
 }
 
-export function EventFeed({ network, onFilterChange, initialCursor, onCursorChange }: EventFeedProps) {
+export function EventFeed({ network, search, initialCursor, onCursorChange }: EventFeedProps) {
   const { events, loading, error, hasMore, loadMore, visibleIds } = useEvents({
     network,
+    search,
     initialCursor,
     onCursorChange,
   });
   const { lookup: eventTypeLookup } = useEventTypes();
+
+  const isFiltered = network != null || search.length > 0;
 
   return (
     <div>
@@ -42,24 +44,6 @@ export function EventFeed({ network, onFilterChange, initialCursor, onCursorChan
         >
           live feed
         </span>
-        {network && (
-          <button
-            className="btn-ghost"
-            onClick={() => onFilterChange(null)}
-            style={{
-              background: 'none',
-              border: '1px solid rgba(255,255,255,0.1)',
-              borderRadius: 3,
-              color: 'rgba(255,255,255,0.4)',
-              fontSize: 11,
-              padding: '1px 8px',
-              cursor: 'pointer',
-              fontFamily: "'JetBrains Mono', monospace",
-            }}
-          >
-            clear filter &times;
-          </button>
-        )}
       </div>
 
       {/* Error line */}
@@ -73,6 +57,20 @@ export function EventFeed({ network, onFilterChange, initialCursor, onCursorChan
           }}
         >
           having trouble reaching the api &mdash; retrying
+        </div>
+      )}
+
+      {/* Empty filter result */}
+      {events.length === 0 && !loading && isFiltered && (
+        <div
+          style={{
+            fontSize: 13,
+            color: 'rgba(255,255,255,0.45)',
+            fontFamily: "'JetBrains Mono', monospace",
+            padding: '24px 0',
+          }}
+        >
+          no matching events
         </div>
       )}
 

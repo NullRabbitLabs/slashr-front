@@ -1,56 +1,83 @@
-import { useCallback } from 'react';
+import { useState, useCallback, useMemo } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import type { NetworkSlug } from '@/types/api';
+import { NETWORK_ORDER } from '@/lib/constants';
 import { useStats } from '@/hooks/useStats';
 import { useNetworks } from '@/hooks/useNetworks';
+import { useDebouncedValue } from '@/hooks/useDebouncedValue';
 import { Layout } from '@/components/Layout';
 import { NetworkStrip } from '@/components/NetworkStrip';
 import { Explainer } from '@/components/Explainer';
+import { FeedFilter } from '@/components/FeedFilter';
 import { EventFeed } from '@/components/EventFeed';
 
-const VALID_NETWORKS = new Set<string>(['solana', 'ethereum', 'cosmos', 'sui', 'polkadot']);
-
 export default function FeedPage() {
-  const [searchParams, setSearchParams] = useSearchParams();
+  const [searchParams] = useSearchParams();
   const { stats } = useStats();
   const { networks } = useNetworks();
 
-  const networkParam = searchParams.get('network');
-  const activeNetwork = networkParam && VALID_NETWORKS.has(networkParam)
-    ? (networkParam as NetworkSlug)
-    : null;
   const initialCursor = searchParams.get('cursor');
 
-  const handleFilterChange = useCallback((slug: NetworkSlug | null) => {
-    setSearchParams(slug ? { network: slug } : {}, { replace: false });
-  }, [setSearchParams]);
+  // Client-side filter state
+  const [activeNetworks, setActiveNetworks] = useState<Set<NetworkSlug>>(
+    () => new Set(NETWORK_ORDER),
+  );
+  const [searchQuery, setSearchQuery] = useState('');
+  const debouncedSearch = useDebouncedValue(searchQuery, 300);
 
-  const handleCursorChange = useCallback((cursor: string | null) => {
-    setSearchParams(prev => {
-      const next = new URLSearchParams(prev);
-      if (cursor) {
-        next.set('cursor', cursor);
+  const handleToggleNetwork = useCallback((slug: NetworkSlug) => {
+    setActiveNetworks(prev => {
+      const next = new Set(prev);
+      if (next.has(slug)) {
+        if (next.size <= 1) return prev; // at least one must remain
+        next.delete(slug);
       } else {
-        next.delete('cursor');
+        next.add(slug);
       }
       return next;
-    }, { replace: true });
-  }, [setSearchParams]);
+    });
+  }, []);
+
+  // Derive network param for API: null when all active, comma-separated otherwise
+  const networkParam = useMemo(() => {
+    if (activeNetworks.size === NETWORK_ORDER.length) return null;
+    return Array.from(activeNetworks).join(',');
+  }, [activeNetworks]);
+
+  // Only send search to API if >= 2 chars (API rejects shorter)
+  const searchParam = debouncedSearch.length >= 2 ? debouncedSearch : '';
 
   return (
     <Layout stats={stats}>
       <NetworkStrip
-        activeNetwork={activeNetwork}
-        onFilterChange={handleFilterChange}
         stats={stats}
         networks={networks}
       />
       <Explainer />
+
+      <p
+        style={{
+          fontSize: 13,
+          color: 'rgba(255,255,255,0.4)',
+          fontStyle: 'italic',
+          margin: '0 0 20px',
+          fontFamily: "'Inter', sans-serif",
+        }}
+      >
+        Your staking rewards depend on your validator staying online. Here&rsquo;s every time one didn&rsquo;t.
+      </p>
+
+      <FeedFilter
+        activeNetworks={activeNetworks}
+        onToggleNetwork={handleToggleNetwork}
+        searchQuery={searchQuery}
+        onSearchChange={setSearchQuery}
+      />
+
       <EventFeed
-        network={activeNetwork}
-        onFilterChange={handleFilterChange}
+        network={networkParam}
+        search={searchParam}
         initialCursor={initialCursor}
-        onCursorChange={handleCursorChange}
       />
     </Layout>
   );

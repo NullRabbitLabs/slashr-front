@@ -1,10 +1,8 @@
-import type { NetworkSlug, NetworkInfo, StatsResponse } from '@/types/api';
+import type { NetworkInfo, StatsResponse } from '@/types/api';
 import { NETWORK_META } from '@/lib/constants';
 import { useIsMobile } from '@/hooks/useIsMobile';
 
 interface NetworkStripProps {
-  activeNetwork: NetworkSlug | null;
-  onFilterChange: (network: NetworkSlug | null) => void;
   stats: StatsResponse | null;
   networks: NetworkInfo[];
 }
@@ -26,7 +24,7 @@ function Pulse({ color, active }: { color: string; active: boolean }) {
   );
 }
 
-export function NetworkStrip({ activeNetwork, onFilterChange, stats, networks }: NetworkStripProps) {
+export function NetworkStrip({ stats, networks }: NetworkStripProps) {
   const isMobile = useIsMobile();
 
   if (networks.length === 0) return null;
@@ -45,14 +43,13 @@ export function NetworkStrip({ activeNetwork, onFilterChange, stats, networks }:
         const slug = net.slug;
         const meta = NETWORK_META[slug];
         if (!meta) return null;
-        const active = !activeNetwork || activeNetwork === slug;
+        const active = true;
         const networkStats = stats?.networks.find(n => n.slug === slug);
         const isLast = i === networks.length - 1;
 
         return (
-          <button
+          <div
             key={slug}
-            onClick={() => onFilterChange(activeNetwork === slug ? null : slug)}
             style={{
               flex: isMobile ? undefined : 1,
               gridColumn: isMobile && isLast && isOddCount ? 'span 2' : undefined,
@@ -61,7 +58,6 @@ export function NetworkStrip({ activeNetwork, onFilterChange, stats, networks }:
               borderColor: active ? 'rgba(255,255,255,0.1)' : 'rgba(255,255,255,0.04)',
               borderRadius: 6,
               padding: isMobile ? '10px 12px' : '12px 14px',
-              cursor: 'pointer',
               textAlign: 'left',
               transition: 'all 0.2s',
               opacity: active ? 1 : 0.4,
@@ -89,7 +85,7 @@ export function NetworkStrip({ activeNetwork, onFilterChange, stats, networks }:
             >
               {networkStats ? `${networkStats.counts.last_24h} incidents / 24h` : '\u00A0'}
             </div>
-          </button>
+          </div>
         );
       })}
     </div>
