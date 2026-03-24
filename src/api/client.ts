@@ -1,5 +1,6 @@
 import type {
   EventListItem,
+  EventTypeInfo,
   NetworkInfo,
   StatsResponse,
   ValidatorProfile,
@@ -42,6 +43,14 @@ export async function fetchStats(): Promise<DataResponse<StatsResponse>> {
   const res = await fetch(`${BASE_URL}/v1/stats`);
   if (!res.ok) throw new Error(`API error: ${res.status}`);
   return res.json() as Promise<DataResponse<StatsResponse>>;
+}
+
+export async function fetchEventTypes(): Promise<DataResponse<EventTypeInfo[]>> {
+  if (USE_MOCK) return { data: [] };
+
+  const res = await fetch(`${BASE_URL}/v1/event-types`);
+  if (!res.ok) throw new Error(`API error: ${res.status}`);
+  return res.json() as Promise<DataResponse<EventTypeInfo[]>>;
 }
 
 export async function fetchValidator(

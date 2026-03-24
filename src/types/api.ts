@@ -109,3 +109,12 @@ export interface StatsCounts {
   last_30d: number;
   all_time: number;
 }
+
+export interface EventTypeInfo {
+  code: string;
+  network: string;
+  severity: string;
+  category: string;
+  label: string;
+  description: string;
+}

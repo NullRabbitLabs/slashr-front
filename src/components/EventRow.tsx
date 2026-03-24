@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom';
 import type { EventListItem } from '@/types/api';
-import { describeEvent } from '@/lib/constants';
+import { type EventTypeLookup, getEventLabel } from '@/hooks/useEventTypes';
 import { relativeTime, formatUtcTime } from '@/lib/time';
 import { truncateMiddle } from '@/lib/format';
 import { useIsMobile } from '@/hooks/useIsMobile';
@@ -10,6 +10,7 @@ import { SeverityMark } from './SeverityMark';
 interface EventRowProps {
   event: EventListItem;
   visible: boolean;
+  eventTypeLookup?: EventTypeLookup;
   showValidator?: boolean;
   showNetworkTag?: boolean;
 }
@@ -17,6 +18,7 @@ interface EventRowProps {
 export function EventRow({
   event,
   visible,
+  eventTypeLookup,
   showValidator = true,
   showNetworkTag = true,
 }: EventRowProps) {
@@ -115,7 +117,7 @@ export function EventRow({
             lineHeight: 1.5,
           }}
         >
-          {describeEvent(event.event_type, event.penalty_amount, event.penalty_token)}
+          {getEventLabel(eventTypeLookup ?? new Map(), event.event_type, event.penalty_amount, event.penalty_token)}
         </span>
       </div>
     </div>

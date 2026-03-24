@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import type { EventListItem } from '@/types/api';
 import { useValidator } from '@/hooks/useValidator';
+import { useEventTypes } from '@/hooks/useEventTypes';
 import { useIsMobile } from '@/hooks/useIsMobile';
 import { truncateMiddle } from '@/lib/format';
 import { NetworkTag } from './NetworkTag';
@@ -12,6 +13,7 @@ const STAGGER_DELAY = 120;
 export function ValidatorProfile() {
   const { network, address } = useParams<{ network: string; address: string }>();
   const { validator, loading, error } = useValidator(network ?? '', address ?? '');
+  const { lookup: eventTypeLookup } = useEventTypes();
   const isMobile = useIsMobile();
 
   // Stagger animation for event history
@@ -267,6 +269,7 @@ export function ValidatorProfile() {
             key={event.id}
             event={event}
             visible={visibleIds.has(event.id)}
+            eventTypeLookup={eventTypeLookup}
             showValidator={false}
             showNetworkTag={false}
           />

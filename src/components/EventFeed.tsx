@@ -1,5 +1,6 @@
 import type { NetworkSlug } from '@/types/api';
 import { useEvents } from '@/hooks/useEvents';
+import { useEventTypes } from '@/hooks/useEventTypes';
 import { EventRow } from './EventRow';
 
 interface EventFeedProps {
@@ -9,6 +10,7 @@ interface EventFeedProps {
 
 export function EventFeed({ network, onFilterChange }: EventFeedProps) {
   const { events, loading, error, hasMore, loadMore, visibleIds } = useEvents(network);
+  const { lookup: eventTypeLookup } = useEventTypes();
 
   return (
     <div>
@@ -74,6 +76,7 @@ export function EventFeed({ network, onFilterChange }: EventFeedProps) {
           key={event.id}
           event={event}
           visible={visibleIds.has(event.id)}
+          eventTypeLookup={eventTypeLookup}
         />
       ))}
 
