@@ -33,6 +33,10 @@ export function EventRow({
       ? truncateMiddle(event.validator_address, 18)
       : event.validator_address);
 
+  const lookup = eventTypeLookup ?? new Map();
+  const eventTypeInfo = lookup.get(event.event_type);
+  const eventDescription = eventTypeInfo?.description ?? null;
+
   return (
     <div
       className={`event-row${isCritical ? ' event-row-critical' : ''}`}
@@ -96,7 +100,7 @@ export function EventRow({
         </span>
       </div>
 
-      {/* Row 2: validator name + event description */}
+      {/* Row 2: validator name + short label */}
       <div style={{ paddingLeft: isMobile ? 0 : 70, marginTop: isMobile ? 4 : 0 }}>
         {showValidator && (
           <Link
@@ -118,9 +122,18 @@ export function EventRow({
             lineHeight: 1.5,
           }}
         >
-          {getEventLabel(eventTypeLookup ?? new Map(), event.event_type, event.penalty_amount, event.penalty_token)}
+          {getEventLabel(lookup, event.event_type, event.penalty_amount, event.penalty_token)}
         </span>
       </div>
+
+      {/* Row 2b: longer description */}
+      {eventDescription && (
+        <div style={{ paddingLeft: isMobile ? 0 : 70, marginTop: 2 }}>
+          <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.35)', lineHeight: 1.4 }}>
+            {eventDescription}
+          </span>
+        </div>
+      )}
 
       {/* Row 3: enrichment details */}
       <EnrichmentRow event={event} isMobile={isMobile} />
