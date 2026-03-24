@@ -37,6 +37,8 @@ export function EventRow({
       ? truncateMiddle(event.validator_address, 18)
       : event.validator_address);
 
+  const contentIndent = isMobile ? 0 : 70;
+
   const lookup = eventTypeLookup ?? new Map();
   const eventTypeInfo = lookup.get(event.event_type);
   const eventDescription = eventTypeInfo?.description ?? null;
@@ -116,11 +118,11 @@ export function EventRow({
         </span>
       </div>
 
-      {/* Row 2: enrichment metadata (stake, commission, IP) */}
-      <EnrichmentRow event={event} isMobile={isMobile} hideNodeIp={hideNodeIp} />
+      {/* Row 2: enrichment metadata (stake, commission) */}
+      <EnrichmentRow event={event} isMobile={isMobile} hideNodeIp={hideNodeIp} indent={contentIndent} />
 
       {/* Row 3: validator name + label */}
-      <div style={{ paddingLeft: isMobile ? 0 : 70, marginTop: 8 }}>
+      <div style={{ paddingLeft: contentIndent, marginTop: 8 }}>
         {showValidator && (
           <Link
             to={`/validator/${event.network}/${event.validator_address}`}
@@ -177,7 +179,7 @@ const separatorStyle: React.CSSProperties = {
   color: 'rgba(255,255,255,0.15)',
 };
 
-function EnrichmentRow({ event, isMobile, hideNodeIp }: { event: EventListItem; isMobile: boolean; hideNodeIp: boolean }) {
+function EnrichmentRow({ event, isMobile, hideNodeIp, indent }: { event: EventListItem; isMobile: boolean; hideNodeIp: boolean; indent: number }) {
   const items: React.ReactNode[] = [];
 
   if (event.validator_stake != null && event.validator_stake_token) {
@@ -238,7 +240,7 @@ function EnrichmentRow({ event, isMobile, hideNodeIp }: { event: EventListItem; 
   if (items.length === 0) return null;
 
   return (
-    <div style={{ paddingLeft: isMobile ? 0 : 70, marginTop: 2, display: 'flex', flexWrap: 'wrap', alignItems: 'center' }}>
+    <div style={{ paddingLeft: indent, marginTop: 2, display: 'flex', flexWrap: 'wrap', alignItems: 'center' }}>
       {items.map((item, i) => (
         <React.Fragment key={i}>
           {i > 0 && <span style={separatorStyle}>·</span>}
