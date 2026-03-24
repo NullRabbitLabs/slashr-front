@@ -38,6 +38,10 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
     return Response.json({ ok: false, error: 'invalid email' }, { status: 400 });
   }
 
+  if (!env.WAITLIST_KV) {
+    return Response.json({ ok: false, error: 'KV binding not configured' }, { status: 503 });
+  }
+
   const payload = {
     email: body.email.trim().toLowerCase(),
     integrations: Array.isArray(body.integrations) ? body.integrations : [],
