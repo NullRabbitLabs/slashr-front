@@ -58,6 +58,13 @@ export interface EventListItem {
   resolved_at: string | null;
   penalty_amount: number | null;
   penalty_token: string | null;
+  validator_stake: number | null;
+  validator_stake_token: string | null;
+  validator_commission_pct: number | null;
+  validator_node_ip: string | null;
+  validator_hosting_provider: string | null;
+  has_contact: boolean;
+  in_scan_db: boolean;
 }
 
 export interface EventDetail extends EventListItem {

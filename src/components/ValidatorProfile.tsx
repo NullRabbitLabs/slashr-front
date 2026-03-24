@@ -78,6 +78,13 @@ export function ValidatorProfile() {
     network: validator.network,
     validator_address: validator.address,
     validator_moniker: validator.moniker,
+    validator_stake: validator.stake,
+    validator_stake_token: validator.stake_token,
+    validator_commission_pct: validator.commission_pct,
+    validator_node_ip: validator.node_ip,
+    validator_hosting_provider: validator.hosting_provider,
+    has_contact: validator.has_contact,
+    in_scan_db: validator.in_scan_db,
   }));
 
   const displayAddress = isMobile

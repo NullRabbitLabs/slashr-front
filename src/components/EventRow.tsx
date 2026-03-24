@@ -119,6 +119,18 @@ export function EventRow({
         >
           {getEventLabel(eventTypeLookup ?? new Map(), event.event_type, event.penalty_amount, event.penalty_token)}
         </span>
+        {event.validator_stake != null && event.validator_stake_token && (
+          <span
+            style={{
+              fontSize: 12,
+              color: 'rgba(255,255,255,0.35)',
+              fontFamily: "'JetBrains Mono', monospace",
+              marginLeft: 8,
+            }}
+          >
+            {Math.round(event.validator_stake).toLocaleString()} {event.validator_stake_token}
+          </span>
+        )}
       </div>
     </div>
   );

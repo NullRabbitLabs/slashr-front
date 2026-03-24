@@ -8,8 +8,19 @@ import type {
   NetworkSlug,
 } from '@/types/api';
 
+const ENRICHMENT_DEFAULTS = {
+  validator_stake: null as number | null,
+  validator_stake_token: null as string | null,
+  validator_commission_pct: null as number | null,
+  validator_node_ip: null as string | null,
+  validator_hosting_provider: null as string | null,
+  has_contact: false,
+  in_scan_db: false,
+};
+
 const MOCK_EVENTS: EventListItem[] = [
   {
+    ...ENRICHMENT_DEFAULTS,
     id: 1,
     network: 'solana',
     validator_address: 'GaLaXv3Rq',
@@ -20,8 +31,12 @@ const MOCK_EVENTS: EventListItem[] = [
     resolved_at: null,
     penalty_amount: null,
     penalty_token: null,
+    validator_stake: 114405,
+    validator_stake_token: 'SOL',
+    validator_commission_pct: 5,
   },
   {
+    ...ENRICHMENT_DEFAULTS,
     id: 2,
     network: 'ethereum',
     validator_address: '0x8f24a1c',
@@ -34,6 +49,7 @@ const MOCK_EVENTS: EventListItem[] = [
     penalty_token: 'ETH',
   },
   {
+    ...ENRICHMENT_DEFAULTS,
     id: 3,
     network: 'cosmos',
     validator_address: 'cosmo8qzp',
@@ -46,6 +62,7 @@ const MOCK_EVENTS: EventListItem[] = [
     penalty_token: 'ATOM',
   },
   {
+    ...ENRICHMENT_DEFAULTS,
     id: 4,
     network: 'sui',
     validator_address: '0x2f8e91a',
@@ -58,6 +75,7 @@ const MOCK_EVENTS: EventListItem[] = [
     penalty_token: null,
   },
   {
+    ...ENRICHMENT_DEFAULTS,
     id: 5,
     network: 'solana',
     validator_address: 'ChorusxK9m',
@@ -70,6 +88,7 @@ const MOCK_EVENTS: EventListItem[] = [
     penalty_token: null,
   },
   {
+    ...ENRICHMENT_DEFAULTS,
     id: 6,
     network: 'ethereum',
     validator_address: '0xa1c77f2',
@@ -82,6 +101,7 @@ const MOCK_EVENTS: EventListItem[] = [
     penalty_token: 'ETH',
   },
   {
+    ...ENRICHMENT_DEFAULTS,
     id: 7,
     network: 'solana',
     validator_address: 'FigmtpQ2r',
@@ -94,6 +114,7 @@ const MOCK_EVENTS: EventListItem[] = [
     penalty_token: null,
   },
   {
+    ...ENRICHMENT_DEFAULTS,
     id: 8,
     network: 'cosmos',
     validator_address: 'cosmo3kxr',
@@ -106,6 +127,7 @@ const MOCK_EVENTS: EventListItem[] = [
     penalty_token: 'ATOM',
   },
   {
+    ...ENRICHMENT_DEFAULTS,
     id: 9,
     network: 'polkadot',
     validator_address: '15kUt2i1E',
@@ -118,6 +140,7 @@ const MOCK_EVENTS: EventListItem[] = [
     penalty_token: 'DOT',
   },
   {
+    ...ENRICHMENT_DEFAULTS,
     id: 10,
     network: 'polkadot',
     validator_address: '13mK9Fpb7',
