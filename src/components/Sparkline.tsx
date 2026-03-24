@@ -5,10 +5,8 @@ interface SparklineProps {
 }
 
 const DAYS = 30;
-const SVG_W = 300;
-const SVG_H = 32;
-const BAR_W = 8;
-const COL_W = SVG_W / DAYS; // 10
+const HEIGHT = 32;
+const MIN_BAR_H = 4;
 
 function bucketEvents(events: { started_at: string }[]): number[] {
   const buckets = new Array<number>(DAYS).fill(0);
@@ -20,7 +18,7 @@ function bucketEvents(events: { started_at: string }[]): number[] {
     const eventDayStart = new Date(eventDate.getFullYear(), eventDate.getMonth(), eventDate.getDate()).getTime();
     const daysAgo = Math.floor((todayStart - eventDayStart) / (24 * 60 * 60 * 1000));
     if (daysAgo >= 0 && daysAgo < DAYS) {
-      const index = DAYS - 1 - daysAgo; // oldest left, newest right
+      const index = DAYS - 1 - daysAgo;
       buckets[index]!++;
     }
   }
@@ -28,35 +26,40 @@ function bucketEvents(events: { started_at: string }[]): number[] {
   return buckets;
 }
 
-function formatDate(daysFromRight: number): string {
+function formatDate(daysAgo: number): string {
   const d = new Date();
-  d.setDate(d.getDate() - daysFromRight);
+  d.setDate(d.getDate() - daysAgo);
   return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
 }
 
 export function Sparkline({ events }: SparklineProps) {
   const buckets = useMemo(() => bucketEvents(events), [events]);
   const max = useMemo(() => Math.max(...buckets, 1), [buckets]);
+  const hasAnyBars = buckets.some(c => c > 0);
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
 
+  if (!hasAnyBars) return null;
+
   return (
-    <div style={{ position: 'relative', width: '100%', marginBottom: 16 }}>
+    <div style={{ position: 'relative', width: '100%', height: HEIGHT, marginBottom: 16 }}>
       <svg
         width="100%"
-        height={SVG_H}
-        viewBox={`0 0 ${SVG_W} ${SVG_H}`}
-        preserveAspectRatio="none"
-        style={{ display: 'block' }}
+        height={HEIGHT}
+        style={{ display: 'block', overflow: 'visible' }}
       >
         {buckets.map((count, i) => {
           if (count === 0) return null;
-          const h = (count / max) * SVG_H;
+          const pct = count / max;
+          const h = Math.max(pct * HEIGHT, MIN_BAR_H);
+          const barW = 100 / DAYS;
+          const x = `${i * barW + barW * 0.1}%`;
+          const w = `${barW * 0.8}%`;
           return (
             <rect
               key={i}
-              x={i * COL_W + (COL_W - BAR_W) / 2}
-              y={SVG_H - h}
-              width={BAR_W}
+              x={x}
+              y={HEIGHT - h}
+              width={w}
               height={h}
               rx={1}
               fill="rgba(255,255,255,0.25)"
@@ -76,7 +79,7 @@ export function Sparkline({ events }: SparklineProps) {
         <div
           style={{
             position: 'absolute',
-            bottom: SVG_H + 4,
+            bottom: HEIGHT + 4,
             left: `${((hoveredIndex + 0.5) / DAYS) * 100}%`,
             transform: 'translateX(-50%)',
             fontSize: 11,

@@ -267,7 +267,7 @@ export function ValidatorProfile() {
       </div>
 
       {/* Enrichment info */}
-      {(validator.stake != null || validator.commission_pct != null || validator.node_ip || validator.hosting_provider || validator.website || validator.in_scan_db) && (
+      {(validator.stake != null || validator.commission_pct != null || validator.hosting_provider || validator.website || validator.in_scan_db) && (
         <div
           style={
             isMobile
@@ -293,7 +293,7 @@ export function ValidatorProfile() {
             <div>
               <div style={metaLabelStyle}>Stake</div>
               <div style={metaValueStyle}>
-                {validator.stake.toLocaleString()} {validator.stake_token} at risk
+                {Math.round(validator.stake).toLocaleString()} {validator.stake_token} at risk
               </div>
             </div>
           )}
@@ -308,12 +308,6 @@ export function ValidatorProfile() {
                   </span>
                 )}
               </div>
-            </div>
-          )}
-          {validator.node_ip && (
-            <div>
-              <div style={metaLabelStyle}>Node IP</div>
-              <div style={metaValueStyle}>{validator.node_ip}</div>
             </div>
           )}
           {validator.hosting_provider && (
