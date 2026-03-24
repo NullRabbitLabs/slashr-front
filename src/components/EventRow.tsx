@@ -120,20 +120,14 @@ export function EventRow({
             fontSize: 14,
             color: 'rgba(255,255,255,0.55)',
             lineHeight: 1.5,
+            cursor: eventDescription ? 'help' : undefined,
+            borderBottom: eventDescription ? '1px dotted rgba(255,255,255,0.2)' : undefined,
           }}
+          title={eventDescription ?? undefined}
         >
           {getEventLabel(lookup, event.event_type, event.penalty_amount, event.penalty_token)}
         </span>
       </div>
-
-      {/* Row 2b: longer description */}
-      {eventDescription && (
-        <div style={{ paddingLeft: isMobile ? 0 : 70, marginTop: 2 }}>
-          <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.35)', lineHeight: 1.4 }}>
-            {eventDescription}
-          </span>
-        </div>
-      )}
 
       {/* Row 3: enrichment details */}
       <EnrichmentRow event={event} isMobile={isMobile} />
