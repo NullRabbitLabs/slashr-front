@@ -15,5 +15,6 @@ export function formatUtcTime(isoString: string): string {
   const mon = SHORT_MONTHS[d.getUTCMonth()];
   const h = String(d.getUTCHours()).padStart(2, '0');
   const m = String(d.getUTCMinutes()).padStart(2, '0');
-  return `${day} ${mon} ${h}:${m}`;
+  const yr = String(d.getUTCFullYear()).slice(-2);
+  return `${mon} ${day} ${yr}, ${h}:${m} UTC`;
 }
