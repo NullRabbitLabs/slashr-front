@@ -69,7 +69,7 @@ export function EventRow({
               fontSize: 11,
               color: 'rgba(255,255,255,0.4)',
               fontFamily: "'JetBrains Mono', monospace",
-              minWidth: 62,
+              minWidth: 110,
             }}
           >
             {formatUtcTime(event.started_at)}

@@ -7,9 +7,13 @@ export function relativeTime(isoString: string): string {
   return `${Math.floor(diff / 86400)}d ago`;
 }
 
+const SHORT_MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+
 export function formatUtcTime(isoString: string): string {
   const d = new Date(isoString);
+  const day = d.getUTCDate();
+  const mon = SHORT_MONTHS[d.getUTCMonth()];
   const h = String(d.getUTCHours()).padStart(2, '0');
   const m = String(d.getUTCMinutes()).padStart(2, '0');
-  return `${h}:${m} UTC`;
+  return `${day} ${mon} ${h}:${m}`;
 }
