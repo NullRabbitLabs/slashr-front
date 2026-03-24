@@ -37,7 +37,7 @@ export function EventRow({
       ? truncateMiddle(event.validator_address, 18)
       : event.validator_address);
 
-  const contentIndent = isMobile ? 0 : 70;
+  const contentIndent = isMobile || !showValidator ? 0 : 70;
 
   const lookup = eventTypeLookup ?? new Map();
   const eventTypeInfo = lookup.get(event.event_type);
@@ -206,7 +206,7 @@ function EnrichmentRow({ event, isMobile, hideNodeIp, indent }: { event: EventLi
     );
   }
 
-  if (event.validator_hosting_provider) {
+  if (event.validator_hosting_provider && !hideNodeIp) {
     items.push(
       <span key="hosting" style={pillStyle}>
         {event.validator_hosting_provider}
@@ -214,7 +214,7 @@ function EnrichmentRow({ event, isMobile, hideNodeIp, indent }: { event: EventLi
     );
   }
 
-  if (event.validator_website) {
+  if (event.validator_website && !hideNodeIp) {
     const domain = event.validator_website.replace(/^https?:\/\//, '').replace(/\/$/, '');
     items.push(
       <a
@@ -229,7 +229,7 @@ function EnrichmentRow({ event, isMobile, hideNodeIp, indent }: { event: EventLi
     );
   }
 
-  if (event.in_scan_db) {
+  if (event.in_scan_db && !hideNodeIp) {
     items.push(
       <span key="scan" style={{ ...pillStyle, color: 'rgba(20,241,149,0.5)' }}>
         in scan DB
