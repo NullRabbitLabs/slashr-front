@@ -83,6 +83,7 @@ export function ValidatorProfile() {
     validator_commission_pct: validator.commission_pct,
     validator_node_ip: validator.node_ip,
     validator_hosting_provider: validator.hosting_provider,
+    validator_website: validator.website,
     has_contact: validator.has_contact,
     in_scan_db: validator.in_scan_db,
   }));

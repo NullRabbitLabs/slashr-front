@@ -182,11 +182,18 @@ function EnrichmentRow({ event, isMobile }: { event: EventListItem; isMobile: bo
     );
   }
 
-  if (event.has_contact) {
+  if (event.validator_website) {
+    const domain = event.validator_website.replace(/^https?:\/\//, '').replace(/\/$/, '');
     items.push(
-      <span key="contact" style={{ ...pillStyle, color: 'rgba(20,241,149,0.5)' }}>
-        contact ✓
-      </span>,
+      <a
+        key="website"
+        href={event.validator_website}
+        target="_blank"
+        rel="noopener noreferrer"
+        style={{ ...pillStyle, color: 'rgba(20,241,149,0.5)', textDecoration: 'none' }}
+      >
+        {domain}
+      </a>,
     );
   }
 

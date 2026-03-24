@@ -14,6 +14,7 @@ const ENRICHMENT_DEFAULTS = {
   validator_commission_pct: null as number | null,
   validator_node_ip: null as string | null,
   validator_hosting_provider: null as string | null,
+  validator_website: null as string | null,
   has_contact: false,
   in_scan_db: false,
 };

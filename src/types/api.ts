@@ -63,6 +63,7 @@ export interface EventListItem {
   validator_commission_pct: number | null;
   validator_node_ip: string | null;
   validator_hosting_provider: string | null;
+  validator_website: string | null;
   has_contact: boolean;
   in_scan_db: boolean;
 }
