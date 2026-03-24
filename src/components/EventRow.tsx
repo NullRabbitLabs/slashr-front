@@ -184,14 +184,13 @@ function EnrichmentRow({ event, isMobile }: { event: EventListItem; isMobile: bo
     </span>,
   );
 
-  items.push(
-    <span
-      key="scan"
-      style={{ ...pillStyle, color: event.in_scan_db ? 'rgba(20,241,149,0.5)' : undefined }}
-    >
-      {event.in_scan_db ? 'in scan DB' : 'not in scan DB'}
-    </span>,
-  );
+  if (event.in_scan_db) {
+    items.push(
+      <span key="scan" style={{ ...pillStyle, color: 'rgba(20,241,149,0.5)' }}>
+        in scan DB
+      </span>,
+    );
+  }
 
   if (items.length === 0) return null;
 
