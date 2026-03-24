@@ -1,8 +1,9 @@
+import React from 'react';
 import { Link } from 'react-router-dom';
 import type { EventListItem } from '@/types/api';
 import { type EventTypeLookup, getEventLabel } from '@/hooks/useEventTypes';
 import { relativeTime, formatUtcTime } from '@/lib/time';
-import { truncateMiddle } from '@/lib/format';
+import { truncateMiddle, formatStake, stripCidr } from '@/lib/format';
 import { useIsMobile } from '@/hooks/useIsMobile';
 import { NetworkTag } from './NetworkTag';
 import { SeverityMark } from './SeverityMark';
@@ -95,7 +96,7 @@ export function EventRow({
         </span>
       </div>
 
-      {/* Bottom row: validator name + description */}
+      {/* Row 2: validator name + event description */}
       <div style={{ paddingLeft: isMobile ? 0 : 70, marginTop: isMobile ? 4 : 0 }}>
         {showValidator && (
           <Link
@@ -119,19 +120,89 @@ export function EventRow({
         >
           {getEventLabel(eventTypeLookup ?? new Map(), event.event_type, event.penalty_amount, event.penalty_token)}
         </span>
-        {event.validator_stake != null && event.validator_stake_token && (
-          <span
-            style={{
-              fontSize: 12,
-              color: 'rgba(255,255,255,0.35)',
-              fontFamily: "'JetBrains Mono', monospace",
-              marginLeft: 8,
-            }}
-          >
-            {Math.round(event.validator_stake).toLocaleString()} {event.validator_stake_token}
-          </span>
-        )}
       </div>
+
+      {/* Row 3: enrichment details */}
+      <EnrichmentRow event={event} isMobile={isMobile} />
+    </div>
+  );
+}
+
+const pillStyle: React.CSSProperties = {
+  fontSize: 11,
+  color: 'rgba(255,255,255,0.35)',
+  fontFamily: "'JetBrains Mono', monospace",
+};
+
+const separatorStyle: React.CSSProperties = {
+  ...pillStyle,
+  margin: '0 6px',
+  color: 'rgba(255,255,255,0.15)',
+};
+
+function EnrichmentRow({ event, isMobile }: { event: EventListItem; isMobile: boolean }) {
+  const items: React.ReactNode[] = [];
+
+  if (event.validator_stake != null && event.validator_stake_token) {
+    items.push(
+      <span key="stake" style={pillStyle}>
+        {formatStake(event.validator_stake, event.validator_stake_token)}
+      </span>,
+    );
+  }
+
+  if (event.validator_commission_pct != null) {
+    items.push(
+      <span key="commission" style={pillStyle}>
+        {event.validator_commission_pct}% commission
+      </span>,
+    );
+  }
+
+  if (event.validator_node_ip && !isMobile) {
+    items.push(
+      <span key="ip" style={pillStyle}>
+        {stripCidr(event.validator_node_ip)}
+      </span>,
+    );
+  }
+
+  if (event.validator_hosting_provider) {
+    items.push(
+      <span key="hosting" style={pillStyle}>
+        {event.validator_hosting_provider}
+      </span>,
+    );
+  }
+
+  items.push(
+    <span
+      key="contact"
+      style={{ ...pillStyle, color: event.has_contact ? 'rgba(20,241,149,0.5)' : undefined }}
+    >
+      {event.has_contact ? 'contact ✓' : 'no contact'}
+    </span>,
+  );
+
+  items.push(
+    <span
+      key="scan"
+      style={{ ...pillStyle, color: event.in_scan_db ? 'rgba(20,241,149,0.5)' : undefined }}
+    >
+      {event.in_scan_db ? 'in scan DB' : 'not in scan DB'}
+    </span>,
+  );
+
+  if (items.length === 0) return null;
+
+  return (
+    <div style={{ paddingLeft: isMobile ? 0 : 70, marginTop: 4, display: 'flex', flexWrap: 'wrap', alignItems: 'center' }}>
+      {items.map((item, i) => (
+        <React.Fragment key={i}>
+          {i > 0 && <span style={separatorStyle}>·</span>}
+          {item}
+        </React.Fragment>
+      ))}
     </div>
   );
 }
