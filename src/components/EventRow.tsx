@@ -182,14 +182,13 @@ function EnrichmentRow({ event, isMobile }: { event: EventListItem; isMobile: bo
     );
   }
 
-  items.push(
-    <span
-      key="contact"
-      style={{ ...pillStyle, color: event.has_contact ? 'rgba(20,241,149,0.5)' : undefined }}
-    >
-      {event.has_contact ? 'contact ✓' : 'no contact'}
-    </span>,
-  );
+  if (event.has_contact) {
+    items.push(
+      <span key="contact" style={{ ...pillStyle, color: 'rgba(20,241,149,0.5)' }}>
+        contact ✓
+      </span>,
+    );
+  }
 
   if (event.in_scan_db) {
     items.push(
