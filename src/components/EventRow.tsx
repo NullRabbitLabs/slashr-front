@@ -37,7 +37,7 @@ export function EventRow({
       ? truncateMiddle(event.validator_address, 18)
       : event.validator_address);
 
-  const contentIndent = isMobile || !showValidator ? 0 : 70;
+  const contentIndent = 0;
 
   const lookup = eventTypeLookup ?? new Map();
   const eventTypeInfo = lookup.get(event.event_type);
