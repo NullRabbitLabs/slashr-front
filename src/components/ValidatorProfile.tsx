@@ -19,7 +19,7 @@ interface Verdict {
 }
 
 const VERDICT_COLORS: Record<Verdict['level'], string> = {
-  neutral: 'var(--color-text-tertiary)',
+  neutral: 'rgba(255,255,255,0.45)',
   warning: 'var(--color-danger-dim)',
   critical: 'var(--color-danger)',
 };
@@ -64,7 +64,7 @@ function computeVerdict(events: ValidatorEventItem[]): Verdict {
 
 const sectionHeadingStyle: React.CSSProperties = {
   fontSize: 12,
-  color: 'var(--color-text-dim)',
+  color: 'rgba(255,255,255,0.28)',
   fontFamily: "'JetBrains Mono', monospace",
   textTransform: 'uppercase',
   letterSpacing: '0.08em',
@@ -75,14 +75,14 @@ const sectionHeadingStyle: React.CSSProperties = {
 
 const metaLabelStyle: React.CSSProperties = {
   fontSize: 11,
-  color: 'var(--color-text-tertiary)',
+  color: 'rgba(255,255,255,0.38)',
   fontFamily: "'Inter', sans-serif",
   marginBottom: 2,
 };
 
 const metaValueStyle: React.CSSProperties = {
   fontSize: 13,
-  color: 'var(--color-text-primary)',
+  color: 'rgba(255,255,255,0.82)',
   fontFamily: "'JetBrains Mono', monospace",
 };
 
@@ -248,7 +248,7 @@ export function ValidatorProfile() {
               fontFamily: isNamed ? "'Space Grotesk', sans-serif" : "'JetBrains Mono', monospace",
               letterSpacing: isNamed ? '-0.02em' : '0',
               margin: 0,
-              color: 'var(--color-text-primary)',
+              color: isNamed ? 'var(--color-text-primary)' : 'rgba(255,255,255,0.45)',
               wordBreak: isNamed ? undefined : 'break-all',
             }}
           >
@@ -260,7 +260,7 @@ export function ValidatorProfile() {
         <div
           style={{
             fontSize: 13,
-            color: 'var(--color-text-tertiary)',
+            color: 'rgba(255,255,255,0.35)',
             fontFamily: "'JetBrains Mono', monospace",
             marginBottom: 8,
             wordBreak: 'break-all',
@@ -272,7 +272,7 @@ export function ValidatorProfile() {
         <div
           style={{
             fontSize: 12,
-            color: 'var(--color-text-dim)',
+            color: 'rgba(255,255,255,0.32)',
             fontFamily: "'JetBrains Mono', monospace",
             display: 'flex',
             flexDirection: isMobile ? 'column' : 'row',
@@ -439,7 +439,7 @@ export function ValidatorProfile() {
             ) : validator.node_ip ? (
               <div>
                 <div style={metaLabelStyle}>Scan status</div>
-                <div style={{ ...metaValueStyle, color: 'var(--color-text-tertiary)' }}>
+                <div style={{ ...metaValueStyle, color: 'rgba(255,255,255,0.42)' }}>
                   Not yet scanned.
                 </div>
               </div>

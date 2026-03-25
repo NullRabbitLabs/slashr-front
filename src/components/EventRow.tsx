@@ -138,7 +138,7 @@ export function EventRow({
         <span
           style={{
             fontSize: 14,
-            color: 'rgba(255,255,255,0.35)',
+            color: showDescription ? 'rgba(255,255,255,0.75)' : 'rgba(255,255,255,0.32)',
             lineHeight: 1.5,
             cursor: !showDescription && eventDescription ? 'help' : undefined,
             borderBottom: !showDescription && eventDescription ? '1px dotted var(--color-border-hover)' : undefined,
@@ -152,7 +152,7 @@ export function EventRow({
           <div
             style={{
               fontSize: 12,
-              color: 'var(--color-text-secondary)',
+              color: 'rgba(255,255,255,0.42)',
               fontFamily: "'Inter', sans-serif",
               marginTop: 6,
               lineHeight: 1.4,
