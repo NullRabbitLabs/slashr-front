@@ -109,7 +109,7 @@ export function EventRow({
         <span
           style={{
             fontSize: 12,
-            color: 'rgba(255,255,255,0.5)',
+            color: 'rgba(255,255,255,0.8)',
             marginLeft: 'auto',
             fontFamily: "'JetBrains Mono', monospace",
           }}
@@ -153,7 +153,7 @@ export function EventRow({
           <div
             style={{
               fontSize: 12,
-              color: 'rgba(255,255,255,0.5)',
+              color: 'rgba(255,255,255,0.8)',
               fontFamily: "'Inter', sans-serif",
               marginTop: 6,
               lineHeight: 1.4,
@@ -169,7 +169,7 @@ export function EventRow({
 
 const pillStyle: React.CSSProperties = {
   fontSize: 11,
-  color: 'rgba(255,255,255,0.5)',
+  color: 'rgba(255,255,255,0.8)',
   fontFamily: "'JetBrains Mono', monospace",
 };
 
