@@ -118,41 +118,33 @@ export function Layout({ children, stats }: LayoutProps) {
         {/* Page content */}
         {children}
 
-        {/* Footer */}
-        <div
-          style={{
-            marginTop: 40,
-            padding: '20px 0 40px',
-            borderTop: '1px solid var(--color-border)',
-            display: 'flex',
-            justifyContent: 'flex-end',
-            alignItems: 'center',
-            fontSize: 12,
-            color: 'var(--color-text-tertiary)',
-            fontFamily: "'JetBrains Mono', monospace",
-          }}
-        >
-          <a
-            href="https://nullrabbit.ai"
-            target="_blank"
-            rel="noopener noreferrer"
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: 6,
-              color: 'var(--color-text-tertiary)',
-              textDecoration: 'none',
-            }}
-          >
-            Built by
-            <img
-              src="/nullrabbit.png"
-              alt="NullRabbit"
-              style={{ height: 16, width: 16, objectFit: 'contain' }}
-            />
-          </a>
-        </div>
       </div>
+
+      {/* Fixed bottom-left attribution */}
+      <a
+        href="https://nullrabbit.ai"
+        target="_blank"
+        rel="noopener noreferrer"
+        style={{
+          position: 'fixed',
+          bottom: isMobile ? 16 : 24,
+          left: isMobile ? 16 : 24,
+          display: 'flex',
+          alignItems: 'center',
+          gap: 5,
+          color: 'var(--color-text-dim)',
+          textDecoration: 'none',
+          fontSize: 10,
+          fontFamily: "'JetBrains Mono', monospace",
+          zIndex: 100,
+        }}
+      >
+        <img
+          src="/nullrabbit.png"
+          alt="NullRabbit"
+          style={{ height: 22, width: 22, objectFit: 'contain' }}
+        />
+      </a>
 
       <WaitlistDrawer />
     </div>
