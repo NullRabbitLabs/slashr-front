@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import type { NetworkSlug } from '@/types/api';
 import { useStats } from '@/hooks/useStats';
@@ -16,18 +16,63 @@ interface ValidatorSummary {
   last_event_at: string;
 }
 
+interface PaginationInfo {
+  limit: number;
+  has_more: boolean;
+  next_cursor: string | null;
+}
+
 export default function ValidatorsPage() {
   const { stats } = useStats();
   const [validators, setValidators] = useState<ValidatorSummary[]>([]);
   const [loading, setLoading] = useState(true);
+  const [hasMore, setHasMore] = useState(false);
+  const [cursor, setCursor] = useState<string | null>(null);
+  const sentinelRef = useRef<HTMLDivElement>(null);
 
+  const fetchPage = useCallback(async (cur?: string) => {
+    const qs = new URLSearchParams({ limit: '50' });
+    if (cur) qs.set('cursor', cur);
+    const res = await fetch(`${BASE_URL}/v1/validators?${qs}`);
+    const json = await res.json() as { data: ValidatorSummary[]; pagination: PaginationInfo };
+    return json;
+  }, []);
+
+  // Initial load
   useEffect(() => {
-    fetch(`${BASE_URL}/v1/validators`)
-      .then(res => res.json())
-      .then((res: { data: ValidatorSummary[] }) => setValidators(res.data))
+    fetchPage()
+      .then(json => {
+        setValidators(json.data);
+        setHasMore(json.pagination.has_more);
+        setCursor(json.pagination.next_cursor);
+      })
       .catch(() => {})
       .finally(() => setLoading(false));
-  }, []);
+  }, [fetchPage]);
+
+  // Load more
+  const loadMore = useCallback(() => {
+    if (!cursor || !hasMore) return;
+    fetchPage(cursor)
+      .then(json => {
+        setValidators(prev => [...prev, ...json.data]);
+        setHasMore(json.pagination.has_more);
+        setCursor(json.pagination.next_cursor);
+      })
+      .catch(() => {});
+  }, [cursor, hasMore, fetchPage]);
+
+  // Infinite scroll
+  useEffect(() => {
+    const el = sentinelRef.current;
+    if (!el) return;
+    const observer = new IntersectionObserver(
+      (entries) => { if (entries[0]?.isIntersecting) loadMore(); },
+      { rootMargin: '200px' },
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [loadMore]);
 
   return (
     <Layout stats={stats}>
@@ -111,7 +156,10 @@ export default function ValidatorsPage() {
           </table>
         )}
 
-        <div style={{ marginTop: 24, color: 'var(--color-text-dim)', fontSize: 12 }}>
+        {/* Infinite scroll sentinel */}
+        {hasMore && <div ref={sentinelRef} style={{ height: 1 }} />}
+
+        <div style={{ marginTop: 24, color: 'var(--color-text-dim)', fontSize: 12, fontFamily: "'JetBrains Mono', monospace" }}>
           {!loading && `${validators.length} validators`}
         </div>
       </div>
