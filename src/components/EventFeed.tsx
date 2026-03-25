@@ -36,30 +36,6 @@ export function EventFeed({ network, search, initialCursor, onCursorChange }: Ev
 
   return (
     <div>
-      {/* Feed header */}
-      <div
-        style={{
-          display: 'flex',
-          alignItems: 'center',
-          gap: 8,
-          marginBottom: 12,
-          padding: '0 0 8px',
-          borderBottom: '1px solid var(--color-border)',
-        }}
-      >
-        <span
-          style={{
-            fontSize: 12,
-            color: 'var(--color-text-dim)',
-            fontFamily: "'JetBrains Mono', monospace",
-            textTransform: 'uppercase',
-            letterSpacing: '0.08em',
-          }}
-        >
-          live feed
-        </span>
-      </div>
-
       {/* Error line */}
       {error && !loading && (
         <div

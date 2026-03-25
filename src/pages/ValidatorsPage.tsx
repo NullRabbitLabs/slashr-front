@@ -2,8 +2,6 @@ import { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import type { NetworkSlug } from '@/types/api';
 import { NETWORK_ORDER } from '@/lib/constants';
-import { useStats } from '@/hooks/useStats';
-import { Layout } from '@/components/Layout';
 import { NetworkTag } from '@/components/NetworkTag';
 import { FeedFilter } from '@/components/FeedFilter';
 
@@ -25,7 +23,6 @@ interface PaginationInfo {
 }
 
 export default function ValidatorsPage() {
-  const { stats } = useStats();
   const [validators, setValidators] = useState<ValidatorSummary[]>([]);
   const [loading, setLoading] = useState(true);
   const [hasMore, setHasMore] = useState(false);
@@ -113,20 +110,8 @@ export default function ValidatorsPage() {
     : validators;
 
   return (
-    <Layout stats={stats}>
+    <>
       <div style={{ marginTop: 8 }}>
-        <h2
-          style={{
-            fontSize: 16,
-            fontWeight: 700,
-            fontFamily: "'Space Grotesk', sans-serif",
-            letterSpacing: '-0.02em',
-            marginBottom: 16,
-            color: 'var(--color-text-primary)',
-          }}
-        >
-          validators by incident count
-        </h2>
 
         <FeedFilter
           activeNetworks={activeNetworks}
@@ -207,6 +192,6 @@ export default function ValidatorsPage() {
           {!loading && `${filtered.length} validators`}
         </div>
       </div>
-    </Layout>
+    </>
   );
 }

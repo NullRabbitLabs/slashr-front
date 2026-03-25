@@ -1,9 +1,14 @@
 import type { ReactNode } from 'react';
+import { useLocation } from 'react-router-dom';
 import type { StatsResponse } from '@/types/api';
 import { LiveDot } from './LiveDot';
 import { BoltLogo } from './BoltLogo';
+import { NetworkStrip } from './NetworkStrip';
+import { Explainer } from './Explainer';
+import { TabBar } from './TabBar';
 import { useIsMobile } from '@/hooks/useIsMobile';
 import { useTheme } from '@/hooks/useTheme';
+import { useNetworks } from '@/hooks/useNetworks';
 import { WaitlistDrawer } from './WaitlistDrawer';
 
 interface LayoutProps {
@@ -14,7 +19,10 @@ interface LayoutProps {
 export function Layout({ children, stats }: LayoutProps) {
   const isMobile = useIsMobile();
   const { theme, toggle: toggleTheme } = useTheme();
+  const { networks } = useNetworks();
+  const { pathname } = useLocation();
   const totalEvents = stats?.totals.all_time;
+  const showFeedHeader = pathname === '/' || pathname === '/validators';
 
   return (
     <div
@@ -112,12 +120,33 @@ export function Layout({ children, stats }: LayoutProps) {
           padding: isMobile ? '0 16px' : '0 20px',
         }}
       >
-        {/* Spacer replacing the old hero */}
+        {/* Spacer */}
         <div style={{ height: isMobile ? 20 : 32 }} />
+
+        {/* Shared feed header — only on feed/validators pages */}
+        {showFeedHeader && (
+          <>
+            <NetworkStrip stats={stats} networks={networks} />
+            <Explainer />
+
+            <p
+              style={{
+                fontSize: 13,
+                color: 'var(--color-text-tertiary)',
+                fontStyle: 'italic',
+                margin: '0 0 20px',
+                fontFamily: "'Inter', sans-serif",
+              }}
+            >
+              Your staking rewards depend on your validator staying online. Here&rsquo;s every time one didn&rsquo;t.
+            </p>
+
+            <TabBar />
+          </>
+        )}
 
         {/* Page content */}
         {children}
-
       </div>
 
       {/* Fixed bottom-left attribution */}
