@@ -413,7 +413,7 @@ export function ValidatorProfile() {
                   href="https://nullrabbit.ai/exposure"
                   target="_blank"
                   rel="noopener noreferrer"
-                  style={{ ...metaValueStyle, color: 'rgba(20,241,149,0.6)', textDecoration: 'none' }}
+                  style={{ ...metaValueStyle, color: 'rgba(20,241,149,0.8)', textDecoration: 'none' }}
                 >
                   Security scan data available.
                 </a>

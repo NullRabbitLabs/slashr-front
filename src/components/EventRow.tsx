@@ -84,7 +84,7 @@ export function EventRow({
           <span
             style={{
               fontSize: 10,
-              color: 'rgba(20,241,149,0.6)',
+              color: 'rgba(20,241,149,0.8)',
               fontFamily: "'JetBrains Mono', monospace",
               textTransform: 'uppercase',
               letterSpacing: '0.05em',
@@ -222,7 +222,7 @@ function EnrichmentRow({ event, isMobile, hideNodeIp, indent }: { event: EventLi
         href={event.validator_website}
         target="_blank"
         rel="noopener noreferrer"
-        style={{ ...pillStyle, color: 'rgba(20,241,149,0.5)', textDecoration: 'none' }}
+        style={{ ...pillStyle, color: 'rgba(20,241,149,0.8)', textDecoration: 'none' }}
       >
         {domain}
       </a>,
@@ -231,7 +231,7 @@ function EnrichmentRow({ event, isMobile, hideNodeIp, indent }: { event: EventLi
 
   if (event.in_scan_db && !hideNodeIp) {
     items.push(
-      <span key="scan" style={{ ...pillStyle, color: 'rgba(20,241,149,0.5)' }}>
+      <span key="scan" style={{ ...pillStyle, color: 'rgba(20,241,149,0.8)' }}>
         in scan DB
       </span>,
     );
