@@ -421,7 +421,7 @@ export function ValidatorProfile() {
             ) : validator.node_ip ? (
               <div>
                 <div style={metaLabelStyle}>Scan status</div>
-                <div style={{ ...metaValueStyle, color: 'rgba(255,255,255,0.35)' }}>
+                <div style={{ ...metaValueStyle, color: 'rgba(255,255,255,0.5)' }}>
                   Not yet scanned.
                 </div>
               </div>

@@ -123,7 +123,7 @@ export function Layout({ children, stats }: LayoutProps) {
               display: 'flex',
               alignItems: 'center',
               gap: 6,
-              color: 'rgba(255,255,255,0.35)',
+              color: 'rgba(255,255,255,0.5)',
               textDecoration: 'none',
             }}
           >
