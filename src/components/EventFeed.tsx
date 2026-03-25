@@ -1,3 +1,4 @@
+import { useEffect, useRef } from 'react';
 import { useEvents } from '@/hooks/useEvents';
 import { useEventTypes } from '@/hooks/useEventTypes';
 import { EventRow } from './EventRow';
@@ -17,6 +18,19 @@ export function EventFeed({ network, search, initialCursor, onCursorChange }: Ev
     onCursorChange,
   });
   const { lookup: eventTypeLookup } = useEventTypes();
+  const sentinelRef = useRef<HTMLDivElement>(null);
+
+  // Infinite scroll: trigger loadMore when sentinel enters viewport
+  useEffect(() => {
+    const el = sentinelRef.current;
+    if (!el) return;
+    const observer = new IntersectionObserver(
+      (entries) => { if (entries[0]?.isIntersecting) loadMore(); },
+      { rootMargin: '200px' },
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [loadMore]);
 
   const isFiltered = network != null || search.length > 0;
 
@@ -84,29 +98,8 @@ export function EventFeed({ network, search, initialCursor, onCursorChange }: Ev
         />
       ))}
 
-      {/* Load more */}
-      {hasMore && (
-        <div style={{ padding: '20px 0', textAlign: 'center' }}>
-          <button
-            className="btn-ghost"
-            onClick={loadMore}
-            style={{
-              background: 'none',
-              border: '1px solid var(--color-border-strong)',
-              borderRadius: 4,
-              color: 'var(--color-text-tertiary)',
-              fontSize: 12,
-              padding: '10px 32px',
-              cursor: 'pointer',
-              fontFamily: "'JetBrains Mono', monospace",
-              letterSpacing: '0.03em',
-              transition: 'border-color 0.2s',
-            }}
-          >
-            load more
-          </button>
-        </div>
-      )}
+      {/* Infinite scroll sentinel */}
+      {hasMore && <div ref={sentinelRef} style={{ height: 1 }} />}
     </div>
   );
 }
