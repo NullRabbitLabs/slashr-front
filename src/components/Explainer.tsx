@@ -4,7 +4,7 @@ export function Explainer() {
       <summary
         style={{
           fontSize: 13,
-          color: 'rgba(255,255,255,0.75)',
+          color: 'var(--color-text-cta)',
           cursor: 'pointer',
           padding: '8px 0',
           fontFamily: "'JetBrains Mono', monospace",

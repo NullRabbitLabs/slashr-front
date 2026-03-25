@@ -3,6 +3,7 @@ import type { StatsResponse } from '@/types/api';
 import { LiveDot } from './LiveDot';
 import { BoltLogo } from './BoltLogo';
 import { useIsMobile } from '@/hooks/useIsMobile';
+import { useTheme } from '@/hooks/useTheme';
 import { WaitlistDrawer } from './WaitlistDrawer';
 
 interface LayoutProps {
@@ -12,6 +13,7 @@ interface LayoutProps {
 
 export function Layout({ children, stats }: LayoutProps) {
   const isMobile = useIsMobile();
+  const { theme, toggle: toggleTheme } = useTheme();
   const totalEvents = stats?.totals.all_time;
 
   return (
@@ -70,7 +72,7 @@ export function Layout({ children, stats }: LayoutProps) {
             </h1>
           </a>
 
-          {/* Right: live status */}
+          {/* Right: live status + theme toggle */}
           <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
             <LiveDot />
             {!isMobile && totalEvents != null && (
@@ -84,6 +86,21 @@ export function Layout({ children, stats }: LayoutProps) {
                 tracking {totalEvents.toLocaleString()} events across 4 networks
               </span>
             )}
+            <button
+              onClick={toggleTheme}
+              aria-label="Toggle theme"
+              style={{
+                background: 'none',
+                border: 'none',
+                cursor: 'pointer',
+                fontSize: 16,
+                lineHeight: 1,
+                padding: 4,
+                color: 'var(--color-text-primary)',
+              }}
+            >
+              {theme === 'dark' ? '☀' : '☾'}
+            </button>
           </div>
         </div>
       </div>
