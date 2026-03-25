@@ -1,68 +1,33 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import type { EventListItem } from '@/types/api';
-import { fetchEvents } from '@/api/client';
+import type { NetworkSlug } from '@/types/api';
 import { useStats } from '@/hooks/useStats';
 import { Layout } from '@/components/Layout';
 import { NetworkTag } from '@/components/NetworkTag';
 
-interface ValidatorRow {
-  network: EventListItem['network'];
+const BASE_URL = import.meta.env.VITE_API_URL || '';
+
+interface ValidatorSummary {
+  network: NetworkSlug;
   address: string;
   moniker: string | null;
-  count: number;
-  ongoing: number;
-  lastSeen: string;
+  event_count: number;
+  ongoing_count: number;
+  last_event_at: string;
 }
 
 export default function ValidatorsPage() {
   const { stats } = useStats();
-  const [events, setEvents] = useState<EventListItem[]>([]);
+  const [validators, setValidators] = useState<ValidatorSummary[]>([]);
   const [loading, setLoading] = useState(true);
 
-  // Fetch all events by paginating through
   useEffect(() => {
-    let cancelled = false;
-    const all: EventListItem[] = [];
-
-    async function fetchAll(cursor?: string) {
-      const res = await fetchEvents({ limit: 50, cursor });
-      if (cancelled) return;
-      all.push(...res.data);
-      if (res.pagination.has_more && res.pagination.next_cursor) {
-        await fetchAll(res.pagination.next_cursor);
-      } else {
-        setEvents(all);
-        setLoading(false);
-      }
-    }
-
-    fetchAll().catch(() => setLoading(false));
-    return () => { cancelled = true; };
+    fetch(`${BASE_URL}/v1/validators`)
+      .then(res => res.json())
+      .then((res: { data: ValidatorSummary[] }) => setValidators(res.data))
+      .catch(() => {})
+      .finally(() => setLoading(false));
   }, []);
-
-  const validators = useMemo(() => {
-    const map = new Map<string, ValidatorRow>();
-    for (const e of events) {
-      const key = `${e.network}:${e.validator_address}`;
-      const existing = map.get(key);
-      if (existing) {
-        existing.count++;
-        if (!e.resolved_at) existing.ongoing++;
-        if (e.started_at > existing.lastSeen) existing.lastSeen = e.started_at;
-      } else {
-        map.set(key, {
-          network: e.network,
-          address: e.validator_address,
-          moniker: e.validator_moniker,
-          count: 1,
-          ongoing: e.resolved_at ? 0 : 1,
-          lastSeen: e.started_at,
-        });
-      }
-    }
-    return Array.from(map.values()).sort((a, b) => b.count - a.count);
-  }, [events]);
 
   return (
     <Layout stats={stats}>
@@ -128,17 +93,17 @@ export default function ValidatorsPage() {
                     </div>
                   </td>
                   <td style={{ padding: '10px 0', textAlign: 'right', color: 'var(--color-text-secondary)' }}>
-                    {v.count}
+                    {v.event_count}
                   </td>
                   <td
                     style={{
                       padding: '10px 0',
                       textAlign: 'right',
-                      color: v.ongoing > 0 ? '#e8a735' : 'var(--color-text-dim)',
-                      fontWeight: v.ongoing > 0 ? 600 : 400,
+                      color: v.ongoing_count > 0 ? '#e8a735' : 'var(--color-text-dim)',
+                      fontWeight: v.ongoing_count > 0 ? 600 : 400,
                     }}
                   >
-                    {v.ongoing}
+                    {v.ongoing_count}
                   </td>
                 </tr>
               ))}
@@ -147,7 +112,7 @@ export default function ValidatorsPage() {
         )}
 
         <div style={{ marginTop: 24, color: 'var(--color-text-dim)', fontSize: 12 }}>
-          {!loading && `${validators.length} validators across ${events.length} events`}
+          {!loading && `${validators.length} validators`}
         </div>
       </div>
     </Layout>
