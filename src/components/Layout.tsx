@@ -76,7 +76,7 @@ export function Layout({ children, stats }: LayoutProps) {
                 backgroundClip: 'text',
               }}
             >
-              slasher
+              slashr
             </h1>
           </a>
 
@@ -107,7 +107,7 @@ export function Layout({ children, stats }: LayoutProps) {
                 color: 'var(--color-text-primary)',
               }}
             >
-              {theme === 'dark' ? '☀' : '☾'}
+              {theme === 'dark' ? '\u2600' : '\u263E'}
             </button>
           </div>
         </div>
@@ -123,7 +123,7 @@ export function Layout({ children, stats }: LayoutProps) {
         {/* Spacer */}
         <div style={{ height: isMobile ? 20 : 32 }} />
 
-        {/* Shared feed header — only on feed/validators pages */}
+        {/* Shared feed header - only on feed/validators pages */}
         {showFeedHeader && (
           <>
             <NetworkStrip stats={stats} networks={networks} />

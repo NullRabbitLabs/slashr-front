@@ -63,7 +63,7 @@ export function useEvents({ network, search, initialCursor, onCursorChange }: Us
       network: network ?? undefined,
       search: search || undefined,
       cursor: initialCursor ?? undefined,
-      limit: 50,
+      limit: 25,
     })
       .then(res => {
         if (cancelled) return;
@@ -95,7 +95,7 @@ export function useEvents({ network, search, initialCursor, onCursorChange }: Us
     const poll = () => {
       if (document.visibilityState !== 'visible') return;
 
-      fetchEvents({ network: network ?? undefined, search: search || undefined, limit: 50 })
+      fetchEvents({ network: network ?? undefined, search: search || undefined, limit: 25 })
         .then(res => {
           const newItems = res.data.filter(e => !knownIdsRef.current.has(e.id));
           if (newItems.length > 0) {
@@ -139,7 +139,7 @@ export function useEvents({ network, search, initialCursor, onCursorChange }: Us
   const loadMore = useCallback(() => {
     if (!cursor || !hasMore) return;
 
-    fetchEvents({ network: network ?? undefined, search: search || undefined, cursor, limit: 50 })
+    fetchEvents({ network: network ?? undefined, search: search || undefined, cursor, limit: 25 })
       .then(res => {
         const appended = res.data;
         setEvents(prev => [...prev, ...appended]);

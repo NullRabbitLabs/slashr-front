@@ -243,7 +243,7 @@ function EnrichmentRow({ event, isMobile, hideNodeIp, indent }: { event: EventLi
     <div style={{ paddingLeft: indent, marginTop: 2, display: 'flex', flexWrap: 'wrap', alignItems: 'center' }}>
       {items.map((item, i) => (
         <React.Fragment key={i}>
-          {i > 0 && <span style={separatorStyle}>·</span>}
+          {i > 0 && <span style={separatorStyle}>&middot;</span>}
           {item}
         </React.Fragment>
       ))}

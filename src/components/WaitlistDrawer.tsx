@@ -85,7 +85,7 @@ export function WaitlistDrawer() {
 
   return (
     <>
-      {/* Trigger button — fixed bottom-right */}
+      {/* Trigger button - fixed bottom-right */}
       <button
         onClick={() => {
           setOpen(true);
@@ -108,7 +108,7 @@ export function WaitlistDrawer() {
           zIndex: 100,
         }}
       >
-        stay in the loop ↗
+        stay in the loop {'\u2197'}
       </button>
 
       {/* Overlay */}

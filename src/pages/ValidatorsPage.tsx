@@ -54,7 +54,7 @@ export default function ValidatorsPage() {
   }, []);
 
   const fetchPage = useCallback(async (cur?: string, network?: string | null) => {
-    const qs = new URLSearchParams({ limit: '50' });
+    const qs = new URLSearchParams({ limit: '25' });
     if (cur) qs.set('cursor', cur);
     if (network) qs.set('network', network);
     const res = await fetch(`${BASE_URL}/v1/validators?${qs}`);
