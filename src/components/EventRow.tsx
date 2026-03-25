@@ -48,7 +48,7 @@ export function EventRow({
       style={{
         padding: '14px 0',
         borderBottom: '1px solid var(--color-border)',
-        opacity: visible ? (resolved ? 0.5 : 1) : 0,
+        opacity: visible ? 1 : 0,
         transform: visible ? 'translateY(0)' : 'translateY(8px)',
         transition: 'opacity 0.4s ease, transform 0.4s ease',
       }}
@@ -95,10 +95,11 @@ export function EventRow({
           <span
             style={{
               fontSize: 10,
-              color: 'var(--color-text-dim)',
+              color: '#e8a735',
               fontFamily: "'JetBrains Mono', monospace",
               textTransform: 'uppercase',
               letterSpacing: '0.05em',
+              fontWeight: 600,
             }}
           >
             ongoing
@@ -126,7 +127,7 @@ export function EventRow({
           <Link
             to={`/validator/${event.network}/${event.validator_address}`}
             style={{
-              fontWeight: isNamed ? 600 : 400,
+              fontWeight: 600,
               fontSize: 14,
               color: 'var(--color-text-primary)',
               marginRight: 8,
