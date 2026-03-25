@@ -15,7 +15,7 @@ export function LiveDot() {
         width: 6,
         height: 6,
         borderRadius: '50%',
-        background: on ? '#14F195' : 'rgba(20,241,149,0.3)',
+        background: on ? 'var(--color-accent)' : 'var(--color-accent-faded)',
         transition: 'background 0.3s',
         marginRight: 6,
         flexShrink: 0,

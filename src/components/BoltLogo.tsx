@@ -13,7 +13,7 @@ export function BoltLogo({ size = 32 }: BoltLogoProps) {
     >
       <path
         d="M16.5 0L4 18h7.5L9.5 32 22 14h-7.5L16.5 0z"
-        fill="#FF4545"
+        fill="var(--color-danger)"
       />
     </svg>
   );

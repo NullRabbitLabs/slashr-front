@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import type { EventListItem } from '@/types/api';
 import { type EventTypeLookup, getEventLabel } from '@/hooks/useEventTypes';
 import { relativeTime, formatUtcTime } from '@/lib/time';
-import { truncateMiddle, formatStake, stripCidr } from '@/lib/format';
+import { formatStake, stripCidr } from '@/lib/format';
 import { useIsMobile } from '@/hooks/useIsMobile';
 import { NetworkTag } from './NetworkTag';
 import { SeverityMark } from './SeverityMark';
@@ -31,11 +31,10 @@ export function EventRow({
   const resolved = event.resolved_at != null;
   const isCritical = event.severity === 'critical';
 
-  const displayName =
-    event.validator_moniker ??
-    (isMobile
-      ? truncateMiddle(event.validator_address, 18)
-      : event.validator_address);
+  const isNamed = !!(event.validator_moniker?.trim());
+  const displayName = isNamed
+    ? event.validator_moniker!
+    : event.validator_address.slice(0, 4) + '...' + event.validator_address.slice(-4);
 
   const contentIndent = 0;
 
@@ -48,7 +47,7 @@ export function EventRow({
       className={`event-row${isCritical ? ' event-row-critical' : ''}`}
       style={{
         padding: '14px 0',
-        borderBottom: '1px solid rgba(255,255,255,0.04)',
+        borderBottom: '1px solid var(--color-border)',
         opacity: visible ? (resolved ? 0.5 : 1) : 0,
         transform: visible ? 'translateY(0)' : 'translateY(8px)',
         transition: 'opacity 0.4s ease, transform 0.4s ease',
@@ -67,7 +66,7 @@ export function EventRow({
           <span
             style={{
               fontSize: 11,
-              color: 'rgba(255,255,255,0.4)',
+              color: 'var(--color-text-dim)',
               fontFamily: "'JetBrains Mono', monospace",
               minWidth: 110,
             }}
@@ -84,7 +83,7 @@ export function EventRow({
           <span
             style={{
               fontSize: 10,
-              color: 'rgba(20,241,149,0.8)',
+              color: 'var(--color-accent-dim)',
               fontFamily: "'JetBrains Mono', monospace",
               textTransform: 'uppercase',
               letterSpacing: '0.05em',
@@ -96,7 +95,7 @@ export function EventRow({
           <span
             style={{
               fontSize: 10,
-              color: 'rgba(255,255,255,0.3)',
+              color: 'var(--color-text-dim)',
               fontFamily: "'JetBrains Mono', monospace",
               textTransform: 'uppercase',
               letterSpacing: '0.05em',
@@ -109,7 +108,7 @@ export function EventRow({
         <span
           style={{
             fontSize: 12,
-            color: 'rgba(255,255,255,0.8)',
+            color: 'var(--color-text-dim)',
             marginLeft: 'auto',
             fontFamily: "'JetBrains Mono', monospace",
           }}
@@ -127,9 +126,9 @@ export function EventRow({
           <Link
             to={`/validator/${event.network}/${event.validator_address}`}
             style={{
-              fontWeight: 600,
+              fontWeight: isNamed ? 600 : 400,
               fontSize: 14,
-              color: '#E8E6E1',
+              color: 'var(--color-text-primary)',
               marginRight: 8,
             }}
           >
@@ -139,10 +138,10 @@ export function EventRow({
         <span
           style={{
             fontSize: 14,
-            color: 'rgba(255,255,255,0.55)',
+            color: 'rgba(255,255,255,0.35)',
             lineHeight: 1.5,
             cursor: !showDescription && eventDescription ? 'help' : undefined,
-            borderBottom: !showDescription && eventDescription ? '1px dotted rgba(255,255,255,0.2)' : undefined,
+            borderBottom: !showDescription && eventDescription ? '1px dotted var(--color-border-hover)' : undefined,
           }}
           title={!showDescription ? (eventDescription ?? undefined) : undefined}
         >
@@ -153,7 +152,7 @@ export function EventRow({
           <div
             style={{
               fontSize: 12,
-              color: 'rgba(255,255,255,0.8)',
+              color: 'var(--color-text-secondary)',
               fontFamily: "'Inter', sans-serif",
               marginTop: 6,
               lineHeight: 1.4,
@@ -169,14 +168,14 @@ export function EventRow({
 
 const pillStyle: React.CSSProperties = {
   fontSize: 11,
-  color: 'rgba(255,255,255,0.8)',
+  color: 'var(--color-text-tertiary)',
   fontFamily: "'JetBrains Mono', monospace",
 };
 
 const separatorStyle: React.CSSProperties = {
   ...pillStyle,
   margin: '0 6px',
-  color: 'rgba(255,255,255,0.15)',
+  color: 'var(--color-text-ghost)',
 };
 
 function EnrichmentRow({ event, isMobile, hideNodeIp, indent }: { event: EventListItem; isMobile: boolean; hideNodeIp: boolean; indent: number }) {
@@ -222,7 +221,7 @@ function EnrichmentRow({ event, isMobile, hideNodeIp, indent }: { event: EventLi
         href={event.validator_website}
         target="_blank"
         rel="noopener noreferrer"
-        style={{ ...pillStyle, color: 'rgba(20,241,149,0.8)', textDecoration: 'none' }}
+        style={{ ...pillStyle, color: 'var(--color-accent-dim)', textDecoration: 'none' }}
       >
         {domain}
       </a>,
@@ -231,7 +230,7 @@ function EnrichmentRow({ event, isMobile, hideNodeIp, indent }: { event: EventLi
 
   if (event.in_scan_db && !hideNodeIp) {
     items.push(
-      <span key="scan" style={{ ...pillStyle, color: 'rgba(20,241,149,0.8)' }}>
+      <span key="scan" style={{ ...pillStyle, color: 'var(--color-accent-dim)' }}>
         in scan DB
       </span>,
     );

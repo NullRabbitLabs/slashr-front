@@ -30,13 +30,13 @@ export function EventFeed({ network, search, initialCursor, onCursorChange }: Ev
           gap: 8,
           marginBottom: 12,
           padding: '0 0 8px',
-          borderBottom: '1px solid rgba(255,255,255,0.06)',
+          borderBottom: '1px solid var(--color-border)',
         }}
       >
         <span
           style={{
             fontSize: 12,
-            color: 'rgba(255,255,255,0.45)',
+            color: 'var(--color-text-dim)',
             fontFamily: "'JetBrains Mono', monospace",
             textTransform: 'uppercase',
             letterSpacing: '0.08em',
@@ -51,7 +51,7 @@ export function EventFeed({ network, search, initialCursor, onCursorChange }: Ev
         <div
           style={{
             fontSize: 13,
-            color: 'rgba(255,255,255,0.45)',
+            color: 'var(--color-text-tertiary)',
             fontFamily: "'JetBrains Mono', monospace",
             padding: '8px 0',
           }}
@@ -65,7 +65,7 @@ export function EventFeed({ network, search, initialCursor, onCursorChange }: Ev
         <div
           style={{
             fontSize: 13,
-            color: 'rgba(255,255,255,0.45)',
+            color: 'var(--color-text-tertiary)',
             fontFamily: "'JetBrains Mono', monospace",
             padding: '24px 0',
           }}
@@ -92,9 +92,9 @@ export function EventFeed({ network, search, initialCursor, onCursorChange }: Ev
             onClick={loadMore}
             style={{
               background: 'none',
-              border: '1px solid rgba(255,255,255,0.12)',
+              border: '1px solid var(--color-border-strong)',
               borderRadius: 4,
-              color: 'rgba(255,255,255,0.45)',
+              color: 'var(--color-text-tertiary)',
               fontSize: 12,
               padding: '10px 32px',
               cursor: 'pointer',

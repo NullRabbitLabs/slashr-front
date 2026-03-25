@@ -62,7 +62,7 @@ export function Sparkline({ events }: SparklineProps) {
               width={w}
               height={h}
               rx={1}
-              fill="rgba(255,255,255,0.25)"
+              fill="var(--color-text-dim)"
               onMouseEnter={() => setHoveredIndex(i)}
               onMouseLeave={() => setHoveredIndex(null)}
               style={{ cursor: 'default' }}
@@ -83,7 +83,7 @@ export function Sparkline({ events }: SparklineProps) {
             left: `${((hoveredIndex + 0.5) / DAYS) * 100}%`,
             transform: 'translateX(-50%)',
             fontSize: 11,
-            color: 'rgba(255,255,255,0.6)',
+            color: 'var(--color-text-hover)',
             fontFamily: "'JetBrains Mono', monospace",
             whiteSpace: 'nowrap',
             pointerEvents: 'none',

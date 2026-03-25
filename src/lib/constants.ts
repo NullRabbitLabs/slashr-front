@@ -37,10 +37,10 @@ export function describeEvent(eventType: EventType, penaltyAmount: number | null
 }
 
 export const COLORS = {
-  bg:     '#0A0A0B',
-  text:   '#E8E6E1',
-  muted:  'rgba(255,255,255,0.4)',
-  hint:   'rgba(255,255,255,0.4)',
-  red:    '#FF4545',
-  border: 'rgba(255,255,255,0.06)',
+  bg:     'var(--color-bg)',
+  text:   'var(--color-text-primary)',
+  muted:  'var(--color-text-tertiary)',
+  hint:   'var(--color-text-tertiary)',
+  red:    'var(--color-danger)',
+  border: 'var(--color-border)',
 } as const;

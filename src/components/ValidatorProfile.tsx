@@ -19,9 +19,9 @@ interface Verdict {
 }
 
 const VERDICT_COLORS: Record<Verdict['level'], string> = {
-  neutral: 'rgba(255,255,255,0.45)',
-  warning: 'rgba(255,69,69,0.7)',
-  critical: '#FF4545',
+  neutral: 'var(--color-text-tertiary)',
+  warning: 'var(--color-danger-dim)',
+  critical: 'var(--color-danger)',
 };
 
 function computeVerdict(events: ValidatorEventItem[]): Verdict {
@@ -64,25 +64,25 @@ function computeVerdict(events: ValidatorEventItem[]): Verdict {
 
 const sectionHeadingStyle: React.CSSProperties = {
   fontSize: 12,
-  color: 'rgba(255,255,255,0.45)',
+  color: 'var(--color-text-dim)',
   fontFamily: "'JetBrains Mono', monospace",
   textTransform: 'uppercase',
   letterSpacing: '0.08em',
   padding: '0 0 8px',
-  borderBottom: '1px solid rgba(255,255,255,0.06)',
+  borderBottom: '1px solid var(--color-border)',
   marginBottom: 4,
 };
 
 const metaLabelStyle: React.CSSProperties = {
   fontSize: 11,
-  color: 'rgba(255,255,255,0.4)',
+  color: 'var(--color-text-tertiary)',
   fontFamily: "'Inter', sans-serif",
   marginBottom: 2,
 };
 
 const metaValueStyle: React.CSSProperties = {
   fontSize: 13,
-  color: '#E8E6E1',
+  color: 'var(--color-text-primary)',
   fontFamily: "'JetBrains Mono', monospace",
 };
 
@@ -135,7 +135,7 @@ export function ValidatorProfile() {
           className="back-link"
           style={{
             fontSize: 13,
-            color: 'rgba(255,255,255,0.45)',
+            color: 'var(--color-text-tertiary)',
             fontFamily: "'JetBrains Mono', monospace",
           }}
         >
@@ -144,7 +144,7 @@ export function ValidatorProfile() {
         <div
           style={{
             fontSize: 13,
-            color: 'rgba(255,255,255,0.45)',
+            color: 'var(--color-text-tertiary)',
             fontFamily: "'JetBrains Mono', monospace",
             padding: '24px 0',
           }}
@@ -171,8 +171,12 @@ export function ValidatorProfile() {
     in_scan_db: validator.in_scan_db,
   }));
 
+  const isNamed = !!(validator.moniker?.trim());
   const displayAddress = isMobile
     ? truncateMiddle(validator.address, 24)
+    : validator.address;
+  const headerName = isNamed
+    ? validator.moniker!
     : validator.address;
 
   const showInfrastructure = validator.node_ip || validator.hosting_provider || validator.in_scan_db;
@@ -186,7 +190,7 @@ export function ValidatorProfile() {
         style={{
           display: 'inline-block',
           fontSize: 13,
-          color: 'rgba(255,255,255,0.45)',
+          color: 'var(--color-text-tertiary)',
           fontFamily: "'JetBrains Mono', monospace",
           marginBottom: 24,
           padding: '8px 0',
@@ -223,38 +227,52 @@ export function ValidatorProfile() {
             flexWrap: 'wrap',
           }}
         >
+          {!isNamed && (
+            <span
+              style={{
+                fontSize: 11,
+                color: 'var(--color-text-ghost)',
+                fontFamily: "'JetBrains Mono', monospace",
+                textTransform: 'uppercase',
+                letterSpacing: '0.06em',
+                marginRight: 8,
+              }}
+            >
+              unnamed validator
+            </span>
+          )}
           <h2
             style={{
               fontSize: isMobile ? 20 : 24,
-              fontWeight: 700,
-              fontFamily: "'Space Grotesk', sans-serif",
-              letterSpacing: '-0.02em',
+              fontWeight: isNamed ? 700 : 400,
+              fontFamily: isNamed ? "'Space Grotesk', sans-serif" : "'JetBrains Mono', monospace",
+              letterSpacing: isNamed ? '-0.02em' : '0',
               margin: 0,
+              color: 'var(--color-text-primary)',
+              wordBreak: isNamed ? undefined : 'break-all',
             }}
           >
-            {validator.moniker ?? displayAddress}
+            {headerName}
           </h2>
           <NetworkTag network={validator.network} />
         </div>
 
-        {validator.moniker && (
-          <div
-            style={{
-              fontSize: 13,
-              color: 'rgba(255,255,255,0.45)',
-              fontFamily: "'JetBrains Mono', monospace",
-              marginBottom: 8,
-              wordBreak: 'break-all',
-            }}
-          >
-            {displayAddress}
-          </div>
-        )}
+        <div
+          style={{
+            fontSize: 13,
+            color: 'var(--color-text-tertiary)',
+            fontFamily: "'JetBrains Mono', monospace",
+            marginBottom: 8,
+            wordBreak: 'break-all',
+          }}
+        >
+          {displayAddress}
+        </div>
 
         <div
           style={{
             fontSize: 12,
-            color: 'rgba(255,255,255,0.4)',
+            color: 'var(--color-text-dim)',
             fontFamily: "'JetBrains Mono', monospace",
             display: 'flex',
             flexDirection: isMobile ? 'column' : 'row',
@@ -277,7 +295,7 @@ export function ValidatorProfile() {
                   gap: 12,
                   marginBottom: 24,
                   paddingBottom: 24,
-                  borderBottom: '1px solid rgba(255,255,255,0.06)',
+                  borderBottom: '1px solid var(--color-border)',
                 }
               : {
                   display: 'flex',
@@ -285,7 +303,7 @@ export function ValidatorProfile() {
                   gap: '12px 24px',
                   marginBottom: 24,
                   paddingBottom: 24,
-                  borderBottom: '1px solid rgba(255,255,255,0.06)',
+                  borderBottom: '1px solid var(--color-border)',
                 }
           }
         >
@@ -303,7 +321,7 @@ export function ValidatorProfile() {
               <div style={metaValueStyle}>
                 {validator.commission_pct}%
                 {validator.commission_pct === 100 && (
-                  <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.3)', marginLeft: 8 }}>
+                  <span style={{ fontSize: 11, color: 'var(--color-text-dim)', marginLeft: 8 }}>
                     delegators earn no rewards
                   </span>
                 )}
@@ -335,9 +353,9 @@ export function ValidatorProfile() {
               <div
                 style={{
                   fontSize: 11,
-                  color: 'rgba(255,255,255,0.6)',
+                  color: 'var(--color-text-hover)',
                   fontFamily: "'JetBrains Mono', monospace",
-                  border: '1px solid rgba(255,255,255,0.12)',
+                  border: '1px solid var(--color-border-strong)',
                   borderRadius: 3,
                   padding: '2px 6px',
                 }}
@@ -358,7 +376,7 @@ export function ValidatorProfile() {
         <div
           style={{
             fontSize: 13,
-            color: 'rgba(255,255,255,0.45)',
+            color: 'var(--color-text-tertiary)',
             fontFamily: "'JetBrains Mono', monospace",
             padding: '24px 0',
           }}
@@ -413,7 +431,7 @@ export function ValidatorProfile() {
                   href="https://nullrabbit.ai/exposure"
                   target="_blank"
                   rel="noopener noreferrer"
-                  style={{ ...metaValueStyle, color: 'rgba(20,241,149,0.8)', textDecoration: 'none' }}
+                  style={{ ...metaValueStyle, color: 'var(--color-accent-dim)', textDecoration: 'none' }}
                 >
                   Security scan data available.
                 </a>
@@ -421,7 +439,7 @@ export function ValidatorProfile() {
             ) : validator.node_ip ? (
               <div>
                 <div style={metaLabelStyle}>Scan status</div>
-                <div style={{ ...metaValueStyle, color: 'rgba(255,255,255,0.8)' }}>
+                <div style={{ ...metaValueStyle, color: 'var(--color-text-tertiary)' }}>
                   Not yet scanned.
                 </div>
               </div>

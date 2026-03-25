@@ -58,7 +58,7 @@ export default function FeedPage() {
       <p
         style={{
           fontSize: 13,
-          color: 'rgba(255,255,255,0.4)',
+          color: 'var(--color-text-tertiary)',
           fontStyle: 'italic',
           margin: '0 0 20px',
           fontFamily: "'Inter', sans-serif",

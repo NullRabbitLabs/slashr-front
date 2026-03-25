@@ -4,7 +4,7 @@ export function Explainer() {
       <summary
         style={{
           fontSize: 13,
-          color: 'rgba(255,255,255,0.45)',
+          color: 'var(--color-text-tertiary)',
           cursor: 'pointer',
           padding: '8px 0',
           fontFamily: "'JetBrains Mono', monospace",
@@ -16,24 +16,24 @@ export function Explainer() {
         style={{
           padding: 16,
           marginTop: 4,
-          background: 'rgba(255,255,255,0.02)',
-          border: '1px solid rgba(255,255,255,0.06)',
+          background: 'var(--color-bg-hover)',
+          border: '1px solid var(--color-border)',
           borderRadius: 8,
           fontSize: 14,
-          color: 'rgba(255,255,255,0.5)',
+          color: 'var(--color-text-secondary)',
           lineHeight: 1.7,
         }}
       >
         <p style={{ margin: '0 0 10px' }}>
           Blockchains are kept running by{' '}
-          <strong style={{ color: '#E8E6E1', fontWeight: 500 }}>validators</strong> —
+          <strong style={{ color: 'var(--color-text-primary)', fontWeight: 500 }}>validators</strong> —
           machines that verify transactions. They put up money as a guarantee
           they'll behave.
         </p>
         <p style={{ margin: '0 0 10px' }}>
           When they don't — they go offline, sign contradictory data, or act
           against the network — they get{' '}
-          <strong style={{ color: '#E8E6E1', fontWeight: 500 }}>penalised</strong>.
+          <strong style={{ color: 'var(--color-text-primary)', fontWeight: 500 }}>penalised</strong>.
           Sometimes a slap on the wrist. Sometimes they lose everything.
         </p>
         <p style={{ margin: 0 }}>

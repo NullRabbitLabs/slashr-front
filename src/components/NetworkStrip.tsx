@@ -15,7 +15,7 @@ function Pulse({ color, active }: { color: string; active: boolean }) {
         width: 7,
         height: 7,
         borderRadius: '50%',
-        background: active ? color : 'rgba(255,255,255,0.25)',
+        background: active ? color : 'var(--color-text-dim)',
         boxShadow: active ? `0 0 6px ${color}` : 'none',
         transition: 'all 0.4s',
         flexShrink: 0,
@@ -53,9 +53,9 @@ export function NetworkStrip({ stats, networks }: NetworkStripProps) {
             style={{
               flex: isMobile ? undefined : 1,
               gridColumn: isMobile && isLast && isOddCount ? 'span 2' : undefined,
-              background: active ? 'rgba(255,255,255,0.04)' : 'rgba(255,255,255,0.015)',
+              background: active ? 'var(--color-bg-surface)' : 'var(--color-bg-hover)',
               border: '1px solid',
-              borderColor: active ? 'rgba(255,255,255,0.1)' : 'rgba(255,255,255,0.04)',
+              borderColor: active ? 'var(--color-border-medium)' : 'var(--color-bg-surface)',
               borderRadius: 6,
               padding: isMobile ? '10px 12px' : '12px 14px',
               textAlign: 'left',
@@ -69,7 +69,7 @@ export function NetworkStrip({ stats, networks }: NetworkStripProps) {
                 style={{
                   fontSize: 13,
                   fontWeight: 600,
-                  color: active ? meta.color : 'rgba(255,255,255,0.4)',
+                  color: active ? meta.color : 'var(--color-text-tertiary)',
                   transition: 'color 0.2s',
                 }}
               >
@@ -79,7 +79,7 @@ export function NetworkStrip({ stats, networks }: NetworkStripProps) {
             <div
               style={{
                 fontSize: 11,
-                color: 'rgba(255,255,255,0.45)',
+                color: 'var(--color-text-tertiary)',
                 fontFamily: "'JetBrains Mono', monospace",
               }}
             >

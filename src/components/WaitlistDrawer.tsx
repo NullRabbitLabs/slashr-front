@@ -97,10 +97,10 @@ export function WaitlistDrawer() {
           position: 'fixed',
           bottom: isMobile ? 16 : 24,
           right: isMobile ? 16 : 24,
-          background: 'rgba(255,255,255,0.06)',
-          border: '1px solid rgba(255,255,255,0.1)',
+          background: 'var(--color-border)',
+          border: '1px solid var(--color-border-medium)',
           borderRadius: 6,
-          color: 'rgba(255,255,255,0.5)',
+          color: 'var(--color-text-secondary)',
           fontSize: 12,
           fontFamily: "'JetBrains Mono', monospace",
           padding: '8px 14px',
@@ -121,15 +121,15 @@ export function WaitlistDrawer() {
             display: 'flex',
             alignItems: isMobile ? 'flex-end' : 'center',
             justifyContent: 'center',
-            background: 'rgba(0,0,0,0.6)',
+            background: 'var(--color-overlay)',
           }}
           onClick={() => setOpen(false)}
         >
           <div
             onClick={e => e.stopPropagation()}
             style={{
-              background: '#0A0A0B',
-              border: '1px solid rgba(255,255,255,0.1)',
+              background: 'var(--color-bg)',
+              border: '1px solid var(--color-border-medium)',
               borderRadius: isMobile ? '12px 12px 0 0' : 8,
               padding: isMobile ? '24px 20px 32px' : '32px 28px',
               width: isMobile ? '100%' : 420,
@@ -141,7 +141,7 @@ export function WaitlistDrawer() {
               <div
                 style={{
                   fontSize: 14,
-                  color: 'rgba(255,255,255,0.6)',
+                  color: 'var(--color-text-hover)',
                   fontFamily: "'JetBrains Mono', monospace",
                   textAlign: 'center',
                   padding: '24px 0',
@@ -165,7 +165,7 @@ export function WaitlistDrawer() {
                 <p
                   style={{
                     fontSize: 13,
-                    color: 'rgba(255,255,255,0.45)',
+                    color: 'var(--color-text-tertiary)',
                     margin: '0 0 20px',
                     lineHeight: 1.5,
                   }}
@@ -183,10 +183,10 @@ export function WaitlistDrawer() {
                   className="waitlist-input"
                   style={{
                     width: '100%',
-                    background: 'rgba(255,255,255,0.04)',
-                    border: '1px solid rgba(255,255,255,0.1)',
+                    background: 'var(--color-bg-surface)',
+                    border: '1px solid var(--color-border-medium)',
                     borderRadius: 4,
-                    color: '#E8E6E1',
+                    color: 'var(--color-text-primary)',
                     fontSize: 13,
                     fontFamily: "'JetBrains Mono', monospace",
                     padding: '10px 12px',
@@ -200,7 +200,7 @@ export function WaitlistDrawer() {
                   <div
                     style={{
                       fontSize: 12,
-                      color: 'rgba(255,255,255,0.45)',
+                      color: 'var(--color-text-tertiary)',
                       fontFamily: "'JetBrains Mono', monospace",
                       marginBottom: 8,
                     }}
@@ -215,7 +215,7 @@ export function WaitlistDrawer() {
                         alignItems: 'center',
                         gap: 8,
                         fontSize: 13,
-                        color: 'rgba(255,255,255,0.6)',
+                        color: 'var(--color-text-hover)',
                         fontFamily: "'JetBrains Mono', monospace",
                         padding: '4px 0',
                         cursor: 'pointer',
@@ -225,7 +225,7 @@ export function WaitlistDrawer() {
                         type="checkbox"
                         checked={integrations.has(name)}
                         onChange={() => toggleIntegration(name)}
-                        style={{ accentColor: '#FF4545' }}
+                        style={{ accentColor: 'var(--color-danger)' }}
                       />
                       {name}
                     </label>
@@ -237,7 +237,7 @@ export function WaitlistDrawer() {
                   <div
                     style={{
                       fontSize: 12,
-                      color: 'rgba(255,255,255,0.45)',
+                      color: 'var(--color-text-tertiary)',
                       fontFamily: "'JetBrains Mono', monospace",
                       marginBottom: 6,
                     }}
@@ -252,10 +252,10 @@ export function WaitlistDrawer() {
                     className="waitlist-input"
                     style={{
                       width: '100%',
-                      background: 'rgba(255,255,255,0.04)',
-                      border: '1px solid rgba(255,255,255,0.1)',
+                      background: 'var(--color-bg-surface)',
+                      border: '1px solid var(--color-border-medium)',
                       borderRadius: 4,
-                      color: '#E8E6E1',
+                      color: 'var(--color-text-primary)',
                       fontSize: 13,
                       fontFamily: "'JetBrains Mono', monospace",
                       padding: '10px 12px',
@@ -271,7 +271,7 @@ export function WaitlistDrawer() {
                   <div
                     style={{
                       fontSize: 12,
-                      color: '#FF4545',
+                      color: 'var(--color-danger)',
                       fontFamily: "'JetBrains Mono', monospace",
                       marginTop: 12,
                     }}
@@ -288,13 +288,13 @@ export function WaitlistDrawer() {
                     marginTop: 16,
                     width: '100%',
                     background: submitting
-                      ? 'rgba(255,255,255,0.04)'
-                      : 'rgba(255,255,255,0.08)',
-                    border: '1px solid rgba(255,255,255,0.12)',
+                      ? 'var(--color-bg-surface)'
+                      : 'var(--color-separator)',
+                    border: '1px solid var(--color-border-strong)',
                     borderRadius: 4,
                     color: submitting
-                      ? 'rgba(255,255,255,0.3)'
-                      : 'rgba(255,255,255,0.6)',
+                      ? 'var(--color-text-dim)'
+                      : 'var(--color-text-hover)',
                     fontSize: 13,
                     fontFamily: "'JetBrains Mono', monospace",
                     padding: '10px 0',

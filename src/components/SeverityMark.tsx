@@ -10,7 +10,7 @@ export function SeverityMark({ severity }: SeverityMarkProps) {
   return (
     <span
       style={{
-        color: '#FF4545',
+        color: 'var(--color-danger)',
         fontSize: 11,
         fontFamily: "'JetBrains Mono', monospace",
         fontWeight: 700,

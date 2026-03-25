@@ -17,8 +17,8 @@ export function Layout({ children, stats }: LayoutProps) {
   return (
     <div
       style={{
-        background: '#0A0A0B',
-        color: '#E8E6E1',
+        background: 'var(--color-bg)',
+        color: 'var(--color-text-primary)',
         minHeight: '100vh',
         fontFamily: "'Inter', 'Helvetica Neue', -apple-system, sans-serif",
         overflowX: 'hidden',
@@ -27,7 +27,7 @@ export function Layout({ children, stats }: LayoutProps) {
       {/* Top bar */}
       <div
         style={{
-          borderBottom: '1px solid rgba(255,255,255,0.06)',
+          borderBottom: '1px solid var(--color-border)',
         }}
       >
         <div
@@ -60,7 +60,7 @@ export function Layout({ children, stats }: LayoutProps) {
                 lineHeight: 1,
                 fontFamily: "'Space Grotesk', sans-serif",
                 background:
-                  'linear-gradient(135deg, #E8E6E1 0%, #E8E6E1 40%, #FF4545 100%)',
+                  'linear-gradient(135deg, var(--color-text-primary) 0%, var(--color-text-primary) 40%, var(--color-danger) 100%)',
                 WebkitBackgroundClip: 'text',
                 WebkitTextFillColor: 'transparent',
                 backgroundClip: 'text',
@@ -77,7 +77,7 @@ export function Layout({ children, stats }: LayoutProps) {
               <span
                 style={{
                   fontSize: 13,
-                  color: 'rgba(255,255,255,0.45)',
+                  color: 'var(--color-text-tertiary)',
                   fontFamily: "'JetBrains Mono', monospace",
                 }}
               >
@@ -106,12 +106,12 @@ export function Layout({ children, stats }: LayoutProps) {
           style={{
             marginTop: 40,
             padding: '20px 0 40px',
-            borderTop: '1px solid rgba(255,255,255,0.06)',
+            borderTop: '1px solid var(--color-border)',
             display: 'flex',
             justifyContent: 'flex-end',
             alignItems: 'center',
             fontSize: 12,
-            color: 'rgba(255,255,255,0.4)',
+            color: 'var(--color-text-tertiary)',
             fontFamily: "'JetBrains Mono', monospace",
           }}
         >
@@ -123,7 +123,7 @@ export function Layout({ children, stats }: LayoutProps) {
               display: 'flex',
               alignItems: 'center',
               gap: 6,
-              color: 'rgba(255,255,255,0.8)',
+              color: 'var(--color-text-tertiary)',
               textDecoration: 'none',
             }}
           >
