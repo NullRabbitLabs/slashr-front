@@ -109,7 +109,7 @@ function getHeadMeta(pathname: string, validator: ValidatorData | null): HeadMet
 
   // / (default)
   return {
-    title: 'slashr \u270C\uFE0F live validator incident feed',
+    title: '\u26A1 slashr \u270C\uFE0F live validator incident feed',
     description:
       'Real-time slashing and delinquency events across Ethereum, Solana, Cosmos, and Sui. As they happen.',
     url: base,

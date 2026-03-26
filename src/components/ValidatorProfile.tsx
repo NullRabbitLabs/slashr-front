@@ -5,6 +5,7 @@ import { useValidator } from '@/hooks/useValidator';
 import { useEventTypes } from '@/hooks/useEventTypes';
 import { useIsMobile } from '@/hooks/useIsMobile';
 import { truncateMiddle } from '@/lib/format';
+import { NETWORK_META } from '@/lib/constants';
 import { NetworkTag } from './NetworkTag';
 import { EventRow } from './EventRow';
 import { Sparkline } from './Sparkline';
@@ -255,6 +256,43 @@ export function ValidatorProfile() {
             {headerName}
           </h2>
           <NetworkTag network={validator.network} />
+          {(() => {
+            const net = NETWORK_META[validator.network]?.name ?? network;
+            const total = validator.events.length;
+            const hasSlash = validator.events.some(e => e.severity === 'critical');
+            const ongoing = validator.events.filter(e => !e.resolved_at).length;
+            let flavour = '';
+            if (hasSlash) {
+              flavour = `Slashed. ${total} incident${total === 1 ? '' : 's'} on record.`;
+            } else if (ongoing > 0) {
+              flavour = `${ongoing} ongoing incident${ongoing === 1 ? '' : 's'} right now.`;
+            } else if (total > 0) {
+              flavour = `${total} incident${total === 1 ? '' : 's'} on record. Eyes on this one.`;
+            } else {
+              flavour = 'Clean sheet so far.';
+            }
+            const tweetText = `\u26A1 ${headerName} on ${net} \u270C\uFE0F\n\n${flavour}\n\nvia @nullrabbit`;
+            const tweetUrl = `https://slashr.dev/validator/${encodeURIComponent(network ?? '')}/${encodeURIComponent(address ?? '')}`;
+            const intentUrl = `https://x.com/intent/tweet?text=${encodeURIComponent(tweetText)}&url=${encodeURIComponent(tweetUrl)}`;
+            return (
+              <a
+                href={intentUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{
+                  marginLeft: 'auto',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  color: 'var(--color-text-tertiary)',
+                  textDecoration: 'none',
+                }}
+              >
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
+                </svg>
+              </a>
+            );
+          })()}
         </div>
 
         <div
