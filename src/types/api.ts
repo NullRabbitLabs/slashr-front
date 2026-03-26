@@ -62,6 +62,7 @@ export interface EventListItem {
   validator_stake_token: string | null;
   validator_commission_pct: number | null;
   validator_node_ip: string | null;
+  validator_node_hostname: string | null;
   validator_hosting_provider: string | null;
   validator_website: string | null;
   has_contact: boolean;
@@ -83,6 +84,7 @@ export interface ValidatorProfile {
   stake_token: string | null;
   commission_pct: number | null;
   node_ip: string | null;
+  node_hostname: string | null;
   hosting_provider: string | null;
   website: string | null;
   has_contact: boolean;

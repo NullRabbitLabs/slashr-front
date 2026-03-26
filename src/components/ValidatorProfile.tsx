@@ -166,6 +166,7 @@ export function ValidatorProfile() {
     validator_stake_token: validator.stake_token,
     validator_commission_pct: validator.commission_pct,
     validator_node_ip: validator.node_ip,
+    validator_node_hostname: validator.node_hostname,
     validator_hosting_provider: validator.hosting_provider,
     validator_website: validator.website,
     has_contact: validator.has_contact,
@@ -180,7 +181,7 @@ export function ValidatorProfile() {
     ? validator.moniker!
     : validator.address;
 
-  const showInfrastructure = validator.node_ip || validator.hosting_provider || validator.in_scan_db;
+  const showInfrastructure = validator.node_hostname || validator.node_ip || validator.hosting_provider || validator.in_scan_db;
 
   return (
     <div>
@@ -450,6 +451,12 @@ export function ValidatorProfile() {
                 : { display: 'flex', flexWrap: 'wrap' as const, gap: '12px 24px', padding: '16px 0' }
             }
           >
+            {validator.node_hostname && (
+              <div>
+                <div style={metaLabelStyle}>Hostname</div>
+                <div style={metaValueStyle}>{validator.node_hostname}</div>
+              </div>
+            )}
             {validator.node_ip && (
               <div>
                 <div style={metaLabelStyle}>Node IP</div>
