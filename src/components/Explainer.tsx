@@ -10,7 +10,7 @@ export function Explainer() {
           fontFamily: "'JetBrains Mono', monospace",
         }}
       >
-        &#8627; new to this? what am i looking at?
+        &#8627; new to this? what am i looking at? ✌️
       </summary>
       <div
         style={{
