@@ -271,7 +271,7 @@ export function ValidatorProfile() {
             } else {
               flavour = 'Clean sheet so far.';
             }
-            const tweetText = `\u26A1 ${headerName} on ${net} \u270C\uFE0F\n\n${flavour}\n\nvia @nullrabbit`;
+            const tweetText = `\u26A1 ${headerName} on ${net} \u270C\uFE0F\n\n${flavour}\n\nvia @NullRabbitLabs`;
             const tweetUrl = `https://slashr.dev/validator/${encodeURIComponent(network ?? '')}/${encodeURIComponent(address ?? '')}`;
             const intentUrl = `https://x.com/intent/tweet?text=${encodeURIComponent(tweetText)}&url=${encodeURIComponent(tweetUrl)}`;
             return (
