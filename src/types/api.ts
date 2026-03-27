@@ -128,3 +128,11 @@ export interface EventTypeInfo {
   label: string;
   description: string;
 }
+
+export interface EventGroup {
+  event: EventListItem;
+  count: number;
+  eventIds: number[];
+  rangeStart: string;
+  rangeEnd: string;
+}

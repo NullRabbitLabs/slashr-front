@@ -16,6 +16,8 @@ interface EventRowProps {
   showNetworkTag?: boolean;
   showDescription?: boolean;
   hideNodeIp?: boolean;
+  groupCount?: number;
+  groupDateRange?: string;
 }
 
 export function EventRow({
@@ -26,6 +28,8 @@ export function EventRow({
   showNetworkTag = true,
   showDescription = false,
   hideNodeIp = false,
+  groupCount,
+  groupDateRange,
 }: EventRowProps) {
   const isMobile = useIsMobile();
   const resolved = event.resolved_at != null;
@@ -106,6 +110,21 @@ export function EventRow({
           </span>
         )}
 
+        {groupCount != null && groupCount > 1 && (
+          <span
+            style={{
+              fontSize: 11,
+              color: 'var(--color-text-dim)',
+              fontFamily: "'JetBrains Mono', monospace",
+              padding: '1px 5px',
+              border: '1px solid var(--color-border)',
+              borderRadius: 2,
+            }}
+          >
+            x{groupCount}
+          </span>
+        )}
+
         <span
           style={{
             fontSize: 12,
@@ -114,7 +133,7 @@ export function EventRow({
             fontFamily: "'JetBrains Mono', monospace",
           }}
         >
-          {relativeTime(event.started_at)}
+          {groupDateRange ?? relativeTime(event.started_at)}
         </span>
       </div>
 

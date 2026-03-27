@@ -1,6 +1,8 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import type { EventListItem, ValidatorEventItem } from '@/types/api';
+import { groupConsecutiveEvents } from '@/lib/groupEvents';
+import { formatDateRange } from '@/lib/time';
 import { useValidator } from '@/hooks/useValidator';
 import { useEventTypes } from '@/hooks/useEventTypes';
 import { useIsMobile } from '@/hooks/useIsMobile';
@@ -104,7 +106,11 @@ export function ValidatorProfile() {
     if (!validator) return;
 
     setVisibleIds(new Set());
-    pendingRef.current = validator.events.map(e => e.id);
+    setExpandedGroups(new Set());
+    const groups = groupConsecutiveEvents(
+      validator.events.map(e => ({ ...e } as EventListItem)),
+    );
+    pendingRef.current = groups.map(g => g.event.id);
 
     timerRef.current = setInterval(() => {
       const nextId = pendingRef.current.shift();
@@ -172,6 +178,13 @@ export function ValidatorProfile() {
     has_contact: validator.has_contact,
     in_scan_db: validator.in_scan_db,
   }));
+
+  const eventGroups = useMemo(
+    () => groupConsecutiveEvents(enrichedEvents),
+    [enrichedEvents],
+  );
+
+  const [expandedGroups, setExpandedGroups] = useState<Set<number>>(new Set());
 
   const isNamed = !!(validator.moniker?.trim());
   const displayAddress = isMobile
@@ -411,7 +424,7 @@ export function ValidatorProfile() {
         event history
       </div>
 
-      {enrichedEvents.length === 0 ? (
+      {eventGroups.length === 0 ? (
         <div
           style={{
             fontSize: 13,
@@ -423,18 +436,54 @@ export function ValidatorProfile() {
           no events recorded
         </div>
       ) : (
-        enrichedEvents.map(event => (
-          <EventRow
-            key={event.id}
-            event={event}
-            visible={visibleIds.has(event.id)}
-            eventTypeLookup={eventTypeLookup}
-            showValidator={false}
-            showNetworkTag={false}
-            showDescription
-            hideNodeIp
-          />
-        ))
+        eventGroups.map((group, gi) => {
+          const isExpanded = expandedGroups.has(gi);
+          const dateRange = group.count > 1
+            ? formatDateRange(group.rangeStart, group.rangeEnd)
+            : undefined;
+          return (
+            <div key={group.event.id}>
+              <div
+                style={{ cursor: group.count > 1 ? 'pointer' : undefined }}
+                onClick={group.count > 1 ? () => setExpandedGroups(prev => {
+                  const next = new Set(prev);
+                  if (next.has(gi)) next.delete(gi); else next.add(gi);
+                  return next;
+                }) : undefined}
+              >
+                <EventRow
+                  event={group.event}
+                  visible={visibleIds.has(group.event.id)}
+                  eventTypeLookup={eventTypeLookup}
+                  showValidator={false}
+                  showNetworkTag={false}
+                  showDescription
+                  hideNodeIp
+                  groupCount={group.count}
+                  groupDateRange={dateRange}
+                />
+              </div>
+              {isExpanded && group.count > 1 && (
+                <div style={{ paddingLeft: 16, borderLeft: '1px solid var(--color-border)' }}>
+                  {enrichedEvents
+                    .filter(e => group.eventIds.includes(e.id) && e.id !== group.event.id)
+                    .map(event => (
+                      <EventRow
+                        key={event.id}
+                        event={event}
+                        visible
+                        eventTypeLookup={eventTypeLookup}
+                        showValidator={false}
+                        showNetworkTag={false}
+                        showDescription
+                        hideNodeIp
+                      />
+                    ))}
+                </div>
+              )}
+            </div>
+          );
+        })
       )}
 
       {/* Infrastructure section */}

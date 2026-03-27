@@ -9,6 +9,24 @@ export function relativeTime(isoString: string): string {
 
 const SHORT_MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
 
+export function formatDateRange(startIso: string, endIso: string): string {
+  const start = new Date(startIso);
+  const end = new Date(endIso);
+  const sDay = start.getUTCDate();
+  const sMon = SHORT_MONTHS[start.getUTCMonth()]!;
+  const sYr = start.getUTCFullYear();
+  const eDay = end.getUTCDate();
+  const eMon = SHORT_MONTHS[end.getUTCMonth()]!;
+  const eYr = end.getUTCFullYear();
+
+  if (sDay === eDay && sMon === eMon && sYr === eYr) return `${sMon} ${sDay}`;
+  if (sYr === eYr) {
+    if (sMon === eMon) return `${sMon} ${sDay} \u2013 ${eDay}`;
+    return `${sMon} ${sDay} \u2013 ${eMon} ${eDay}`;
+  }
+  return `${sMon} ${sDay} '${String(sYr).slice(-2)} \u2013 ${eMon} ${eDay} '${String(eYr).slice(-2)}`;
+}
+
 export function formatUtcTime(isoString: string): string {
   const d = new Date(isoString);
   const day = d.getUTCDate();
