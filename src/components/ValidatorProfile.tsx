@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import type { EventListItem, ValidatorEventItem, EventGroup } from '@/types/api';
-import { groupConsecutiveEvents } from '@/lib/groupEvents';
+import type { EventListItem, ValidatorEventItem } from '@/types/api';
 import { useValidator } from '@/hooks/useValidator';
 import { type EventTypeLookup, getEventLabel } from '@/hooks/useEventTypes';
 import { useEventTypes } from '@/hooks/useEventTypes';
@@ -93,34 +92,24 @@ const metaValueStyle: React.CSSProperties = {
 // --- Title group types ---
 
 interface TitleGroup {
-  label: string;
-  subtitle: string | null;
+  title: string;
   description: string | null;
-  groups: EventGroup[];
-}
-
-function splitTitle(title: string): { label: string; subtitle: string | null } {
-  const idx = title.indexOf('. ');
-  if (idx >= 0 && idx < title.length - 2) {
-    return { label: title.slice(0, idx), subtitle: title.slice(idx + 2) };
-  }
-  return { label: title, subtitle: null };
+  events: EventListItem[];
 }
 
 function buildTitleGroups(
-  eventGroups: EventGroup[],
+  events: EventListItem[],
   lookup: EventTypeLookup,
 ): TitleGroup[] {
   const map = new Map<string, TitleGroup>();
-  for (const group of eventGroups) {
-    const baseLabel = getEventLabel(lookup, group.event.event_type, null, null);
-    if (!map.has(baseLabel)) {
-      const info = lookup.get(group.event.event_type);
+  for (const event of events) {
+    const title = getEventLabel(lookup, event.event_type, null, null);
+    if (!map.has(title)) {
+      const info = lookup.get(event.event_type);
       const description = info?.description ?? null;
-      const { label, subtitle } = splitTitle(baseLabel);
-      map.set(baseLabel, { label, subtitle, description, groups: [] });
+      map.set(title, { title, description, events: [] });
     }
-    map.get(baseLabel)!.groups.push(group);
+    map.get(title)!.events.push(event);
   }
   return Array.from(map.values());
 }
@@ -158,14 +147,9 @@ export function ValidatorProfile() {
     }));
   }, [validator]);
 
-  const eventGroups = useMemo(
-    () => groupConsecutiveEvents(enrichedEvents),
-    [enrichedEvents],
-  );
-
   const titleGroups = useMemo(
-    () => buildTitleGroups(eventGroups, eventTypeLookup),
-    [eventGroups, eventTypeLookup],
+    () => buildTitleGroups(enrichedEvents, eventTypeLookup),
+    [enrichedEvents, eventTypeLookup],
   );
 
   useEffect(() => {
@@ -369,8 +353,8 @@ export function ValidatorProfile() {
             gap: isMobile ? 4 : 16,
           }}
         >
-          <span>first seen {new Date(validator.first_seen).toLocaleDateString()}</span>
-          <span>last seen {new Date(validator.last_seen).toLocaleDateString()}</span>
+          <span>first event {new Date(validator.first_seen).toLocaleDateString()}</span>
+          <span>last event {new Date(validator.last_seen).toLocaleDateString()}</span>
         </div>
       </div>
 
@@ -478,7 +462,7 @@ export function ValidatorProfile() {
           const visible = visibleIds.has(tgi);
           return (
             <div
-              key={tg.label}
+              key={tg.title}
               style={{
                 marginTop: tgi > 0 ? 12 : 0,
                 opacity: visible ? 1 : 0,
@@ -486,9 +470,8 @@ export function ValidatorProfile() {
                 transition: 'opacity 0.4s ease, transform 0.4s ease',
               }}
             >
-              {/* Compact rows — one per consecutive group */}
-              {tg.groups.map((group) => {
-                const ev = group.event;
+              {/* Compact rows — one per event */}
+              {tg.events.map((ev) => {
                 const resolved = ev.resolved_at != null;
                 const dotColor = resolved ? 'var(--color-accent-dim)' : '#e8a735';
                 return (
@@ -567,60 +550,41 @@ export function ValidatorProfile() {
                         whiteSpace: 'nowrap',
                       }}
                     >
-                      {tg.label}
+                      {tg.title}
                     </span>
-
-                    {group.count > 1 && (
-                      <span
-                        style={{
-                          fontSize: 12,
-                          color: 'rgba(255,255,255,0.32)',
-                          fontFamily: "'JetBrains Mono', monospace",
-                          flexShrink: 0,
-                        }}
-                      >
-                        x{group.count}
-                      </span>
-                    )}
                   </div>
                 );
               })}
 
               {/* Shared description block */}
-              {(tg.subtitle || tg.description) && (
+              {tg.description && (
                 <div
                   style={{
-                    borderTop: '1px solid rgba(255,255,255,0.08)',
                     marginTop: 12,
-                    paddingTop: 12,
                     paddingBottom: 12,
                     borderBottom: '1px solid rgba(255,255,255,0.08)',
                   }}
                 >
-                  {tg.subtitle && (
-                    <div
-                      style={{
-                        fontSize: 13,
-                        color: 'rgba(255,255,255,0.75)',
-                        fontFamily: "'Inter', sans-serif",
-                        marginBottom: 6,
-                      }}
-                    >
-                      {tg.subtitle}
-                    </div>
-                  )}
-                  {tg.description && (
-                    <div
-                      style={{
-                        fontSize: 12,
-                        color: 'rgba(255,255,255,0.42)',
-                        fontFamily: "'Inter', sans-serif",
-                        lineHeight: 1.6,
-                      }}
-                    >
-                      {tg.description}
-                    </div>
-                  )}
+                  <div
+                    style={{
+                      fontSize: 13,
+                      color: 'rgba(255,255,255,0.75)',
+                      fontFamily: "'Inter', sans-serif",
+                      marginBottom: 6,
+                    }}
+                  >
+                    {tg.title}
+                  </div>
+                  <div
+                    style={{
+                      fontSize: 12,
+                      color: 'rgba(255,255,255,0.42)',
+                      fontFamily: "'Inter', sans-serif",
+                      lineHeight: 1.6,
+                    }}
+                  >
+                    {tg.description}
+                  </div>
                 </div>
               )}
             </div>
