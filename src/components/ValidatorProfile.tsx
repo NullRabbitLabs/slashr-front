@@ -101,16 +101,39 @@ export function ValidatorProfile() {
   const [visibleIds, setVisibleIds] = useState<Set<number>>(new Set());
   const pendingRef = useRef<number[]>([]);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const [expandedGroups, setExpandedGroups] = useState<Set<number>>(new Set());
+
+  // Enrich ValidatorEventItems to EventListItems for EventRow
+  const enrichedEvents: EventListItem[] = useMemo(() => {
+    if (!validator) return [];
+    return validator.events.map(e => ({
+      ...e,
+      network: validator.network,
+      validator_address: validator.address,
+      validator_moniker: validator.moniker,
+      validator_stake: validator.stake,
+      validator_stake_token: validator.stake_token,
+      validator_commission_pct: validator.commission_pct,
+      validator_node_ip: validator.node_ip,
+      validator_node_hostname: validator.node_hostname,
+      validator_hosting_provider: validator.hosting_provider,
+      validator_website: validator.website,
+      has_contact: validator.has_contact,
+      in_scan_db: validator.in_scan_db,
+    }));
+  }, [validator]);
+
+  const eventGroups = useMemo(
+    () => groupConsecutiveEvents(enrichedEvents),
+    [enrichedEvents],
+  );
 
   useEffect(() => {
     if (!validator) return;
 
     setVisibleIds(new Set());
     setExpandedGroups(new Set());
-    const groups = groupConsecutiveEvents(
-      validator.events.map(e => ({ ...e } as EventListItem)),
-    );
-    pendingRef.current = groups.map(g => g.event.id);
+    pendingRef.current = eventGroups.map(g => g.event.id);
 
     timerRef.current = setInterval(() => {
       const nextId = pendingRef.current.shift();
@@ -161,30 +184,6 @@ export function ValidatorProfile() {
       </div>
     );
   }
-
-  // Enrich ValidatorEventItems to EventListItems for EventRow
-  const enrichedEvents: EventListItem[] = validator.events.map(e => ({
-    ...e,
-    network: validator.network,
-    validator_address: validator.address,
-    validator_moniker: validator.moniker,
-    validator_stake: validator.stake,
-    validator_stake_token: validator.stake_token,
-    validator_commission_pct: validator.commission_pct,
-    validator_node_ip: validator.node_ip,
-    validator_node_hostname: validator.node_hostname,
-    validator_hosting_provider: validator.hosting_provider,
-    validator_website: validator.website,
-    has_contact: validator.has_contact,
-    in_scan_db: validator.in_scan_db,
-  }));
-
-  const eventGroups = useMemo(
-    () => groupConsecutiveEvents(enrichedEvents),
-    [enrichedEvents],
-  );
-
-  const [expandedGroups, setExpandedGroups] = useState<Set<number>>(new Set());
 
   const isNamed = !!(validator.moniker?.trim());
   const displayAddress = isMobile
