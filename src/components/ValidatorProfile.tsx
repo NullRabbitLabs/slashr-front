@@ -452,9 +452,9 @@ export function ValidatorProfile() {
             }
           >
             {validator.node_hostname && (
-              <div>
+              <div style={{ gridColumn: isMobile ? 'span 2' : undefined }}>
                 <div style={metaLabelStyle}>Hostname</div>
-                <div style={metaValueStyle}>{validator.node_hostname}</div>
+                <div style={{ ...metaValueStyle, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{validator.node_hostname}</div>
               </div>
             )}
             {validator.node_ip && (
