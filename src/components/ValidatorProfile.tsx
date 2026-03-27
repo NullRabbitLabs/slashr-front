@@ -2,12 +2,11 @@ import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import type { EventListItem, ValidatorEventItem } from '@/types/api';
 import { useValidator } from '@/hooks/useValidator';
-import { type EventTypeLookup, getEventLabel } from '@/hooks/useEventTypes';
-import { useEventTypes } from '@/hooks/useEventTypes';
+import { getEventLabel } from '@/lib/constants';
 import { useIsMobile } from '@/hooks/useIsMobile';
 import { formatUtcTime } from '@/lib/time';
 import { truncateMiddle } from '@/lib/format';
-import { NETWORK_META } from '@/lib/constants';
+import { NETWORK_META, EVENT_TYPE_DESCRIPTIONS } from '@/lib/constants';
 import { NetworkTag } from './NetworkTag';
 import { SeverityMark } from './SeverityMark';
 import { Sparkline } from './Sparkline';
@@ -99,14 +98,12 @@ interface TitleGroup {
 
 function buildTitleGroups(
   events: EventListItem[],
-  lookup: EventTypeLookup,
 ): TitleGroup[] {
   const map = new Map<string, TitleGroup>();
   for (const event of events) {
-    const title = getEventLabel(lookup, event.event_type, null, null);
+    const title = getEventLabel(event.event_type, null, null);
     if (!map.has(title)) {
-      const info = lookup.get(event.event_type);
-      const description = info?.description ?? null;
+      const description = EVENT_TYPE_DESCRIPTIONS[event.event_type as keyof typeof EVENT_TYPE_DESCRIPTIONS] ?? null;
       map.set(title, { title, description, events: [] });
     }
     map.get(title)!.events.push(event);
@@ -119,7 +116,6 @@ function buildTitleGroups(
 export function ValidatorProfile() {
   const { network, address } = useParams<{ network: string; address: string }>();
   const { validator, loading, error } = useValidator(network ?? '', address ?? '');
-  const { lookup: eventTypeLookup } = useEventTypes();
   const isMobile = useIsMobile();
 
   // Stagger animation for event history
@@ -148,8 +144,8 @@ export function ValidatorProfile() {
   }, [validator]);
 
   const titleGroups = useMemo(
-    () => buildTitleGroups(enrichedEvents, eventTypeLookup),
-    [enrichedEvents, eventTypeLookup],
+    () => buildTitleGroups(enrichedEvents),
+    [enrichedEvents],
   );
 
   useEffect(() => {

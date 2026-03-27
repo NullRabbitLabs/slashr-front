@@ -1,17 +1,17 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import type { EventListItem } from '@/types/api';
-import { type EventTypeLookup, getEventLabel } from '@/hooks/useEventTypes';
+import { getEventLabel } from '@/lib/constants';
 import { relativeTime, formatUtcTime } from '@/lib/time';
 import { formatStake, stripCidr } from '@/lib/format';
 import { useIsMobile } from '@/hooks/useIsMobile';
+import { EVENT_TYPE_DESCRIPTIONS } from '@/lib/constants';
 import { NetworkTag } from './NetworkTag';
 import { SeverityMark } from './SeverityMark';
 
 interface EventRowProps {
   event: EventListItem;
   visible: boolean;
-  eventTypeLookup?: EventTypeLookup;
   showValidator?: boolean;
   showNetworkTag?: boolean;
   showDescription?: boolean;
@@ -23,7 +23,6 @@ interface EventRowProps {
 export function EventRow({
   event,
   visible,
-  eventTypeLookup,
   showValidator = true,
   showNetworkTag = true,
   showDescription = false,
@@ -42,9 +41,7 @@ export function EventRow({
 
   const contentIndent = 0;
 
-  const lookup = eventTypeLookup ?? new Map();
-  const eventTypeInfo = lookup.get(event.event_type);
-  const eventDescription = eventTypeInfo?.description ?? null;
+  const eventDescription = EVENT_TYPE_DESCRIPTIONS[event.event_type as keyof typeof EVENT_TYPE_DESCRIPTIONS] ?? null;
 
   return (
     <div
@@ -165,7 +162,7 @@ export function EventRow({
           }}
           title={!showDescription ? (eventDescription ?? undefined) : undefined}
         >
-          {getEventLabel(lookup, event.event_type, event.penalty_amount, event.penalty_token)}
+          {getEventLabel(event.event_type, event.penalty_amount, event.penalty_token)}
         </span>
         {/* Row 4: description */}
         {showDescription && eventDescription && (

@@ -1,6 +1,5 @@
 import { useEffect, useRef } from 'react';
 import { useEvents } from '@/hooks/useEvents';
-import { useEventTypes } from '@/hooks/useEventTypes';
 import { EventRow } from './EventRow';
 
 interface EventFeedProps {
@@ -17,7 +16,6 @@ export function EventFeed({ network, search, initialCursor, onCursorChange }: Ev
     initialCursor,
     onCursorChange,
   });
-  const { lookup: eventTypeLookup } = useEventTypes();
   const sentinelRef = useRef<HTMLDivElement>(null);
 
   // Infinite scroll: trigger loadMore when sentinel enters viewport
@@ -70,7 +68,6 @@ export function EventFeed({ network, search, initialCursor, onCursorChange }: Ev
           key={event.id}
           event={event}
           visible={visibleIds.has(event.id)}
-          eventTypeLookup={eventTypeLookup}
         />
       ))}
 

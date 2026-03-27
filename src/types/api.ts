@@ -120,14 +120,6 @@ export interface StatsCounts {
   all_time: number;
 }
 
-export interface EventTypeInfo {
-  code: string;
-  network: string;
-  severity: string;
-  category: string;
-  label: string;
-  description: string;
-}
 
 export interface EventGroup {
   event: EventListItem;
