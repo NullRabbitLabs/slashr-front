@@ -1,15 +1,16 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import type { EventListItem, ValidatorEventItem } from '@/types/api';
+import type { EventListItem, ValidatorEventItem, EventGroup } from '@/types/api';
 import { groupConsecutiveEvents } from '@/lib/groupEvents';
-import { formatDateRange } from '@/lib/time';
 import { useValidator } from '@/hooks/useValidator';
+import { type EventTypeLookup, getEventLabel } from '@/hooks/useEventTypes';
 import { useEventTypes } from '@/hooks/useEventTypes';
 import { useIsMobile } from '@/hooks/useIsMobile';
+import { formatUtcTime } from '@/lib/time';
 import { truncateMiddle } from '@/lib/format';
 import { NETWORK_META } from '@/lib/constants';
 import { NetworkTag } from './NetworkTag';
-import { EventRow } from './EventRow';
+import { SeverityMark } from './SeverityMark';
 import { Sparkline } from './Sparkline';
 
 const STAGGER_DELAY = 120;
@@ -89,6 +90,41 @@ const metaValueStyle: React.CSSProperties = {
   fontFamily: "'JetBrains Mono', monospace",
 };
 
+// --- Title group types ---
+
+interface TitleGroup {
+  label: string;
+  subtitle: string | null;
+  description: string | null;
+  groups: EventGroup[];
+}
+
+function splitTitle(title: string): { label: string; subtitle: string | null } {
+  const idx = title.indexOf('. ');
+  if (idx >= 0 && idx < title.length - 2) {
+    return { label: title.slice(0, idx), subtitle: title.slice(idx + 2) };
+  }
+  return { label: title, subtitle: null };
+}
+
+function buildTitleGroups(
+  eventGroups: EventGroup[],
+  lookup: EventTypeLookup,
+): TitleGroup[] {
+  const map = new Map<string, TitleGroup>();
+  for (const group of eventGroups) {
+    const baseLabel = getEventLabel(lookup, group.event.event_type, null, null);
+    if (!map.has(baseLabel)) {
+      const info = lookup.get(group.event.event_type);
+      const description = info?.description ?? null;
+      const { label, subtitle } = splitTitle(baseLabel);
+      map.set(baseLabel, { label, subtitle, description, groups: [] });
+    }
+    map.get(baseLabel)!.groups.push(group);
+  }
+  return Array.from(map.values());
+}
+
 // --- Component ---
 
 export function ValidatorProfile() {
@@ -101,7 +137,6 @@ export function ValidatorProfile() {
   const [visibleIds, setVisibleIds] = useState<Set<number>>(new Set());
   const pendingRef = useRef<number[]>([]);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
-  const [expandedGroups, setExpandedGroups] = useState<Set<number>>(new Set());
 
   // Enrich ValidatorEventItems to EventListItems for EventRow
   const enrichedEvents: EventListItem[] = useMemo(() => {
@@ -128,12 +163,16 @@ export function ValidatorProfile() {
     [enrichedEvents],
   );
 
+  const titleGroups = useMemo(
+    () => buildTitleGroups(eventGroups, eventTypeLookup),
+    [eventGroups, eventTypeLookup],
+  );
+
   useEffect(() => {
     if (!validator) return;
 
     setVisibleIds(new Set());
-    setExpandedGroups(new Set());
-    pendingRef.current = eventGroups.map(g => g.event.id);
+    pendingRef.current = titleGroups.map((_, i) => i);
 
     timerRef.current = setInterval(() => {
       const nextId = pendingRef.current.shift();
@@ -423,7 +462,7 @@ export function ValidatorProfile() {
         event history
       </div>
 
-      {eventGroups.length === 0 ? (
+      {titleGroups.length === 0 ? (
         <div
           style={{
             fontSize: 13,
@@ -435,61 +474,158 @@ export function ValidatorProfile() {
           no events recorded
         </div>
       ) : (
-        (() => {
-          const seenDescriptions = new Set<string>();
-          return eventGroups.map((group, gi) => {
-            const isFirst = !seenDescriptions.has(group.event.event_type);
-            if (isFirst) seenDescriptions.add(group.event.event_type);
-            const isExpanded = expandedGroups.has(gi);
-            const dateRange = group.count > 1
-              ? formatDateRange(group.rangeStart, group.rangeEnd)
-              : undefined;
-            return (
-              <div key={group.event.id}>
-                <div
-                  style={{ cursor: group.count > 1 ? 'pointer' : undefined }}
-                  onClick={group.count > 1 ? () => setExpandedGroups(prev => {
-                    const next = new Set(prev);
-                    if (next.has(gi)) next.delete(gi); else next.add(gi);
-                    return next;
-                  }) : undefined}
-                >
-                  <EventRow
-                    event={group.event}
-                    visible={visibleIds.has(group.event.id)}
-                    eventTypeLookup={eventTypeLookup}
-                    showValidator={false}
-                    showNetworkTag={false}
-                    showDescription
-                    hideNodeIp
-                    groupCount={group.count}
-                    groupDateRange={dateRange}
-                    compact={!isFirst}
-                  />
-                </div>
-                {isExpanded && group.count > 1 && (
-                  <div style={{ paddingLeft: 16, borderLeft: '1px solid var(--color-border)' }}>
-                    {enrichedEvents
-                      .filter(e => group.eventIds.includes(e.id) && e.id !== group.event.id)
-                      .map(event => (
-                        <EventRow
-                          key={event.id}
-                          event={event}
-                          visible
-                          eventTypeLookup={eventTypeLookup}
-                          showValidator={false}
-                          showNetworkTag={false}
-                          showDescription
-                          hideNodeIp
-                          compact
-                        />
-                      ))}
+        titleGroups.map((tg, tgi) => {
+          const visible = visibleIds.has(tgi);
+          return (
+            <div
+              key={tg.label}
+              style={{
+                marginTop: tgi > 0 ? 12 : 0,
+                opacity: visible ? 1 : 0,
+                transform: visible ? 'translateY(0)' : 'translateY(8px)',
+                transition: 'opacity 0.4s ease, transform 0.4s ease',
+              }}
+            >
+              {/* Compact rows — one per consecutive group */}
+              {tg.groups.map((group) => {
+                const ev = group.event;
+                const resolved = ev.resolved_at != null;
+                const dotColor = resolved ? 'var(--color-accent-dim)' : '#e8a735';
+                return (
+                  <div
+                    key={ev.id}
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: 8,
+                      padding: '8px 0',
+                      borderBottom: '1px solid rgba(255,255,255,0.06)',
+                    }}
+                  >
+                    <span
+                      style={{
+                        width: 5,
+                        height: 5,
+                        borderRadius: '50%',
+                        backgroundColor: dotColor,
+                        flexShrink: 0,
+                      }}
+                    />
+                    {!isMobile && (
+                      <span
+                        style={{
+                          fontSize: 11,
+                          color: 'rgba(255,255,255,0.50)',
+                          fontFamily: "'JetBrains Mono', monospace",
+                          minWidth: 110,
+                          flexShrink: 0,
+                        }}
+                      >
+                        {formatUtcTime(ev.started_at)}
+                      </span>
+                    )}
+
+                    <SeverityMark severity={ev.severity} />
+
+                    {resolved ? (
+                      <span
+                        style={{
+                          fontSize: 10,
+                          color: 'var(--color-accent-dim)',
+                          fontFamily: "'JetBrains Mono', monospace",
+                          textTransform: 'uppercase',
+                          letterSpacing: '0.05em',
+                          flexShrink: 0,
+                        }}
+                      >
+                        resolved
+                      </span>
+                    ) : (
+                      <span
+                        style={{
+                          fontSize: 10,
+                          color: '#e8a735',
+                          fontFamily: "'JetBrains Mono', monospace",
+                          textTransform: 'uppercase',
+                          letterSpacing: '0.05em',
+                          fontWeight: 600,
+                          flexShrink: 0,
+                        }}
+                      >
+                        ongoing
+                      </span>
+                    )}
+
+                    <span
+                      style={{
+                        fontSize: 12,
+                        color: 'rgba(255,255,255,0.75)',
+                        fontFamily: "'Inter', sans-serif",
+                        flex: 1,
+                        overflow: 'hidden',
+                        textOverflow: 'ellipsis',
+                        whiteSpace: 'nowrap',
+                      }}
+                    >
+                      {tg.label}
+                    </span>
+
+                    {group.count > 1 && (
+                      <span
+                        style={{
+                          fontSize: 12,
+                          color: 'rgba(255,255,255,0.32)',
+                          fontFamily: "'JetBrains Mono', monospace",
+                          flexShrink: 0,
+                        }}
+                      >
+                        x{group.count}
+                      </span>
+                    )}
                   </div>
-                )}
-              </div>
-            );
-          });
-        })()
+                );
+              })}
+
+              {/* Shared description block */}
+              {(tg.subtitle || tg.description) && (
+                <div
+                  style={{
+                    borderTop: '1px solid rgba(255,255,255,0.08)',
+                    marginTop: 12,
+                    paddingTop: 12,
+                    paddingBottom: 12,
+                    borderBottom: '1px solid rgba(255,255,255,0.08)',
+                  }}
+                >
+                  {tg.subtitle && (
+                    <div
+                      style={{
+                        fontSize: 13,
+                        color: 'rgba(255,255,255,0.75)',
+                        fontFamily: "'Inter', sans-serif",
+                        marginBottom: 6,
+                      }}
+                    >
+                      {tg.subtitle}
+                    </div>
+                  )}
+                  {tg.description && (
+                    <div
+                      style={{
+                        fontSize: 12,
+                        color: 'rgba(255,255,255,0.42)',
+                        fontFamily: "'Inter', sans-serif",
+                        lineHeight: 1.6,
+                      }}
+                    >
+                      {tg.description}
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+          );
+        })
       )}
 
       {/* Infrastructure section */}
