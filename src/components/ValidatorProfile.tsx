@@ -393,7 +393,7 @@ export function ValidatorProfile() {
             <div>
               <div style={metaLabelStyle}>Commission</div>
               <div style={metaValueStyle}>
-                {validator.commission_pct}%
+                {Math.round(validator.commission_pct!)}%
                 {validator.commission_pct === 100 && (
                   <span style={{ fontSize: 11, color: 'var(--color-text-dim)', marginLeft: 8 }}>
                     delegators earn no rewards

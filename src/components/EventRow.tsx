@@ -212,7 +212,7 @@ function EnrichmentRow({ event, isMobile, hideNodeIp, indent }: { event: EventLi
   if (event.validator_commission_pct != null) {
     items.push(
       <span key="commission" style={pillStyle}>
-        {event.validator_commission_pct}% commission
+        {Math.round(event.validator_commission_pct!)}% commission
       </span>,
     );
   }
