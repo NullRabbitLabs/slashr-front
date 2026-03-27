@@ -349,8 +349,8 @@ export function ValidatorProfile() {
             gap: isMobile ? 4 : 16,
           }}
         >
-          <span>first event {new Date(validator.first_seen).toLocaleDateString()}</span>
-          <span>last event {new Date(validator.last_seen).toLocaleDateString()}</span>
+          <span>first event {formatUtcTime(validator.first_seen)}</span>
+          <span>last event {formatUtcTime(validator.last_seen)}</span>
         </div>
       </div>
 
