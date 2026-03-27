@@ -18,6 +18,7 @@ interface EventRowProps {
   hideNodeIp?: boolean;
   groupCount?: number;
   groupDateRange?: string;
+  compact?: boolean;
 }
 
 export function EventRow({
@@ -30,6 +31,7 @@ export function EventRow({
   hideNodeIp = false,
   groupCount,
   groupDateRange,
+  compact = false,
 }: EventRowProps) {
   const isMobile = useIsMobile();
   const resolved = event.resolved_at != null;
@@ -63,7 +65,7 @@ export function EventRow({
           display: 'flex',
           alignItems: 'center',
           gap: 8,
-          marginBottom: 6,
+          marginBottom: compact ? 0 : 6,
         }}
       >
         {!isMobile && (
@@ -137,51 +139,55 @@ export function EventRow({
         </span>
       </div>
 
-      {/* Row 2: enrichment metadata (stake, commission) */}
-      <EnrichmentRow event={event} isMobile={isMobile} hideNodeIp={hideNodeIp} indent={contentIndent} />
+      {!compact && (
+        <>
+          {/* Row 2: enrichment metadata (stake, commission) */}
+          <EnrichmentRow event={event} isMobile={isMobile} hideNodeIp={hideNodeIp} indent={contentIndent} />
 
-      {/* Row 3: validator name + label */}
-      <div style={{ paddingLeft: contentIndent, marginTop: 8 }}>
-        {showValidator && (
-          <Link
-            to={`/validator/${event.network}/${event.validator_address}`}
-            style={{
-              fontWeight: 600,
-              fontSize: 14,
-              color: 'var(--color-text-primary)',
-              marginRight: 8,
-            }}
-          >
-            {displayName}
-          </Link>
-        )}
-        <span
-          style={{
-            fontSize: 14,
-            color: showDescription ? 'var(--color-text-event-title)' : 'var(--color-text-event-desc)',
-            lineHeight: 1.5,
-            cursor: !showDescription && eventDescription ? 'help' : undefined,
-            borderBottom: !showDescription && eventDescription ? '1px dotted var(--color-border-hover)' : undefined,
-          }}
-          title={!showDescription ? (eventDescription ?? undefined) : undefined}
-        >
-          {getEventLabel(lookup, event.event_type, event.penalty_amount, event.penalty_token)}
-        </span>
-        {/* Row 4: description */}
-        {showDescription && eventDescription && (
-          <div
-            style={{
-              fontSize: 12,
-              color: 'var(--color-text-body)',
-              fontFamily: "'Inter', sans-serif",
-              marginTop: 6,
-              lineHeight: 1.4,
-            }}
-          >
-            {eventDescription}
+          {/* Row 3: validator name + label */}
+          <div style={{ paddingLeft: contentIndent, marginTop: 8 }}>
+            {showValidator && (
+              <Link
+                to={`/validator/${event.network}/${event.validator_address}`}
+                style={{
+                  fontWeight: 600,
+                  fontSize: 14,
+                  color: 'var(--color-text-primary)',
+                  marginRight: 8,
+                }}
+              >
+                {displayName}
+              </Link>
+            )}
+            <span
+              style={{
+                fontSize: 14,
+                color: showDescription ? 'var(--color-text-event-title)' : 'var(--color-text-event-desc)',
+                lineHeight: 1.5,
+                cursor: !showDescription && eventDescription ? 'help' : undefined,
+                borderBottom: !showDescription && eventDescription ? '1px dotted var(--color-border-hover)' : undefined,
+              }}
+              title={!showDescription ? (eventDescription ?? undefined) : undefined}
+            >
+              {getEventLabel(lookup, event.event_type, event.penalty_amount, event.penalty_token)}
+            </span>
+            {/* Row 4: description */}
+            {showDescription && eventDescription && (
+              <div
+                style={{
+                  fontSize: 12,
+                  color: 'var(--color-text-body)',
+                  fontFamily: "'Inter', sans-serif",
+                  marginTop: 6,
+                  lineHeight: 1.4,
+                }}
+              >
+                {eventDescription}
+              </div>
+            )}
           </div>
-        )}
-      </div>
+        </>
+      )}
     </div>
   );
 }

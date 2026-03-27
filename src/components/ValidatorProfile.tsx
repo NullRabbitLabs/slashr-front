@@ -435,54 +435,61 @@ export function ValidatorProfile() {
           no events recorded
         </div>
       ) : (
-        eventGroups.map((group, gi) => {
-          const isExpanded = expandedGroups.has(gi);
-          const dateRange = group.count > 1
-            ? formatDateRange(group.rangeStart, group.rangeEnd)
-            : undefined;
-          return (
-            <div key={group.event.id}>
-              <div
-                style={{ cursor: group.count > 1 ? 'pointer' : undefined }}
-                onClick={group.count > 1 ? () => setExpandedGroups(prev => {
-                  const next = new Set(prev);
-                  if (next.has(gi)) next.delete(gi); else next.add(gi);
-                  return next;
-                }) : undefined}
-              >
-                <EventRow
-                  event={group.event}
-                  visible={visibleIds.has(group.event.id)}
-                  eventTypeLookup={eventTypeLookup}
-                  showValidator={false}
-                  showNetworkTag={false}
-                  showDescription
-                  hideNodeIp
-                  groupCount={group.count}
-                  groupDateRange={dateRange}
-                />
-              </div>
-              {isExpanded && group.count > 1 && (
-                <div style={{ paddingLeft: 16, borderLeft: '1px solid var(--color-border)' }}>
-                  {enrichedEvents
-                    .filter(e => group.eventIds.includes(e.id) && e.id !== group.event.id)
-                    .map(event => (
-                      <EventRow
-                        key={event.id}
-                        event={event}
-                        visible
-                        eventTypeLookup={eventTypeLookup}
-                        showValidator={false}
-                        showNetworkTag={false}
-                        showDescription
-                        hideNodeIp
-                      />
-                    ))}
+        (() => {
+          const seenDescriptions = new Set<string>();
+          return eventGroups.map((group, gi) => {
+            const isFirst = !seenDescriptions.has(group.event.event_type);
+            if (isFirst) seenDescriptions.add(group.event.event_type);
+            const isExpanded = expandedGroups.has(gi);
+            const dateRange = group.count > 1
+              ? formatDateRange(group.rangeStart, group.rangeEnd)
+              : undefined;
+            return (
+              <div key={group.event.id}>
+                <div
+                  style={{ cursor: group.count > 1 ? 'pointer' : undefined }}
+                  onClick={group.count > 1 ? () => setExpandedGroups(prev => {
+                    const next = new Set(prev);
+                    if (next.has(gi)) next.delete(gi); else next.add(gi);
+                    return next;
+                  }) : undefined}
+                >
+                  <EventRow
+                    event={group.event}
+                    visible={visibleIds.has(group.event.id)}
+                    eventTypeLookup={eventTypeLookup}
+                    showValidator={false}
+                    showNetworkTag={false}
+                    showDescription
+                    hideNodeIp
+                    groupCount={group.count}
+                    groupDateRange={dateRange}
+                    compact={!isFirst}
+                  />
                 </div>
-              )}
-            </div>
-          );
-        })
+                {isExpanded && group.count > 1 && (
+                  <div style={{ paddingLeft: 16, borderLeft: '1px solid var(--color-border)' }}>
+                    {enrichedEvents
+                      .filter(e => group.eventIds.includes(e.id) && e.id !== group.event.id)
+                      .map(event => (
+                        <EventRow
+                          key={event.id}
+                          event={event}
+                          visible
+                          eventTypeLookup={eventTypeLookup}
+                          showValidator={false}
+                          showNetworkTag={false}
+                          showDescription
+                          hideNodeIp
+                          compact
+                        />
+                      ))}
+                  </div>
+                )}
+              </div>
+            );
+          });
+        })()
       )}
 
       {/* Infrastructure section */}
