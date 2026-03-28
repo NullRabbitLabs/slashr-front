@@ -22,7 +22,7 @@ export function Layout({ children, stats }: LayoutProps) {
   const { networks } = useNetworks();
   const { pathname } = useLocation();
   const totalEvents = stats?.totals.all_time;
-  const showFeedHeader = pathname === '/' || pathname === '/validators';
+  const showFeedHeader = pathname === '/' || pathname === '/validators' || pathname === '/leaderboard';
 
   return (
     <div
@@ -78,22 +78,24 @@ export function Layout({ children, stats }: LayoutProps) {
             >
               slashr
             </h1>
-            <span
-              style={{
-                fontSize: 10,
-                fontWeight: 600,
-                fontFamily: "'JetBrains Mono', monospace",
-                color: 'var(--color-danger)',
-                border: '1px solid var(--color-danger)',
-                borderRadius: 3,
-                padding: '1px 5px',
-                lineHeight: 1.4,
-                letterSpacing: '0.05em',
-                textTransform: 'uppercase' as const,
-              }}
-            >
-              beta
-            </span>
+            {window.location.hostname !== 'slashr.dev' && (
+              <span
+                style={{
+                  fontSize: 10,
+                  fontWeight: 600,
+                  fontFamily: "'JetBrains Mono', monospace",
+                  color: 'var(--color-danger)',
+                  border: '1px solid var(--color-danger)',
+                  borderRadius: 3,
+                  padding: '1px 5px',
+                  lineHeight: 1.4,
+                  letterSpacing: '0.05em',
+                  textTransform: 'uppercase' as const,
+                }}
+              >
+                beta
+              </span>
+            )}
           </a>
 
           {/* Right: live status + theme toggle */}

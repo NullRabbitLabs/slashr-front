@@ -4,6 +4,7 @@ import { Layout } from '@/components/Layout';
 import FeedPage from '@/pages/FeedPage';
 import ValidatorPage from '@/pages/ValidatorPage';
 import ValidatorsPage from '@/pages/ValidatorsPage';
+import LeaderboardPage from '@/pages/LeaderboardPage';
 
 function AppRoutes() {
   const { stats } = useStats();
@@ -13,6 +14,7 @@ function AppRoutes() {
       <Routes>
         <Route path="/" element={<FeedPage />} />
         <Route path="/validators" element={<ValidatorsPage />} />
+        <Route path="/leaderboard" element={<LeaderboardPage />} />
         <Route path="/validator/:network/:address" element={<ValidatorPage />} />
       </Routes>
     </Layout>
