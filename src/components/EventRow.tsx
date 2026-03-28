@@ -47,7 +47,8 @@ export function EventRow({
     <div
       className={`event-row${isCritical ? ' event-row-critical' : ''}`}
       style={{
-        padding: '14px 0',
+        paddingTop: 14,
+        paddingBottom: 14,
         borderBottom: '1px solid var(--color-border)',
         opacity: visible ? 1 : 0,
         transform: visible ? 'translateY(0)' : 'translateY(8px)',
