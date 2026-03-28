@@ -139,5 +139,4 @@ details > summary::-webkit-details-marker {
 .event-row-critical {
   border-left: 2px solid var(--color-danger);
   padding-left: 12px;
-  margin-left: -14px;
 }
