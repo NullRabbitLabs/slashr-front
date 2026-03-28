@@ -6,6 +6,8 @@ import type {
   LeaderboardResponse,
   LeaderboardPeriod,
   LeaderboardSort,
+  ReportProviderItem,
+  ReportResponse,
   PaginatedResponse,
   DataResponse,
 } from '@/types/api';
@@ -74,4 +76,20 @@ export async function fetchLeaderboard(params: {
   const res = await fetch(`${BASE_URL}/v1/leaderboard?${qs}`);
   if (!res.ok) throw new Error(`API error: ${res.status}`);
   return res.json() as Promise<DataResponse<LeaderboardResponse>>;
+}
+
+export async function fetchReportProviders(): Promise<DataResponse<ReportProviderItem[]>> {
+  const res = await fetch(`${BASE_URL}/v1/reports`);
+  if (!res.ok) throw new Error(`API error: ${res.status}`);
+  return res.json() as Promise<DataResponse<ReportProviderItem[]>>;
+}
+
+export async function fetchReport(
+  providerSlug: string,
+  period?: string,
+): Promise<DataResponse<ReportResponse>> {
+  const qs = period ? `?period=${encodeURIComponent(period)}` : '';
+  const res = await fetch(`${BASE_URL}/v1/reports/${encodeURIComponent(providerSlug)}${qs}`);
+  if (!res.ok) throw new Error(`API error: ${res.status}`);
+  return res.json() as Promise<DataResponse<ReportResponse>>;
 }
