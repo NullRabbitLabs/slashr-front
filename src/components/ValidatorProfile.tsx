@@ -118,6 +118,9 @@ export function ValidatorProfile() {
   const { validator, loading, error } = useValidator(network ?? '', address ?? '');
   const isMobile = useIsMobile();
 
+  // Row limit for grouped events
+  const [expandedGroups, setExpandedGroups] = useState<Set<number>>(new Set());
+
   // Stagger animation for event history
   const [visibleIds, setVisibleIds] = useState<Set<number>>(new Set());
   const pendingRef = useRef<number[]>([]);
@@ -456,6 +459,10 @@ export function ValidatorProfile() {
       ) : (
         titleGroups.map((tg, tgi) => {
           const visible = visibleIds.has(tgi);
+          const MAX_VISIBLE = 3;
+          const isGroupExpanded = expandedGroups.has(tgi);
+          const visibleEvents = isGroupExpanded ? tg.events : tg.events.slice(0, MAX_VISIBLE);
+          const hiddenCount = tg.events.length - MAX_VISIBLE;
           return (
             <div
               key={tg.title}
@@ -466,8 +473,8 @@ export function ValidatorProfile() {
                 transition: 'opacity 0.4s ease, transform 0.4s ease',
               }}
             >
-              {/* Compact rows — one per event */}
-              {tg.events.map((ev) => {
+              {/* Compact rows — one per event, capped at 3 unless expanded */}
+              {visibleEvents.map((ev) => {
                 const resolved = ev.resolved_at != null;
                 const dotColor = resolved ? 'var(--color-accent-dim)' : '#e8a735';
                 return (
@@ -551,6 +558,24 @@ export function ValidatorProfile() {
                   </div>
                 );
               })}
+
+              {/* Expand link for collapsed groups */}
+              {!isGroupExpanded && hiddenCount > 0 && (
+                <div
+                  onClick={() => setExpandedGroups(prev => new Set(prev).add(tgi))}
+                  style={{
+                    fontSize: 12,
+                    color: 'rgba(255,255,255,0.42)',
+                    cursor: 'pointer',
+                    padding: '8px 0',
+                    paddingLeft: 16,
+                  }}
+                  onMouseEnter={e => (e.currentTarget.style.color = 'rgba(255,255,255,0.60)')}
+                  onMouseLeave={e => (e.currentTarget.style.color = 'rgba(255,255,255,0.42)')}
+                >
+                  + {hiddenCount} more events
+                </div>
+              )}
 
               {/* Shared description block */}
               {tg.description && (
