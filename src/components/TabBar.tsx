@@ -3,6 +3,8 @@ import { Link, useLocation } from 'react-router-dom';
 const TABS = [
   { label: 'live feed', path: '/' },
   { label: 'validators', path: '/validators' },
+  { label: 'leaderboard', path: '/leaderboard' },
+  { label: 'reports', path: '/reports' },
 ] as const;
 
 export function TabBar() {

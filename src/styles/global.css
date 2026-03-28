@@ -135,9 +135,12 @@ details > summary::-webkit-details-marker {
   border-color: var(--color-border-hover) !important;
 }
 
-/* Critical event accent */
+/* Event row left border */
+.event-row {
+  border-left: 3px solid rgba(255, 255, 255, 0.10);
+  padding-left: 16px;
+}
+
 .event-row-critical {
-  border-left: 2px solid var(--color-danger);
-  padding-left: 12px;
-  margin-left: -14px;
+  border-left-color: #E24B4A;
 }

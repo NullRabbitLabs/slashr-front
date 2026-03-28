@@ -3,6 +3,11 @@ import type {
   NetworkInfo,
   StatsResponse,
   ValidatorProfile,
+  LeaderboardResponse,
+  LeaderboardPeriod,
+  LeaderboardSort,
+  ReportProviderItem,
+  ReportResponse,
   PaginatedResponse,
   DataResponse,
 } from '@/types/api';
@@ -56,4 +61,35 @@ export async function fetchValidator(
   const res = await fetch(`${BASE_URL}/v1/validators/${encodeURIComponent(network)}/${encodeURIComponent(address)}`);
   if (!res.ok) throw new Error(`API error: ${res.status}`);
   return res.json() as Promise<DataResponse<ValidatorProfile>>;
+}
+
+export async function fetchLeaderboard(params: {
+  network: string;
+  period?: LeaderboardPeriod;
+  limit?: number;
+  sort?: LeaderboardSort;
+}): Promise<DataResponse<LeaderboardResponse>> {
+  const qs = new URLSearchParams({ network: params.network });
+  if (params.period) qs.set('period', params.period);
+  if (params.limit) qs.set('limit', String(params.limit));
+  if (params.sort) qs.set('sort', params.sort);
+  const res = await fetch(`${BASE_URL}/v1/leaderboard?${qs}`);
+  if (!res.ok) throw new Error(`API error: ${res.status}`);
+  return res.json() as Promise<DataResponse<LeaderboardResponse>>;
+}
+
+export async function fetchReportProviders(): Promise<DataResponse<ReportProviderItem[]>> {
+  const res = await fetch(`${BASE_URL}/v1/reports`);
+  if (!res.ok) throw new Error(`API error: ${res.status}`);
+  return res.json() as Promise<DataResponse<ReportProviderItem[]>>;
+}
+
+export async function fetchReport(
+  providerSlug: string,
+  period?: string,
+): Promise<DataResponse<ReportResponse>> {
+  const qs = period ? `?period=${encodeURIComponent(period)}` : '';
+  const res = await fetch(`${BASE_URL}/v1/reports/${encodeURIComponent(providerSlug)}${qs}`);
+  if (!res.ok) throw new Error(`API error: ${res.status}`);
+  return res.json() as Promise<DataResponse<ReportResponse>>;
 }
