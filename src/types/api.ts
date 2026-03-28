@@ -128,3 +128,27 @@ export interface EventGroup {
   rangeStart: string;
   rangeEnd: string;
 }
+
+// --- Leaderboard ---
+
+export type LeaderboardPeriod = '7d' | '30d' | '90d' | 'all';
+
+export type LeaderboardSort = 'best' | 'worst';
+
+export interface LeaderboardEntry {
+  address: string;
+  moniker: string | null;
+  total_events: number;
+  events_by_type: Partial<Record<EventType, number>>;
+  total_stake: string | null;
+  stake_token: string | null;
+  severity_score: number;
+  rank: number;
+}
+
+export interface LeaderboardResponse {
+  network: NetworkSlug;
+  period: LeaderboardPeriod;
+  generated_at: string;
+  validators: LeaderboardEntry[];
+}
