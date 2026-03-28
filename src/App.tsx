@@ -4,6 +4,7 @@ import { Layout } from '@/components/Layout';
 import FeedPage from '@/pages/FeedPage';
 import ValidatorPage from '@/pages/ValidatorPage';
 import ValidatorsPage from '@/pages/ValidatorsPage';
+import LeaderboardPage from '@/pages/LeaderboardPage';
 import ReportsPage from '@/pages/ReportsPage';
 import ReportDetailPage from '@/pages/ReportDetailPage';
 
@@ -15,6 +16,7 @@ function AppRoutes() {
       <Routes>
         <Route path="/" element={<FeedPage />} />
         <Route path="/validators" element={<ValidatorsPage />} />
+        <Route path="/leaderboard" element={<LeaderboardPage />} />
         <Route path="/validator/:network/:address" element={<ValidatorPage />} />
         <Route path="/reports" element={<ReportsPage />} />
         <Route path="/reports/:providerSlug" element={<ReportDetailPage />} />
