@@ -128,3 +128,55 @@ export interface EventGroup {
   rangeStart: string;
   rangeEnd: string;
 }
+
+// --- Report types ---
+
+export interface ReportProviderItem {
+  provider_slug: string;
+  provider_name: string;
+  report_count: number;
+  latest_period: string | null;
+}
+
+export interface ReportResponse {
+  provider_slug: string;
+  provider_name: string;
+  period: string;
+  generated_at: string;
+  report: ProviderReport;
+  markdown: string;
+}
+
+export interface ProviderReport {
+  provider: string;
+  period: string;
+  networks: Record<string, NetworkBreakdown>;
+  cross_chain_summary: CrossChainSummary;
+  generated_at: string;
+}
+
+export interface NetworkBreakdown {
+  validators_tracked: number;
+  total_events: number;
+  events_by_type: Record<string, number>;
+  severity_score: number;
+  total_stake: string | null;
+  worst_incident: WorstIncident | null;
+  uptime_estimate_pct: number | null;
+}
+
+export interface WorstIncident {
+  event_type: string;
+  severity: string;
+  started_at: string;
+  validator_address: string;
+  penalty_amount: number | null;
+  penalty_token: string | null;
+}
+
+export interface CrossChainSummary {
+  total_validators: number;
+  total_events: number;
+  aggregate_severity_score: number;
+  aggregate_stake_at_risk: string | null;
+}
