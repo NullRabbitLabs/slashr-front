@@ -26,10 +26,12 @@ export const onRequest: PagesFunction<Env> = async (context) => {
   headers.set('CF-Access-Client-Secret', env.CF_ACCESS_CLIENT_SECRET);
   headers.set('Accept', 'application/json');
 
-  // Forward real client IP so the API can rate-limit and log per-user
+  // Forward real client IP so the API can rate-limit and log per-user.
+  // Uses a custom header because CF-Connecting-IP and X-Forwarded-For
+  // get overwritten by cloudflared on the tunnel hop.
   const clientIp = request.headers.get('CF-Connecting-IP');
   if (clientIp) {
-    headers.set('X-Forwarded-For', clientIp);
+    headers.set('X-Real-Client-IP', clientIp);
   }
 
   const res = await fetch(upstream, {
