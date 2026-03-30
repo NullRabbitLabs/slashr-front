@@ -8,11 +8,12 @@ import type {
   LeaderboardSort,
   ReportProviderItem,
   ReportResponse,
+  ChainDataResponse,
   DelegationResponse,
   PaginatedResponse,
   DataResponse,
 } from '@/types/api';
-import { getMockEvents, getMockNetworks, getMockStats, getMockValidator, getMockDelegations, getMockLeaderboard } from './mock';
+import { getMockEvents, getMockNetworks, getMockStats, getMockValidator, getMockDelegations, getMockLeaderboard, getMockChainData } from './mock';
 
 const BASE_URL = import.meta.env.VITE_API_URL || '';
 const USE_MOCK = import.meta.env.VITE_USE_MOCK === 'true';
@@ -62,6 +63,20 @@ export async function fetchValidator(
   const res = await fetch(`${BASE_URL}/v1/validators/${encodeURIComponent(network)}/${encodeURIComponent(address)}`);
   if (!res.ok) throw new Error(`API error: ${res.status}`);
   return res.json() as Promise<DataResponse<ValidatorProfile>>;
+}
+
+export async function fetchChainData(
+  network: string,
+  address: string,
+): Promise<DataResponse<ChainDataResponse> | null> {
+  if (USE_MOCK) return getMockChainData(network, address);
+
+  const res = await fetch(
+    `${BASE_URL}/v1/validators/${encodeURIComponent(network)}/${encodeURIComponent(address)}/chain-data`,
+  );
+  if (res.status === 404) return null;
+  if (!res.ok) throw new Error(`API error: ${res.status}`);
+  return res.json() as Promise<DataResponse<ChainDataResponse>>;
 }
 
 export async function fetchLeaderboard(params: {

@@ -3,6 +3,7 @@ import type {
   NetworkInfo,
   StatsResponse,
   ValidatorProfile,
+  ChainDataResponse,
   DelegationResponse,
   LeaderboardResponse,
   LeaderboardPeriod,
@@ -298,6 +299,34 @@ export function getMockLeaderboard(
         { address: 'StakeFishX', moniker: 'Stakefish', total_events: 3, events_by_type: { delinquent: 3 }, total_stake: '67800', stake_token: 'SOL', severity_score: 0.8, rank: 4 },
         { address: 'EvrstakeAB', moniker: 'Everstake', total_events: 2, events_by_type: { delinquent: 2 }, total_stake: '155000', stake_token: 'SOL', severity_score: 0.5, rank: 5 },
       ],
+    },
+  };
+}
+
+export function getMockChainData(_network: string, _address: string): DataResponse<ChainDataResponse> | null {
+  return {
+    data: {
+      network: 'solana' as NetworkSlug,
+      collected_at: new Date().toISOString(),
+      chain_data: {
+        vote_pubkey: 'AbCdEf123456789',
+        node_pubkey: 'XyZ987654321',
+        activated_stake_lamports: 779965000000000,
+        activated_stake_sol: 779965.0,
+        commission: 10,
+        last_vote_slot: 402691362,
+        root_slot: 402691330,
+        epoch_vote_account: true,
+        is_delinquent: false,
+        credits_current_epoch: 12345,
+        credits_previous_epoch: 12300,
+        credit_delta: 45,
+        skip_rate: 0.023,
+      },
+      computed: {
+        credits_trend: 'improving',
+        slots_behind: 32,
+      },
     },
   };
 }
