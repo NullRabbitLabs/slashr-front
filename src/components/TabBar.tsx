@@ -5,7 +5,7 @@ import { useIsMobile } from '@/hooks/useIsMobile';
 const TABS = [
   { label: 'live feed', path: '/' },
   { label: 'validators', path: '/validators' },
-  { label: 'leaderboard', path: '/leaderboard' },
+  { label: 'rankings', path: '/rankings' },
   { label: 'reports', path: '/reports' },
   { label: 'check wallet', path: '/check' },
 ] as const;

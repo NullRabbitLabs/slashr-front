@@ -22,7 +22,7 @@ export function Layout({ children, stats }: LayoutProps) {
   const { networks } = useNetworks();
   const { pathname } = useLocation();
   const totalEvents = stats?.totals.all_time;
-  const showFeedHeader = pathname === '/' || pathname === '/validators' || pathname === '/leaderboard' || pathname === '/reports' || pathname === '/check';
+  const showFeedHeader = pathname === '/' || pathname === '/validators' || pathname === '/rankings' || pathname === '/reports' || pathname === '/check';
 
   return (
     <div

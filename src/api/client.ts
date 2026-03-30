@@ -80,7 +80,7 @@ export async function fetchLeaderboard(params: {
   if (params.sort) qs.set('sort', params.sort);
   if (params.page) qs.set('page', String(params.page));
   if (params.per_page) qs.set('per_page', String(params.per_page));
-  const res = await fetch(`${BASE_URL}/v1/leaderboard?${qs}`);
+  const res = await fetch(`${BASE_URL}/v1/rankings?${qs}`);
   if (!res.ok) throw new Error(`API error: ${res.status}`);
   return res.json() as Promise<DataResponse<LeaderboardResponse>>;
 }

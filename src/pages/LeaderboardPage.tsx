@@ -53,8 +53,34 @@ export default function LeaderboardPage() {
     return () => observer.disconnect();
   }, [loadMore]);
 
+  const periodLabel = period === 'all' ? 'all time' : `the last ${period}`;
+
   return (
     <div style={{ marginTop: 8 }}>
+      {/* Heading */}
+      <div
+        style={{
+          fontSize: 11,
+          fontFamily: "'JetBrains Mono', monospace",
+          textTransform: 'uppercase',
+          letterSpacing: '0.08em',
+          color: 'var(--color-text-dim)',
+          marginBottom: 4,
+        }}
+      >
+        {sort === 'worst' ? 'Worst Offenders' : 'Most Reliable'}
+      </div>
+      <div
+        style={{
+          fontSize: 12,
+          fontFamily: "'Inter', sans-serif",
+          color: 'var(--color-text-tertiary)',
+          marginBottom: 16,
+        }}
+      >
+        Validators ranked by incident severity over {periodLabel}
+      </div>
+
       {/* Controls */}
       <div style={{ display: 'flex', flexWrap: 'wrap', gap: isMobile ? 6 : 8, marginBottom: 16, alignItems: 'center' }}>
         {/* Network selector - single select pills */}
@@ -141,7 +167,7 @@ export default function LeaderboardPage() {
             transition: 'all 0.15s ease',
           }}
         >
-          {sort === 'worst' ? '\u2193 worst first' : '\u2191 best first'}
+          {sort === 'worst' ? '\u2193 worst offenders' : '\u2191 most reliable'}
         </button>
       </div>
 

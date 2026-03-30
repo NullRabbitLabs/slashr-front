@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { useStats } from '@/hooks/useStats';
 import { Layout } from '@/components/Layout';
 import FeedPage from '@/pages/FeedPage';
@@ -17,7 +17,8 @@ function AppRoutes() {
       <Routes>
         <Route path="/" element={<FeedPage />} />
         <Route path="/validators" element={<ValidatorsPage />} />
-        <Route path="/leaderboard" element={<LeaderboardPage />} />
+        <Route path="/rankings" element={<LeaderboardPage />} />
+        <Route path="/leaderboard" element={<Navigate to="/rankings" replace />} />
         <Route path="/check" element={<CheckPage />} />
         <Route path="/validator/:network/:address" element={<ValidatorPage />} />
         <Route path="/reports" element={<ReportsPage />} />
