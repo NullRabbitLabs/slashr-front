@@ -99,7 +99,7 @@ export function TabBar() {
         style={{
           display: 'flex',
           alignItems: 'center',
-          justifyContent: 'space-between',
+          gap: 6,
           width: '100%',
           background: 'none',
           border: 'none',
@@ -120,7 +120,7 @@ export function TabBar() {
             transform: open ? 'rotate(180deg)' : 'none',
             transition: 'transform 0.15s ease',
             fontSize: 10,
-            color: 'var(--color-text-dim)',
+            color: 'var(--color-text-tertiary)',
           }}
         >
           {'\u25BE'}
