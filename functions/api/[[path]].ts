@@ -26,6 +26,12 @@ export const onRequest: PagesFunction<Env> = async (context) => {
   headers.set('CF-Access-Client-Secret', env.CF_ACCESS_CLIENT_SECRET);
   headers.set('Accept', 'application/json');
 
+  // Forward real client IP so the API can rate-limit and log per-user
+  const clientIp = request.headers.get('CF-Connecting-IP');
+  if (clientIp) {
+    headers.set('X-Forwarded-For', clientIp);
+  }
+
   const res = await fetch(upstream, {
     method: request.method,
     headers,
