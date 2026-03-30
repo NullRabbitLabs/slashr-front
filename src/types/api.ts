@@ -204,3 +204,85 @@ export interface CrossChainSummary {
   aggregate_severity_score: number;
   aggregate_stake_at_risk: string | null;
 }
+
+// --- Chain-specific data ---
+
+export interface ChainDataResponse {
+  network: NetworkSlug;
+  collected_at: string;
+  chain_data: Record<string, unknown>;
+  computed: Record<string, string | number | null>;
+}
+
+export interface SolanaChainData {
+  vote_pubkey: string;
+  node_pubkey: string;
+  activated_stake_lamports: number;
+  activated_stake_sol: number;
+  commission: number;
+  last_vote_slot: number;
+  root_slot: number;
+  epoch_vote_account: boolean;
+  is_delinquent: boolean;
+  credits_current_epoch: number;
+  credits_previous_epoch: number;
+  credit_delta: number;
+  skip_rate: number | null;
+}
+
+export interface SuiChainData {
+  sui_address: string;
+  name: string;
+  description: string | null;
+  image_url: string | null;
+  project_url: string | null;
+  voting_power: number | null;
+  total_voting_power: number | null;
+  gas_price: string | null;
+  commission_rate_bps: number | null;
+  next_epoch_stake: string;
+  next_epoch_gas_price: string | null;
+  next_epoch_commission_rate_bps: number | null;
+  staking_pool_sui_balance: string;
+  rewards_pool: string | null;
+  pending_stake: string | null;
+  pending_total_sui_withdraw: string | null;
+  at_risk_epochs: number;
+  staking_pool_activation_epoch: number | null;
+  apy_bps: number | null;
+}
+
+export interface CosmosChainData {
+  operator_address: string;
+  jailed: boolean;
+  status: string;
+  tokens: string;
+  delegator_shares: string | null;
+  moniker: string;
+  website: string | null;
+  identity: string | null;
+  details: string | null;
+  commission_rate: string;
+  commission_max_rate: string | null;
+  commission_max_change_rate: string | null;
+  min_self_delegation: string | null;
+  unbonding_height: string | null;
+  unbonding_time: string | null;
+  signing_info: {
+    missed_blocks_counter: string;
+    tombstoned: boolean;
+    jailed_until: string;
+  } | null;
+}
+
+export interface EthereumChainData {
+  validator_index: number | null;
+  pubkey: string | null;
+  balance_gwei: number | null;
+  effective_balance_gwei: number | null;
+  status: string | null;
+  activation_epoch: number | null;
+  exit_epoch: number | null;
+  withdrawable_epoch: number | null;
+  slashed: boolean;
+}

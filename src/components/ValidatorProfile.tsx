@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import type { EventListItem, ValidatorEventItem } from '@/types/api';
 import { useValidator } from '@/hooks/useValidator';
+import { useChainData } from '@/hooks/useChainData';
 import { getEventLabel } from '@/lib/constants';
 import { useIsMobile } from '@/hooks/useIsMobile';
 import { formatUtcTime } from '@/lib/time';
@@ -10,6 +11,7 @@ import { NETWORK_META, EVENT_TYPE_DESCRIPTIONS } from '@/lib/constants';
 import { NetworkTag } from './NetworkTag';
 import { SeverityMark } from './SeverityMark';
 import { Sparkline } from './Sparkline';
+import { ChainDataSections } from './ChainDataSections';
 
 const STAGGER_DELAY = 120;
 
@@ -116,6 +118,7 @@ function buildTitleGroups(
 export function ValidatorProfile() {
   const { network, address } = useParams<{ network: string; address: string }>();
   const { validator, loading, error } = useValidator(network ?? '', address ?? '');
+  const { chainData } = useChainData(network ?? '', address ?? '');
   const isMobile = useIsMobile();
 
   // Row limit for grouped events
@@ -207,13 +210,14 @@ export function ValidatorProfile() {
     );
   }
 
-  const isNamed = !!(validator.moniker?.trim());
+  const suiName = chainData?.network === 'sui'
+    ? (chainData.chain_data as Record<string, unknown>).name as string | undefined
+    : undefined;
+  const isNamed = !!(suiName?.trim() || validator.moniker?.trim());
   const displayAddress = isMobile
     ? truncateMiddle(validator.address, 24)
     : validator.address;
-  const headerName = isNamed
-    ? validator.moniker!
-    : validator.address;
+  const headerName = suiName?.trim() || (validator.moniker?.trim() ? validator.moniker! : validator.address);
 
   const showInfrastructure = validator.node_hostname || validator.node_ip || validator.hosting_provider || validator.in_scan_db;
 
@@ -439,6 +443,9 @@ export function ValidatorProfile() {
           )}
         </div>
       )}
+
+      {/* Chain-specific data sections */}
+      {chainData && <ChainDataSections chainData={chainData} isMobile={isMobile} />}
 
       {/* Event history header */}
       <div style={sectionHeadingStyle}>

@@ -3,6 +3,7 @@ import type {
   NetworkInfo,
   StatsResponse,
   ValidatorProfile,
+  ChainDataResponse,
   PaginatedResponse,
   DataResponse,
   NetworkSlug,
@@ -232,4 +233,32 @@ export function getMockStats(): DataResponse<StatsResponse> {
 
 export function getMockValidator(network: string, address: string): DataResponse<ValidatorProfile> {
   return { data: buildMockValidator(network as NetworkSlug, address) };
+}
+
+export function getMockChainData(_network: string, _address: string): DataResponse<ChainDataResponse> | null {
+  return {
+    data: {
+      network: 'solana' as NetworkSlug,
+      collected_at: new Date().toISOString(),
+      chain_data: {
+        vote_pubkey: 'AbCdEf123456789',
+        node_pubkey: 'XyZ987654321',
+        activated_stake_lamports: 779965000000000,
+        activated_stake_sol: 779965.0,
+        commission: 10,
+        last_vote_slot: 402691362,
+        root_slot: 402691330,
+        epoch_vote_account: true,
+        is_delinquent: false,
+        credits_current_epoch: 12345,
+        credits_previous_epoch: 12300,
+        credit_delta: 45,
+        skip_rate: 0.023,
+      },
+      computed: {
+        credits_trend: 'improving',
+        slots_behind: 32,
+      },
+    },
+  };
 }
