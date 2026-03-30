@@ -296,40 +296,42 @@ function CosmosChainSections({
         )}
       </Section>
 
-      <Section title="Performance" isMobile={isMobile}>
-        {computed.uptime_pct != null && (
-          <Field
-            label="Uptime"
-            value={
-              <span>
-                {computed.uptime_pct}
-                {data.signing_info?.missed_blocks_counter && (
-                  <span style={{ fontSize: 11, color: 'var(--color-text-dim)', marginLeft: 6 }}>
-                    ({data.signing_info.missed_blocks_counter} missed of 10,000)
-                  </span>
-                )}
-              </span>
-            }
+      {(computed.uptime_pct != null || computed.jail_risk != null) && (
+        <Section title="Performance" isMobile={isMobile}>
+          {computed.uptime_pct != null && (
+            <Field
+              label="Uptime"
+              value={
+                <span>
+                  {computed.uptime_pct}
+                  {data.signing_info?.missed_blocks_counter && (
+                    <span style={{ fontSize: 11, color: 'var(--color-text-dim)', marginLeft: 6 }}>
+                      ({data.signing_info.missed_blocks_counter} missed of 10,000)
+                    </span>
+                  )}
+                </span>
+              }
+            />
+          )}
+          {computed.jail_risk != null && (
+            <Field
+              label="Jail Risk"
+              value={
+                <span
+                  style={{
+                    color:
+                      computed.jail_risk === 'low'
+                        ? 'var(--color-accent)'
+                        : 'var(--color-danger)',
+                  }}
+                >
+                  {(computed.jail_risk as string).charAt(0).toUpperCase() + (computed.jail_risk as string).slice(1)}
+                </span>
+              }
           />
         )}
-        {computed.jail_risk != null && (
-          <Field
-            label="Jail Risk"
-            value={
-              <span
-                style={{
-                  color:
-                    computed.jail_risk === 'low'
-                      ? 'var(--color-accent)'
-                      : 'var(--color-danger)',
-                }}
-              >
-                {(computed.jail_risk as string).charAt(0).toUpperCase() + (computed.jail_risk as string).slice(1)}
-              </span>
-            }
-          />
-        )}
-      </Section>
+        </Section>
+      )}
 
       <Section title="Staking" isMobile={isMobile}>
         {data.tokens && (
