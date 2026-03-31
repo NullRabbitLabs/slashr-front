@@ -10,6 +10,8 @@ import { useIsMobile } from '@/hooks/useIsMobile';
 import { useTheme } from '@/hooks/useTheme';
 import { useNetworks } from '@/hooks/useNetworks';
 import { WaitlistDrawer } from './WaitlistDrawer';
+import { TelegramIcon } from './TelegramIcon';
+import { XIcon } from './XIcon';
 
 interface LayoutProps {
   children: ReactNode;
@@ -99,19 +101,72 @@ export function Layout({ children, stats }: LayoutProps) {
           </a>
 
           {/* Right: live status + theme toggle */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8, minWidth: 0 }}>
             <LiveDot />
-            {!isMobile && totalEvents != null && (
+            {!isMobile && (
               <span
                 style={{
                   fontSize: 13,
                   color: 'var(--color-text-tertiary)',
                   fontFamily: "'JetBrains Mono', monospace",
+                  whiteSpace: 'nowrap',
                 }}
               >
-                tracking {totalEvents.toLocaleString()} events across 4 networks
+                {totalEvents != null
+                  ? `tracking ${totalEvents.toLocaleString()} events across 4 networks`
+                  : 'monitoring validators across 4 networks'}
               </span>
             )}
+            <div
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: 6,
+                flexShrink: 0,
+                marginLeft: 4,
+                paddingLeft: isMobile ? 4 : 12,
+                borderLeft: isMobile ? 'none' : '1px solid var(--color-border)',
+              }}
+            >
+              <a
+                href="https://t.me/SlashrDevBot"
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="Telegram"
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  color: 'var(--color-text-dim)',
+                  padding: 4,
+                  borderRadius: 4,
+                  transition: 'color 0.15s ease',
+                }}
+                onMouseEnter={e => (e.currentTarget.style.color = 'var(--color-text-primary)')}
+                onMouseLeave={e => (e.currentTarget.style.color = 'var(--color-text-dim)')}
+              >
+                <TelegramIcon size={16} />
+              </a>
+              <a
+                href="https://x.com/SlashrDev"
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="X (Twitter)"
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  color: 'var(--color-text-dim)',
+                  padding: 4,
+                  borderRadius: 4,
+                  transition: 'color 0.15s ease',
+                }}
+                onMouseEnter={e => (e.currentTarget.style.color = 'var(--color-text-primary)')}
+                onMouseLeave={e => (e.currentTarget.style.color = 'var(--color-text-dim)')}
+              >
+                <XIcon size={16} />
+              </a>
+            </div>
             <button
               onClick={toggleTheme}
               aria-label="Toggle theme"
