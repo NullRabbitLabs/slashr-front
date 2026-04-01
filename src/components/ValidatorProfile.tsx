@@ -564,7 +564,7 @@ export function ValidatorProfile() {
                       {tg.title}
                     </span>
                   </div>
-                  {validator?.in_scan_db && tgi === 0 && ev === visibleEvents[0] && (
+                  {tgi === 0 && ev === visibleEvents[0] && (
                     <ScanAnalysisCard eventUuid={String(ev.id)} />
                   )}
                   </React.Fragment>
