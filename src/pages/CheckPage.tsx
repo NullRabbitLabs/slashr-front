@@ -61,6 +61,7 @@ export default function CheckPage() {
   const handleSubmit = () => {
     const network = effectiveNetwork || 'auto';
     if (walletInput.trim().length < 8) return;
+    if (detectedValidator && !effectiveNetwork) return;
     lookup(network, walletInput.trim());
   };
 
