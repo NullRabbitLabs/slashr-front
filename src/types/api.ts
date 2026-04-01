@@ -312,3 +312,43 @@ export interface EthereumChainData {
   withdrawable_epoch: number | null;
   slashed: boolean;
 }
+
+// --- Scan Analysis ---
+
+export interface ScanAnalysisSummary {
+  health_status: 'up' | 'degraded' | 'down' | null;
+  icmp_reachable: boolean | null;
+  ports_checked: number | null;
+  ports_open: number | null;
+  open_port_count: number | null;
+  cve_total: number | null;
+  cve_critical: number | null;
+  pattern_total_events: number | null;
+  pattern_events_per_day: number | null;
+  pattern_span_days: number | null;
+  health_ports: ScanHealthPort[] | null;
+  reply_tweet_id: string | null;
+  received_at: string;
+}
+
+export interface ScanHealthPort {
+  port: number;
+  name: string;
+  open: boolean;
+  latency_ms?: number;
+}
+
+export interface ScanAnalysisDetail {
+  analysis: Record<string, unknown>;
+  reply: {
+    status: 'pending' | 'queued' | 'sent' | 'skipped' | 'failed';
+    tweet_id: string | null;
+    text: string | null;
+    replied_at: string | null;
+  };
+  history: Array<{
+    follow_up_round: number;
+    reply_status: string;
+    received_at: string;
+  }>;
+}
