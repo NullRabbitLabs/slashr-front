@@ -1,4 +1,5 @@
 import { useState, useMemo } from 'react';
+import { Link } from 'react-router-dom';
 import { useDelegations } from '@/hooks/useDelegations';
 import { DelegationCard } from '@/components/DelegationCard';
 import { useIsMobile } from '@/hooks/useIsMobile';
@@ -22,6 +23,15 @@ function detectNetwork(address: string): NetworkSlug | null {
   return null;
 }
 
+function detectValidatorAddress(address: string): { network: NetworkSlug } | null {
+  if (address.startsWith('cosmosvaloper1')) return { network: 'cosmos' };
+  if (address.startsWith('0x') || address.startsWith('0X')) {
+    const hex = address.slice(2);
+    if (hex.length === 96 && /^[0-9a-fA-F]+$/.test(hex)) return { network: 'ethereum' };
+  }
+  return null;
+}
+
 export default function CheckPage() {
   const isMobile = useIsMobile();
   const { data, loading, error, lookup } = useDelegations();
@@ -33,13 +43,20 @@ export default function CheckPage() {
     return detectNetwork(walletInput);
   }, [walletInput]);
 
+  const detectedValidator = useMemo(() => {
+    if (walletInput.trim().length < 8) return null;
+    if (detectedNetwork) return null;
+    return detectValidatorAddress(walletInput.trim());
+  }, [walletInput, detectedNetwork]);
+
   const effectiveNetwork = selectedNetwork === 'auto'
     ? detectedNetwork
     : selectedNetwork;
 
   const showFormatHint = selectedNetwork === 'auto'
     && walletInput.trim().length >= 8
-    && detectedNetwork === null;
+    && detectedNetwork === null
+    && detectedValidator === null;
 
   const handleSubmit = () => {
     const network = effectiveNetwork || 'auto';
@@ -193,6 +210,29 @@ export default function CheckPage() {
       >
         {loading ? 'checking...' : 'check'}
       </button>
+
+      {/* Validator address redirect */}
+      {detectedValidator && !error && (
+        <div
+          style={{
+            fontSize: 12,
+            color: 'var(--color-text-dim)',
+            fontFamily: "'JetBrains Mono', monospace",
+            padding: '8px 0 0',
+          }}
+        >
+          This looks like a validator address. Looking for this?{' '}
+          <Link
+            to={`/validator/${detectedValidator.network}/${encodeURIComponent(walletInput.trim())}`}
+            style={{
+              color: NETWORK_META[detectedValidator.network]?.color ?? 'var(--color-text-secondary)',
+              textDecoration: 'none',
+            }}
+          >
+            View on {NETWORK_META[detectedValidator.network]?.name ?? detectedValidator.network} →
+          </Link>
+        </div>
+      )}
 
       {/* Address format hint */}
       {showFormatHint && !error && (

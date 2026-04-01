@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import type { EventListItem, ValidatorEventItem } from '@/types/api';
+import type { EventListItem, ValidatorEventItem, NetworkSlug } from '@/types/api';
 import { useValidator } from '@/hooks/useValidator';
 import { useChainData } from '@/hooks/useChainData';
 import { getEventLabel } from '@/lib/constants';
@@ -184,6 +184,114 @@ export function ValidatorProfile() {
   if (loading) return null;
 
   if (error || !validator) {
+    const is404 = !validator || (error && error.includes('404'));
+    const stubNetwork = network as NetworkSlug | undefined;
+    const meta = stubNetwork ? NETWORK_META[stubNetwork] : undefined;
+    const displayAddr = isMobile
+      ? truncateMiddle(address ?? '', 24)
+      : (address ?? '');
+
+    if (is404 && address) {
+      return (
+        <div>
+          <Link
+            to="/"
+            className="back-link"
+            style={{
+              display: 'inline-block',
+              fontSize: 13,
+              color: 'var(--color-text-tertiary)',
+              fontFamily: "'JetBrains Mono', monospace",
+              marginBottom: 24,
+              padding: '8px 0',
+            }}
+          >
+            &larr; back to feed
+          </Link>
+
+          <div
+            style={{
+              fontSize: 15,
+              color: 'var(--color-text-subtitle)',
+              fontFamily: "'Inter', sans-serif",
+              marginBottom: 20,
+            }}
+          >
+            No incidents recorded.
+          </div>
+
+          <div style={{ marginBottom: 32 }}>
+            <div
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: 10,
+                marginBottom: 8,
+                flexWrap: 'wrap',
+              }}
+            >
+              <span
+                style={{
+                  fontSize: 11,
+                  color: 'var(--color-text-ghost)',
+                  fontFamily: "'JetBrains Mono', monospace",
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.06em',
+                }}
+              >
+                validator
+              </span>
+              {meta && <NetworkTag network={stubNetwork!} />}
+            </div>
+
+            <div
+              style={{
+                fontSize: 13,
+                color: 'var(--color-text-address)',
+                fontFamily: "'JetBrains Mono', monospace",
+                marginBottom: 16,
+                wordBreak: 'break-all',
+              }}
+            >
+              {displayAddr}
+            </div>
+          </div>
+
+          <div
+            style={{
+              padding: '20px 24px',
+              background: 'var(--color-bg-card)',
+              border: '1px solid var(--color-border)',
+              borderRadius: 4,
+            }}
+          >
+            <div
+              style={{
+                fontSize: 14,
+                color: '#14F195',
+                fontFamily: "'Inter', sans-serif",
+                fontWeight: 500,
+                marginBottom: 6,
+              }}
+            >
+              Clean record
+            </div>
+            <div
+              style={{
+                fontSize: 12,
+                color: 'var(--color-text-dim)',
+                fontFamily: "'Inter', sans-serif",
+                lineHeight: 1.5,
+              }}
+            >
+              No incidents recorded{meta ? ` on ${meta.name}` : ''} since March 2025.
+              This validator has a clean record on slashr.
+            </div>
+          </div>
+        </div>
+      );
+    }
+
     return (
       <div>
         <Link
