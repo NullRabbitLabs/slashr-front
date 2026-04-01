@@ -215,18 +215,19 @@ export default function CheckPage() {
       {detectedValidator && !error && (
         <div
           style={{
-            fontSize: 12,
-            color: 'var(--color-text-dim)',
+            fontSize: 13,
+            color: '#e8a735',
             fontFamily: "'JetBrains Mono', monospace",
-            padding: '8px 0 0',
+            padding: '12px 0 0',
           }}
         >
           This looks like a validator address. Looking for this?{' '}
           <Link
             to={`/validator/${detectedValidator.network}/${encodeURIComponent(walletInput.trim())}`}
             style={{
-              color: NETWORK_META[detectedValidator.network]?.color ?? 'var(--color-text-secondary)',
-              textDecoration: 'none',
+              color: '#e8a735',
+              textDecoration: 'underline',
+              textUnderlineOffset: 3,
             }}
           >
             View on {NETWORK_META[detectedValidator.network]?.name ?? detectedValidator.network} →
