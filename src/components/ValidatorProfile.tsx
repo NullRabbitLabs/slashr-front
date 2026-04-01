@@ -12,6 +12,7 @@ import { NetworkTag } from './NetworkTag';
 import { SeverityMark } from './SeverityMark';
 import { Sparkline } from './Sparkline';
 import { ChainDataSections } from './ChainDataSections';
+import ScanAnalysisCard from './ScanAnalysisCard';
 
 const STAGGER_DELAY = 120;
 
@@ -485,8 +486,8 @@ export function ValidatorProfile() {
                 const resolved = ev.resolved_at != null;
                 const dotColor = resolved ? 'var(--color-accent-dim)' : '#e8a735';
                 return (
+                  <React.Fragment key={ev.id}>
                   <div
-                    key={ev.id}
                     style={{
                       display: 'flex',
                       alignItems: 'center',
@@ -563,6 +564,10 @@ export function ValidatorProfile() {
                       {tg.title}
                     </span>
                   </div>
+                  {validator?.in_scan_db && tgi === 0 && ev === visibleEvents[0] && (
+                    <ScanAnalysisCard eventUuid={String(ev.id)} />
+                  )}
+                  </React.Fragment>
                 );
               })}
 

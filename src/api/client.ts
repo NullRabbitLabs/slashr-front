@@ -10,6 +10,7 @@ import type {
   ReportResponse,
   ChainDataResponse,
   DelegationResponse,
+  ScanAnalysisDetail,
   PaginatedResponse,
   DataResponse,
 } from '@/types/api';
@@ -145,4 +146,15 @@ export async function fetchDelegations(
     throw new Error(message);
   }
   return res.json() as Promise<DataResponse<DelegationResponse>>;
+}
+
+export async function fetchScanAnalysis(eventUuid: string): Promise<ScanAnalysisDetail | null> {
+  if (USE_MOCK) return null;
+
+  const res = await fetch(`${BASE_URL}/v1/events/${encodeURIComponent(eventUuid)}/scan-analysis`);
+  if (res.status === 404) return null;
+  if (!res.ok) return null;
+
+  const json = await res.json() as DataResponse<ScanAnalysisDetail>;
+  return json.data;
 }
