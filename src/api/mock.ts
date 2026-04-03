@@ -200,6 +200,7 @@ function buildMockValidator(network: NetworkSlug, address: string): ValidatorPro
     website: 'https://example.com',
     has_contact: true,
     in_scan_db: false,
+    skip_rate: network === 'solana' ? 0.023 : null,
     events: events.map(e => ({
       id: e.id,
       event_type: e.event_type,

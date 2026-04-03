@@ -155,9 +155,21 @@ function SolanaChainSections({
           />
         )}
         {data.root_slot != null && <Field label="Root Slot" value={formatNumber(data.root_slot)} />}
-        {data.skip_rate != null && (
-          <Field label="Skip Rate" value={`${(data.skip_rate * 100).toFixed(1)}%`} />
-        )}
+        {data.skip_rate != null && (() => {
+          const pct = data.skip_rate * 100;
+          const color =
+            pct < 5
+              ? 'var(--color-accent)'
+              : pct <= 10
+                ? '#e8a735'
+                : 'var(--color-danger)';
+          return (
+            <Field
+              label="Skip Rate"
+              value={<span style={{ color }}>{pct.toFixed(1)}%</span>}
+            />
+          );
+        })()}
       </Section>
 
       <Section title="Staking" isMobile={isMobile}>

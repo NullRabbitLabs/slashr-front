@@ -89,6 +89,7 @@ export interface ValidatorProfile {
   website: string | null;
   has_contact: boolean;
   in_scan_db: boolean;
+  skip_rate: number | null;
   events: ValidatorEventItem[];
 }
 
