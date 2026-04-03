@@ -6,7 +6,6 @@ import type {
   CosmosChainData,
   EthereumChainData,
 } from '@/types/api';
-import { formatUtcTime } from '@/lib/time';
 
 // --- Styles (matching ValidatorProfile patterns) ---
 
@@ -100,18 +99,22 @@ function formatSuiBalance(mist: string | null | undefined): string {
 }
 
 function formatUnbondingTime(raw: string): string {
-  if (raw.endsWith('s')) {
-    const seconds = parseInt(raw, 10);
-    if (!isNaN(seconds)) {
-      const days = Math.floor(seconds / 86400);
-      const hours = Math.floor((seconds % 86400) / 3600);
-      if (days > 0 && hours > 0) return `${days}d ${hours}h`;
-      if (days > 0) return `${days} days`;
-      if (hours > 0) return `${hours} hours`;
-      return `${seconds}s`;
-    }
-  }
-  return formatUtcTime(raw);
+  const ms = new Date(raw).getTime();
+  if (isNaN(ms)) return raw;
+
+  // Epoch-zero sentinel means the validator is not unbonding
+  if (ms <= 0) return '';
+
+  const diffMs = ms - Date.now();
+  if (diffMs <= 0) return 'expired';
+
+  const totalSeconds = Math.floor(diffMs / 1000);
+  const days = Math.floor(totalSeconds / 86400);
+  const hours = Math.floor((totalSeconds % 86400) / 3600);
+  if (days > 0 && hours > 0) return `${days}d ${hours}h remaining`;
+  if (days > 0) return `${days} days remaining`;
+  if (hours > 0) return `${hours} hours remaining`;
+  return 'less than an hour remaining';
 }
 
 const ETH_BEACON_GENESIS = new Date('2020-09-01T00:00:00Z').getTime();
@@ -426,7 +429,7 @@ function CosmosChainSections({
         {data.signing_info?.tombstoned != null && (
           <Field label="Tombstoned" value={data.signing_info.tombstoned ? 'Yes' : 'No'} />
         )}
-        {data.unbonding_time && (
+        {data.unbonding_time && formatUnbondingTime(data.unbonding_time) && (
           <Field label="Unbonding Time" value={formatUnbondingTime(data.unbonding_time)} />
         )}
       </Section>
