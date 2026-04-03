@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import type {
   ChainDataResponse,
   SolanaChainData,
@@ -6,6 +6,7 @@ import type {
   CosmosChainData,
   EthereumChainData,
 } from '@/types/api';
+import { formatUtcTime } from '@/lib/time';
 
 // --- Styles (matching ValidatorProfile patterns) ---
 
@@ -98,6 +99,36 @@ function formatSuiBalance(mist: string | null | undefined): string {
   return `${Math.round(sui).toLocaleString()} SUI`;
 }
 
+function formatUnbondingTime(raw: string): string {
+  if (raw.endsWith('s')) {
+    const seconds = parseInt(raw, 10);
+    if (!isNaN(seconds)) {
+      const days = Math.floor(seconds / 86400);
+      const hours = Math.floor((seconds % 86400) / 3600);
+      if (days > 0 && hours > 0) return `${days}d ${hours}h`;
+      if (days > 0) return `${days} days`;
+      if (hours > 0) return `${hours} hours`;
+      return `${seconds}s`;
+    }
+  }
+  return formatUtcTime(raw);
+}
+
+const ETH_BEACON_GENESIS = new Date('2020-09-01T00:00:00Z').getTime();
+const SECONDS_PER_EPOCH = 384;
+const SHORT_MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+
+function isEthSentinel(epoch: number | null | undefined): boolean {
+  if (epoch == null) return true;
+  return epoch >= 1e18;
+}
+
+function epochToApproxDate(epoch: number): string {
+  const ms = ETH_BEACON_GENESIS + epoch * SECONDS_PER_EPOCH * 1000;
+  const d = new Date(ms);
+  return `~${SHORT_MONTHS[d.getUTCMonth()]} ${d.getUTCDate()}, ${d.getUTCFullYear()}`;
+}
+
 // --- Per-chain sections ---
 
 function SolanaChainSections({
@@ -113,6 +144,37 @@ function SolanaChainSections({
 
   return (
     <>
+      {data.is_delinquent && (
+        <div style={{
+          display: 'inline-flex',
+          alignItems: 'center',
+          gap: 6,
+          padding: '6px 14px',
+          background: 'rgba(255, 69, 69, 0.15)',
+          border: '1px solid rgba(255, 69, 69, 0.30)',
+          borderRadius: 4,
+          marginBottom: 16,
+        }}>
+          <span style={{
+            width: 8,
+            height: 8,
+            borderRadius: '50%',
+            background: 'var(--color-danger)',
+            boxShadow: '0 0 6px var(--color-danger)',
+          }} />
+          <span style={{
+            fontSize: 12,
+            fontWeight: 700,
+            fontFamily: "'JetBrains Mono', monospace",
+            color: 'var(--color-danger)',
+            textTransform: 'uppercase',
+            letterSpacing: '0.08em',
+          }}>
+            DELINQUENT
+          </span>
+        </div>
+      )}
+
       <Section title="Performance" isMobile={isMobile}>
         {data.credits_current_epoch != null && (
           <Field
@@ -132,7 +194,7 @@ function SolanaChainSections({
                 )}
                 {creditsTrend && (
                   <span style={trendStyle(creditsTrend)}>
-                    {trendArrow(creditsTrend)}
+                    {trendArrow(creditsTrend)} {creditsTrend}
                   </span>
                 )}
               </span>
@@ -317,8 +379,66 @@ function CosmosChainSections({
   computed: Record<string, string | number | null>;
   isMobile: boolean;
 }) {
+  const [showFullDetails, setShowFullDetails] = useState(false);
+  const hasIdentity = !!(data.website?.trim() || data.details?.trim());
+
   return (
     <>
+      {hasIdentity && (
+        <Section title="Identity" isMobile={isMobile}>
+          {data.website?.trim() && (
+            <Field
+              label="Website"
+              value={
+                <a
+                  href={data.website}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  style={{ color: 'var(--color-text-value)', textDecoration: 'underline' }}
+                >
+                  {data.website.replace(/^https?:\/\//, '')}
+                </a>
+              }
+            />
+          )}
+          {data.details?.trim() && (
+            <div style={isMobile ? { gridColumn: 'span 2' } : undefined}>
+              <div style={metaLabelStyle}>Details</div>
+              <div style={{
+                fontSize: 12,
+                color: 'var(--color-text-secondary)',
+                fontFamily: "'Inter', sans-serif",
+                lineHeight: 1.5,
+              }}>
+                {data.details.length > 200 && !showFullDetails ? (
+                  <>
+                    {data.details.slice(0, 200)}...
+                    <button
+                      onClick={() => setShowFullDetails(true)}
+                      style={{
+                        background: 'none',
+                        border: 'none',
+                        color: 'var(--color-text-tertiary)',
+                        cursor: 'pointer',
+                        fontSize: 11,
+                        fontFamily: "'Inter', sans-serif",
+                        textDecoration: 'underline',
+                        marginLeft: 4,
+                        padding: 0,
+                      }}
+                    >
+                      show more
+                    </button>
+                  </>
+                ) : (
+                  data.details
+                )}
+              </div>
+            </div>
+          )}
+        </Section>
+      )}
+
       <Section title="Status" isMobile={isMobile}>
         {data.status && (
           <Field
@@ -331,6 +451,9 @@ function CosmosChainSections({
         )}
         {data.signing_info?.tombstoned != null && (
           <Field label="Tombstoned" value={data.signing_info.tombstoned ? 'Yes' : 'No'} />
+        )}
+        {data.unbonding_time && (
+          <Field label="Unbonding Time" value={formatUnbondingTime(data.unbonding_time)} />
         )}
       </Section>
 
@@ -436,6 +559,32 @@ function EthereumChainSections({
             value={
               <span style={{ color: data.slashed ? 'var(--color-danger)' : 'var(--color-accent)' }}>
                 {data.slashed ? 'Yes' : 'No'}
+              </span>
+            }
+          />
+        )}
+        {!isEthSentinel(data.exit_epoch) && (
+          <Field
+            label="Exit Epoch"
+            value={
+              <span>
+                {formatNumber(data.exit_epoch!)}
+                <span style={{ fontSize: 11, color: 'var(--color-text-dim)', marginLeft: 6 }}>
+                  ({epochToApproxDate(data.exit_epoch!)})
+                </span>
+              </span>
+            }
+          />
+        )}
+        {!isEthSentinel(data.withdrawable_epoch) && (
+          <Field
+            label="Withdrawable Epoch"
+            value={
+              <span>
+                {formatNumber(data.withdrawable_epoch!)}
+                <span style={{ fontSize: 11, color: 'var(--color-text-dim)', marginLeft: 6 }}>
+                  ({epochToApproxDate(data.withdrawable_epoch!)})
+                </span>
               </span>
             }
           />

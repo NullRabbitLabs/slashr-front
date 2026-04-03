@@ -8,10 +8,22 @@ export function formatStake(amount: number, token: string): string {
   return `${Math.round(amount).toLocaleString()} ${token} at risk`;
 }
 
+export function formatCompact(n: number): string {
+  if (!isFinite(n)) return String(n);
+  const abs = Math.abs(n);
+  if (abs >= 1_000_000_000) return `${strip(n / 1_000_000_000, 2)}B`;
+  if (abs >= 1_000_000) return `${strip(n / 1_000_000, 2)}M`;
+  if (abs >= 1_000) return `${strip(n / 1_000, 1)}K`;
+  return n.toLocaleString();
+}
+
+function strip(n: number, decimals: number): string {
+  const s = n.toFixed(decimals);
+  return s.replace(/\.?0+$/, '');
+}
+
 export function formatStakeCompact(amount: number): string {
-  if (amount >= 1_000_000) return `${(amount / 1_000_000).toFixed(1)}M`;
-  if (amount >= 1_000) return `${(amount / 1_000).toFixed(1)}K`;
-  return amount.toLocaleString();
+  return formatCompact(amount);
 }
 
 export function stripCidr(ip: string): string {

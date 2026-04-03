@@ -7,7 +7,7 @@ import { getEventLabel } from '@/lib/constants';
 import { useIsMobile } from '@/hooks/useIsMobile';
 import { usePageMeta } from '@/hooks/usePageMeta';
 import { formatUtcTime } from '@/lib/time';
-import { truncateMiddle, formatStakeCompact } from '@/lib/format';
+import { truncateMiddle, formatStakeCompact, formatCompact } from '@/lib/format';
 import { NETWORK_META, EVENT_TYPE_DESCRIPTIONS } from '@/lib/constants';
 import { NetworkTag } from './NetworkTag';
 import { SeverityMark } from './SeverityMark';
@@ -115,6 +115,34 @@ export function ValidatorProfile() {
   const { validator, loading, error } = useValidator(network ?? '', address ?? '');
   const { chainData } = useChainData(network ?? '', address ?? '');
   const isMobile = useIsMobile();
+
+  // Keybase avatar for Cosmos validators
+  const [keybaseAvatar, setKeybaseAvatar] = useState<string | null>(null);
+  const cosmosIdentity = useMemo(() => {
+    if (!chainData || chainData.network !== 'cosmos') return null;
+    const id = (chainData.chain_data as Record<string, unknown>).identity as string | null;
+    return id?.trim() || null;
+  }, [chainData]);
+
+  useEffect(() => {
+    if (!cosmosIdentity) return;
+    let cancelled = false;
+    fetch(`https://keybase.io/_/api/1.0/user/lookup.json?key_suffix=${cosmosIdentity}&fields=pictures`)
+      .then(res => res.json())
+      .then(json => {
+        if (cancelled) return;
+        const url = json?.them?.[0]?.pictures?.primary?.url;
+        if (url) setKeybaseAvatar(url);
+      })
+      .catch(() => {});
+    return () => { cancelled = true; };
+  }, [cosmosIdentity]);
+
+  // Ethereum pubkey for beaconcha.in link
+  const ethPubkey = useMemo(() => {
+    if (!chainData || chainData.network !== 'ethereum') return null;
+    return (chainData.chain_data as Record<string, unknown>).pubkey as string | null;
+  }, [chainData]);
 
   // Row limit for grouped events
   const [expandedGroups, setExpandedGroups] = useState<Set<number>>(new Set());
@@ -408,6 +436,20 @@ export function ValidatorProfile() {
               unnamed validator
             </span>
           )}
+          {keybaseAvatar && (
+            <img
+              src={keybaseAvatar}
+              alt=""
+              style={{
+                width: 32,
+                height: 32,
+                borderRadius: '50%',
+                objectFit: 'cover',
+                flexShrink: 0,
+              }}
+              onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
+            />
+          )}
           <h2
             style={{
               fontSize: isMobile ? 20 : 24,
@@ -514,8 +556,8 @@ export function ValidatorProfile() {
           {validator.stake != null && validator.stake_token && (
             <div>
               <div style={metaLabelStyle}>Stake</div>
-              <div style={metaValueStyle}>
-                {Math.round(validator.stake).toLocaleString()} {validator.stake_token} at risk
+              <div style={metaValueStyle} title={`${Math.round(validator.stake).toLocaleString()} ${validator.stake_token}`}>
+                {formatCompact(Math.round(validator.stake))} {validator.stake_token} at risk
               </div>
             </div>
           )}
@@ -566,6 +608,19 @@ export function ValidatorProfile() {
               >
                 In scan DB
               </div>
+            </div>
+          )}
+          {ethPubkey && (
+            <div>
+              <div style={metaLabelStyle}>Explorer</div>
+              <a
+                href={`https://beaconcha.in/validator/${ethPubkey}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                style={metaValueStyle}
+              >
+                beaconcha.in
+              </a>
             </div>
           )}
         </div>
