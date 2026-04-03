@@ -41,15 +41,8 @@ function computeVerdict(events: ValidatorEventItem[]): Verdict {
   const in7d = events.filter(e => now - new Date(e.started_at).getTime() < SEVEN_DAYS);
   const in24h = events.filter(e => now - new Date(e.started_at).getTime() < TWENTY_FOUR_HOURS);
 
-  if (in7d.length === 0) {
-    return { text: 'No recent incidents.', level: 'neutral' };
-  }
-
-  if (in24h.length > 0) {
-    return {
-      text: `${in24h.length} incident${in24h.length === 1 ? '' : 's'} in the last 24 hours.`,
-      level: 'critical',
-    };
+  if (in24h.length === 0) {
+    return { text: 'No incidents in the last 24 hours.', level: 'neutral' };
   }
 
   if (in7d.length >= 3) {
@@ -60,8 +53,8 @@ function computeVerdict(events: ValidatorEventItem[]): Verdict {
   }
 
   return {
-    text: `${in7d.length} incident${in7d.length === 1 ? '' : 's'} in the last 7 days.`,
-    level: 'warning',
+    text: `${in24h.length} incident${in24h.length === 1 ? '' : 's'} in the last 24 hours.`,
+    level: in24h.length >= 2 ? 'critical' : 'warning',
   };
 }
 
@@ -591,7 +584,10 @@ export function ValidatorProfile() {
             >
               {/* Compact rows — one per event, capped at 3 unless expanded */}
               {visibleEvents.map((ev) => {
-                const resolved = ev.resolved_at != null;
+                const isCosmosJailing = validator.network === 'cosmos' && ev.event_type === 'slashed_downtime';
+                const unjailedByChainData = isCosmosJailing && chainData?.network === 'cosmos'
+                  && (chainData.chain_data as Record<string, unknown>).jailed === false;
+                const resolved = ev.resolved_at != null || unjailedByChainData;
                 const dotColor = resolved ? 'var(--color-accent-dim)' : '#e8a735';
                 return (
                   <React.Fragment key={ev.id}>
@@ -679,22 +675,32 @@ export function ValidatorProfile() {
                 );
               })}
 
-              {/* Expand link for collapsed groups */}
+              {/* Expand button for collapsed groups */}
               {!isGroupExpanded && hiddenCount > 0 && (
-                <div
+                <button
                   onClick={() => setExpandedGroups(prev => new Set(prev).add(tgi))}
                   style={{
+                    display: 'block',
                     fontSize: 12,
                     color: 'var(--color-text-dim)',
                     cursor: 'pointer',
                     padding: '8px 0',
                     paddingLeft: 16,
+                    background: 'none',
+                    border: 'none',
+                    fontFamily: "'JetBrains Mono', monospace",
                   }}
-                  onMouseEnter={e => (e.currentTarget.style.color = 'var(--color-text-secondary)')}
-                  onMouseLeave={e => (e.currentTarget.style.color = '')}
+                  onMouseEnter={e => {
+                    e.currentTarget.style.color = 'var(--color-text-secondary)';
+                    e.currentTarget.style.textDecoration = 'underline';
+                  }}
+                  onMouseLeave={e => {
+                    e.currentTarget.style.color = '';
+                    e.currentTarget.style.textDecoration = '';
+                  }}
                 >
                   + {hiddenCount} more events
-                </div>
+                </button>
               )}
 
               {/* Shared description block */}

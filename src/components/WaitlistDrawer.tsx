@@ -129,6 +129,7 @@ export function WaitlistDrawer() {
             onClick={e => e.stopPropagation()}
             style={{
               background: 'var(--color-bg)',
+              color: 'var(--color-text-primary)',
               border: '1px solid var(--color-border-medium)',
               borderRadius: isMobile ? '12px 12px 0 0' : 8,
               padding: isMobile ? '24px 20px 32px' : '32px 28px',
@@ -158,6 +159,7 @@ export function WaitlistDrawer() {
                     fontFamily: "'Space Grotesk', sans-serif",
                     letterSpacing: '-0.02em',
                     margin: '0 0 6px',
+                    color: 'var(--color-text-primary)',
                   }}
                 >
                   stay in the loop

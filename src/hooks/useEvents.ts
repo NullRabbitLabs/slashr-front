@@ -18,6 +18,7 @@ export function useEvents({ network, search, initialCursor, onCursorChange }: Us
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [hasMore, setHasMore] = useState(false);
+  const [loadingMore, setLoadingMore] = useState(false);
   const [cursor, setCursor] = useState<string | null>(null);
 
   const onCursorChangeRef = useRef(onCursorChange);
@@ -137,7 +138,8 @@ export function useEvents({ network, search, initialCursor, onCursorChange }: Us
   }, []);
 
   const loadMore = useCallback(() => {
-    if (!cursor || !hasMore) return;
+    if (!cursor || !hasMore || loadingMore) return;
+    setLoadingMore(true);
 
     fetchEvents({ network: network ?? undefined, search: search || undefined, cursor, limit: 25 })
       .then(res => {
@@ -156,8 +158,11 @@ export function useEvents({ network, search, initialCursor, onCursorChange }: Us
       })
       .catch(err => {
         setError((err as Error).message);
+      })
+      .finally(() => {
+        setLoadingMore(false);
       });
-  }, [cursor, hasMore, network, search, startStagger]);
+  }, [cursor, hasMore, loadingMore, network, search, startStagger]);
 
-  return { events, loading, error, hasMore, loadMore, visibleIds };
+  return { events, loading, loadingMore, error, hasMore, loadMore, visibleIds };
 }
