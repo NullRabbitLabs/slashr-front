@@ -10,8 +10,22 @@ import { useIsMobile } from '@/hooks/useIsMobile';
 
 const PERIODS: LeaderboardPeriod[] = ['7d', '30d', '90d', 'all'];
 
+const TICKER_TO_SLUG: Record<string, NetworkSlug> = {
+  sol: 'solana',
+  eth: 'ethereum',
+  atom: 'cosmos',
+  sui: 'sui',
+  dot: 'polkadot',
+};
+
 function isNetworkSlug(s: string): s is NetworkSlug {
   return (NETWORK_ORDER as readonly string[]).includes(s);
+}
+
+function resolveNetworkParam(raw: string): NetworkSlug {
+  if (isNetworkSlug(raw)) return raw;
+  const mapped = TICKER_TO_SLUG[raw.toLowerCase()];
+  return mapped ?? 'solana';
 }
 
 function isPeriod(s: string): s is LeaderboardPeriod {
@@ -24,7 +38,7 @@ export default function LeaderboardPage() {
   const sentinelRef = useRef<HTMLDivElement>(null);
 
   const rawNetwork = params.get('network') ?? 'solana';
-  const network: NetworkSlug = isNetworkSlug(rawNetwork) ? rawNetwork : 'solana';
+  const network: NetworkSlug = resolveNetworkParam(rawNetwork);
 
   const rawPeriod = params.get('period') ?? '30d';
   const period: LeaderboardPeriod = isPeriod(rawPeriod) ? rawPeriod : '30d';

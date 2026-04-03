@@ -7,10 +7,11 @@ interface EventFeedProps {
   search: string;
   initialCursor?: string | null;
   onCursorChange?: (cursor: string | null) => void;
+  showResultCount?: boolean;
 }
 
-export function EventFeed({ network, search, initialCursor, onCursorChange }: EventFeedProps) {
-  const { events, loading, error, hasMore, loadMore, visibleIds } = useEvents({
+export function EventFeed({ network, search, initialCursor, onCursorChange, showResultCount = true }: EventFeedProps) {
+  const { events, loading, error, hasMore, loadMore, loadingMore, visibleIds } = useEvents({
     network,
     search,
     initialCursor,
@@ -48,6 +49,20 @@ export function EventFeed({ network, search, initialCursor, onCursorChange }: Ev
         </div>
       )}
 
+      {/* Result count */}
+      {showResultCount && !loading && events.length > 0 && search.length > 0 && (
+        <div
+          style={{
+            fontSize: 12,
+            color: 'var(--color-text-dim)',
+            fontFamily: "'JetBrains Mono', monospace",
+            padding: '4px 0 8px',
+          }}
+        >
+          Showing {events.length}{hasMore ? '+' : ''} result{events.length !== 1 ? 's' : ''} for &lsquo;{search}&rsquo;
+        </div>
+      )}
+
       {/* Empty filter result */}
       {events.length === 0 && !loading && isFiltered && (
         <div
@@ -73,6 +88,52 @@ export function EventFeed({ network, search, initialCursor, onCursorChange }: Ev
 
       {/* Infinite scroll sentinel */}
       {hasMore && <div ref={sentinelRef} style={{ height: 1 }} />}
+
+      {/* Load more button */}
+      {hasMore && !loadingMore && (
+        <button
+          onClick={loadMore}
+          style={{
+            display: 'block',
+            width: '100%',
+            padding: '12px 0',
+            marginTop: 8,
+            background: 'none',
+            border: '1px solid var(--color-border)',
+            borderRadius: 4,
+            color: 'var(--color-text-dim)',
+            fontSize: 12,
+            fontFamily: "'JetBrains Mono', monospace",
+            cursor: 'pointer',
+            transition: 'all 0.15s ease',
+          }}
+          onMouseEnter={e => {
+            e.currentTarget.style.borderColor = 'var(--color-border-hover)';
+            e.currentTarget.style.color = 'var(--color-text-secondary)';
+          }}
+          onMouseLeave={e => {
+            e.currentTarget.style.borderColor = '';
+            e.currentTarget.style.color = '';
+          }}
+        >
+          load more
+        </button>
+      )}
+
+      {/* Loading more indicator */}
+      {loadingMore && (
+        <div
+          style={{
+            padding: '12px 0',
+            color: 'var(--color-text-ghost)',
+            fontFamily: "'JetBrains Mono', monospace",
+            fontSize: 13,
+            textAlign: 'center',
+          }}
+        >
+          loading...
+        </div>
+      )}
     </div>
   );
 }

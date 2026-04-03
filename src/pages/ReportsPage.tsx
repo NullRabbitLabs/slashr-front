@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { useReportProviders } from '@/hooks/useReportProviders';
 import { useDebouncedValue } from '@/hooks/useDebouncedValue';
@@ -17,6 +17,13 @@ export default function ReportsPage() {
   const apiLetter = activeLetter ?? undefined;
 
   const { providers, loading, loadingMore, error, hasMore, loadMore } = useReportProviders(apiSearch, apiLetter);
+
+  // Client-side filter for instant feedback while API search debounces
+  const filteredProviders = useMemo(() => {
+    if (!searchInput.trim()) return providers;
+    const q = searchInput.toLowerCase();
+    return providers.filter(p => p.provider_name.toLowerCase().includes(q));
+  }, [providers, searchInput]);
 
   // Clear letter when typing search and vice versa
   useEffect(() => {
@@ -150,18 +157,18 @@ export default function ReportsPage() {
               marginBottom: 8,
             }}
           >
-            {providers.length} provider{providers.length !== 1 ? 's' : ''}
+            {filteredProviders.length} provider{filteredProviders.length !== 1 ? 's' : ''}
           </div>
 
-          {providers.length === 0 ? (
+          {filteredProviders.length === 0 ? (
             <div style={{ padding: '20px 0', color: 'var(--color-text-secondary)', fontSize: 13 }}>
               {apiSearch || apiLetter
-                ? 'No providers match your filter.'
+                ? 'No providers found.'
                 : 'No reliability reports generated yet.'}
             </div>
           ) : (
             <div style={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
-              {providers.map(p => (
+              {filteredProviders.map(p => (
                 <Link
                   key={p.provider_slug}
                   to={`/reports/${p.provider_slug}`}

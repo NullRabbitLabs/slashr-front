@@ -1,12 +1,12 @@
 import { useMemo, useState } from 'react';
 
 interface SparklineProps {
-  events: { started_at: string }[];
+  events: { started_at: string; severity?: string }[];
 }
 
 const DAYS = 30;
-const HEIGHT = 32;
-const MIN_BAR_H = 4;
+const HEIGHT = 40;
+const MIN_BAR_H = 3;
 
 function bucketEvents(events: { started_at: string }[]): number[] {
   const buckets = new Array<number>(DAYS).fill(0);
@@ -30,6 +30,14 @@ function formatDate(daysAgo: number): string {
   const d = new Date();
   d.setDate(d.getDate() - daysAgo);
   return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+}
+
+function barColor(count: number, max: number): string {
+  const intensity = count / max;
+  if (intensity >= 0.8) return 'rgba(255, 69, 69, 0.85)';
+  if (intensity >= 0.5) return 'rgba(232, 167, 53, 0.80)';
+  if (intensity >= 0.25) return 'rgba(255, 255, 255, 0.45)';
+  return 'rgba(255, 255, 255, 0.25)';
 }
 
 export function Sparkline({ events }: SparklineProps) {
@@ -62,13 +70,13 @@ export function Sparkline({ events }: SparklineProps) {
               width={w}
               height={h}
               rx={1}
-              fill="var(--color-text-dim)"
+              fill={barColor(count, max)}
               onMouseEnter={() => setHoveredIndex(i)}
               onMouseLeave={() => setHoveredIndex(null)}
               style={{ cursor: 'default' }}
             >
               <title>
-                {formatDate(DAYS - 1 - i)} -{count} incident{count === 1 ? '' : 's'}
+                {formatDate(DAYS - 1 - i)} — {count} incident{count === 1 ? '' : 's'}
               </title>
             </rect>
           );
@@ -89,7 +97,7 @@ export function Sparkline({ events }: SparklineProps) {
             pointerEvents: 'none',
           }}
         >
-          {formatDate(DAYS - 1 - hoveredIndex)} -{buckets[hoveredIndex]} incident{buckets[hoveredIndex] === 1 ? '' : 's'}
+          {formatDate(DAYS - 1 - hoveredIndex)} — {buckets[hoveredIndex]} incident{buckets[hoveredIndex] === 1 ? '' : 's'}
         </div>
       )}
     </div>
