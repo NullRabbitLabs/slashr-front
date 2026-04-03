@@ -571,6 +571,28 @@ export function ValidatorProfile() {
         </div>
       )}
 
+      {/* Delinquency frequency */}
+      {validator.delinquency_frequency && (() => {
+        const df = validator.delinquency_frequency;
+        const color =
+          df.count === 0
+            ? 'var(--color-accent)'
+            : df.count <= 2
+              ? '#e8a735'
+              : 'var(--color-danger)';
+        return (
+          <div style={{ marginBottom: 24, paddingBottom: 24, borderBottom: '1px solid var(--color-border)' }}>
+            <div style={sectionHeadingStyle}>Reliability</div>
+            <div style={{ marginTop: 12 }}>
+              <div style={metaLabelStyle}>Delinquency</div>
+              <div style={{ ...metaValueStyle, color }}>
+                {df.count} incident{df.count !== 1 ? 's' : ''} in {df.period_days} day{df.period_days !== 1 ? 's' : ''}
+              </div>
+            </div>
+          </div>
+        );
+      })()}
+
       {/* Chain-specific data sections */}
       {chainData && <ChainDataSections chainData={chainData} isMobile={isMobile} />}
 

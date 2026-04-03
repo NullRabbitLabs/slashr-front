@@ -90,7 +90,12 @@ export interface ValidatorProfile {
   has_contact: boolean;
   in_scan_db: boolean;
   skip_rate: number | null;
-  skip_rate_trailing: number | null;
+  delinquency_frequency: {
+    count: number;
+    period_days: number;
+    first_event: string | null;
+    last_event: string | null;
+  } | null;
   events: ValidatorEventItem[];
 }
 
@@ -256,12 +261,6 @@ export interface SolanaChainData {
   credits_previous_epoch: number;
   credit_delta: number;
   skip_rate: number | null;
-  skip_rate_history: Array<{
-    epoch: number;
-    leader_slots: number;
-    blocks_produced: number;
-    skip_rate: number | null;
-  }> | null;
 }
 
 export interface SuiChainData {
