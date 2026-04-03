@@ -17,6 +17,13 @@ import ScanAnalysisCard from './ScanAnalysisCard';
 
 const STAGGER_DELAY = 120;
 
+const EXPLORER_LINKS: Record<string, (address: string) => { href: string; label: string }> = {
+  solana:   (a) => ({ href: `https://solscan.io/account/${a}`,                   label: 'View on Solscan \u2192' }),
+  cosmos:   (a) => ({ href: `https://www.mintscan.io/cosmos/validators/${a}`,     label: 'View on Mintscan \u2192' }),
+  sui:      (a) => ({ href: `https://suiscan.xyz/mainnet/validator/${a}/details`, label: 'View on Suiscan \u2192' }),
+  ethereum: (a) => ({ href: `https://beaconcha.in/validator/${a}`,                label: 'View on beaconcha.in \u2192' }),
+};
+
 // --- Verdict logic ---
 
 interface Verdict {
@@ -472,6 +479,27 @@ export function ValidatorProfile() {
           </h2>
           <NetworkTag network={validator.network} />
           {(() => {
+            const explorerAddr = validator.network === 'ethereum' ? ethPubkey : address;
+            const fn = explorerAddr ? EXPLORER_LINKS[validator.network] : undefined;
+            if (!fn || !explorerAddr) return null;
+            const link = fn(explorerAddr);
+            return (
+              <a
+                href={link.href}
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{
+                  fontSize: 12,
+                  fontFamily: "'JetBrains Mono', monospace",
+                  color: 'var(--color-text-tertiary)',
+                  textDecoration: 'none',
+                }}
+              >
+                {link.label}
+              </a>
+            );
+          })()}
+          {(() => {
             const net = NETWORK_META[validator.network]?.name ?? network;
             const total = validator.events.length;
             const hasSlash = validator.events.some(e => e.severity === 'critical');
@@ -615,19 +643,6 @@ export function ValidatorProfile() {
               >
                 In scan DB
               </div>
-            </div>
-          )}
-          {ethPubkey && (
-            <div>
-              <div style={metaLabelStyle}>Explorer</div>
-              <a
-                href={`https://beaconcha.in/validator/${ethPubkey}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                style={metaValueStyle}
-              >
-                beaconcha.in
-              </a>
             </div>
           )}
         </div>
