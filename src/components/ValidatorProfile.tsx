@@ -128,7 +128,6 @@ export function ValidatorProfile() {
   const cosmosIdentity = useMemo(() => {
     if (!chainData || chainData.network !== 'cosmos') return null;
     const cd = chainData.chain_data as Record<string, unknown>;
-    // identity may be at the top level (flattened) or nested under description
     const id = (cd.identity as string | undefined)
       ?? ((cd.description as Record<string, unknown> | undefined)?.identity as string | undefined);
     return id?.trim() || null;
