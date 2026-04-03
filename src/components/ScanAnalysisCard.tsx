@@ -220,11 +220,10 @@ export default function ScanAnalysisCard({ eventUuid }: ScanAnalysisCardProps) {
               background: 'var(--color-border-strong)',
             }} />
             {followUps.map((fu, i) => {
-              const fuHealth = fu.health as Record<string, unknown> | undefined;
-              const fuStatus = (fuHealth?.status as string) || 'unknown';
+              const fuStatus = (fu.health_status as string) || 'unknown';
               const fuColor = STATUS_COLORS[fuStatus] || 'rgba(255,255,255,0.4)';
               const historyEntry = data.history.find(h => h.follow_up_round === i + 1);
-              const timestamp = historyEntry?.received_at;
+              const timestamp = historyEntry?.received_at ?? (fu.checked_at as string | undefined);
               return (
                 <div key={i} style={{
                   display: 'flex',
