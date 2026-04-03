@@ -201,7 +201,12 @@ function buildMockValidator(network: NetworkSlug, address: string): ValidatorPro
     has_contact: true,
     in_scan_db: false,
     skip_rate: network === 'solana' ? 0.023 : null,
-    skip_rate_trailing: network === 'solana' ? 0.08 : null,
+    delinquency_frequency: network === 'solana' ? {
+      count: 3,
+      period_days: 10,
+      first_event: '2026-03-24T08:00:00Z',
+      last_event: '2026-04-03T12:43:00Z',
+    } : null,
     events: events.map(e => ({
       id: e.id,
       event_type: e.event_type,
@@ -324,15 +329,10 @@ export function getMockChainData(_network: string, _address: string): DataRespon
         credits_previous_epoch: 12300,
         credit_delta: 45,
         skip_rate: 0.023,
-        skip_rate_history: [
-          { epoch: 399, leader_slots: 200, blocks_produced: 170, skip_rate: 0.15 },
-          { epoch: 400, leader_slots: 100, blocks_produced: 97, skip_rate: 0.03 },
-        ],
       },
       computed: {
         credits_trend: 'improving',
         slots_behind: 32,
-        skip_rate_trailing: 0.11,
       },
     },
   };
