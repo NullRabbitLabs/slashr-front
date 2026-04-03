@@ -357,28 +357,32 @@ function CosmosChainSections({
   isMobile: boolean;
 }) {
   const [showFullDetails, setShowFullDetails] = useState(false);
-  const hasIdentity = !!(data.website?.trim() || data.details?.trim());
+  // description fields may be top-level (flattened) or nested under description
+  const desc = (data as unknown as Record<string, unknown>).description as Record<string, unknown> | undefined;
+  const website = data.website ?? desc?.website as string | undefined;
+  const details = data.details ?? desc?.details as string | undefined;
+  const hasIdentity = !!(website?.trim() || details?.trim());
 
   return (
     <>
       {hasIdentity && (
         <Section title="Identity" isMobile={isMobile}>
-          {data.website?.trim() && (
+          {website?.trim() && (
             <Field
               label="Website"
               value={
                 <a
-                  href={data.website}
+                  href={website}
                   target="_blank"
                   rel="noopener noreferrer"
                   style={{ color: 'var(--color-text-value)', textDecoration: 'underline' }}
                 >
-                  {data.website.replace(/^https?:\/\//, '')}
+                  {website.replace(/^https?:\/\//, '')}
                 </a>
               }
             />
           )}
-          {data.details?.trim() && (
+          {details?.trim() && (
             <div style={isMobile ? { gridColumn: 'span 2' } : undefined}>
               <div style={metaLabelStyle}>Details</div>
               <div style={{
@@ -387,9 +391,9 @@ function CosmosChainSections({
                 fontFamily: "'Inter', sans-serif",
                 lineHeight: 1.5,
               }}>
-                {data.details.length > 200 && !showFullDetails ? (
+                {details.length > 200 && !showFullDetails ? (
                   <>
-                    {data.details.slice(0, 200)}...
+                    {details.slice(0, 200)}...
                     <button
                       onClick={() => setShowFullDetails(true)}
                       style={{
@@ -408,7 +412,7 @@ function CosmosChainSections({
                     </button>
                   </>
                 ) : (
-                  data.details
+                  details
                 )}
               </div>
             </div>
