@@ -78,15 +78,16 @@ export default function CheckPage() {
 
   const handleSubmit = () => {
     const trimmed = walletInput.trim();
-    if (trimmed.length < 8) return;
+    if (!trimmed) return;
     if (isPrivateKey) return;
-    if (detectedValidator && !effectiveNetwork) return;
 
     const result = validateWalletAddress(trimmed);
     if (!result.valid) {
       setValidationError(result.error);
       return;
     }
+
+    if (detectedValidator && !effectiveNetwork) return;
 
     setValidationError(null);
     const network = effectiveNetwork || 'auto';
@@ -276,7 +277,7 @@ export default function CheckPage() {
       {/* Submit */}
       <button
         onClick={handleSubmit}
-        disabled={loading || walletInput.trim().length < 8 || isPrivateKey}
+        disabled={loading || !walletInput.trim() || isPrivateKey}
         style={{
           padding: '10px 24px',
           borderRadius: 4,
@@ -285,11 +286,11 @@ export default function CheckPage() {
           fontWeight: 600,
           textTransform: 'uppercase',
           letterSpacing: '0.05em',
-          cursor: loading || walletInput.trim().length < 8 || isPrivateKey ? 'not-allowed' : 'pointer',
+          cursor: loading || !walletInput.trim() || isPrivateKey ? 'not-allowed' : 'pointer',
           background: loading || isPrivateKey ? 'var(--color-bg-card)' : 'var(--color-text-primary)',
           color: loading || isPrivateKey ? 'var(--color-text-dim)' : 'var(--color-bg)',
           border: 'none',
-          opacity: walletInput.trim().length < 8 || isPrivateKey ? 0.4 : 1,
+          opacity: !walletInput.trim() || isPrivateKey ? 0.4 : 1,
           transition: 'all 0.15s ease',
         }}
       >
