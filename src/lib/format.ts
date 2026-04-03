@@ -23,7 +23,12 @@ function strip(n: number, decimals: number): string {
 }
 
 export function formatStakeCompact(amount: number): string {
-  return formatCompact(amount);
+  if (!isFinite(amount)) return String(amount);
+  const abs = Math.abs(amount);
+  if (abs >= 1_000_000_000) return `${strip(amount / 1_000_000_000, 1)}B`;
+  if (abs >= 1_000_000) return `${strip(amount / 1_000_000, 1)}M`;
+  if (abs >= 1_000) return `${strip(amount / 1_000, 1)}K`;
+  return strip(amount, 1);
 }
 
 export function stripCidr(ip: string): string {
