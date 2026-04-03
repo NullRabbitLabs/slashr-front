@@ -15,7 +15,6 @@ export function useChainData(network: string, address: string) {
         if (!cancelled) setChainData(res?.data ?? null);
       })
       .catch(() => {
-        // Chain data is supplementary — silently ignore errors
         if (!cancelled) setChainData(null);
       })
       .finally(() => {

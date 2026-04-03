@@ -119,15 +119,10 @@ export function ValidatorProfile() {
   // Keybase avatar for Cosmos validators
   const [keybaseAvatar, setKeybaseAvatar] = useState<string | null>(null);
   const cosmosIdentity = useMemo(() => {
-    if (!chainData) return null;
-    console.log('[keybase-debug] chainData.network:', chainData.network, 'chain_data keys:', chainData.chain_data ? Object.keys(chainData.chain_data) : 'null');
-    if (chainData.network !== 'cosmos') return null;
+    if (!chainData || chainData.network !== 'cosmos') return null;
     const cd = chainData.chain_data as Record<string, unknown>;
-    console.log('[keybase-debug] cd.identity:', cd.identity, 'cd.description:', cd.description);
-    // identity may be at the top level (flattened) or nested under description
     const id = (cd.identity as string | undefined)
       ?? ((cd.description as Record<string, unknown> | undefined)?.identity as string | undefined);
-    console.log('[keybase-debug] resolved identity:', id);
     return id?.trim() || null;
   }, [chainData]);
 
