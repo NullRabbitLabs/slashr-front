@@ -3,10 +3,15 @@ import { useSearchParams } from 'react-router-dom';
 import type { NetworkSlug } from '@/types/api';
 import { NETWORK_ORDER } from '@/lib/constants';
 import { useDebouncedValue } from '@/hooks/useDebouncedValue';
+import { usePageMeta } from '@/hooks/usePageMeta';
 import { FeedFilter } from '@/components/FeedFilter';
 import { EventFeed } from '@/components/EventFeed';
 
 export default function FeedPage() {
+  usePageMeta({
+    title: 'slashr \u2014 live validator incident feed',
+    description: 'Real-time slashing, delinquency, and missed vote tracking across Solana, Ethereum, Sui, and Cosmos.',
+  });
   const [searchParams] = useSearchParams();
 
   const initialCursor = searchParams.get('cursor');

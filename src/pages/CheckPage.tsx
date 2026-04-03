@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { useDelegations } from '@/hooks/useDelegations';
 import { DelegationCard } from '@/components/DelegationCard';
 import { useIsMobile } from '@/hooks/useIsMobile';
+import { usePageMeta } from '@/hooks/usePageMeta';
 import { NETWORK_META, NETWORK_ORDER } from '@/lib/constants';
 import type { NetworkSlug } from '@/types/api';
 
@@ -33,6 +34,10 @@ function detectValidatorAddress(address: string): { network: NetworkSlug } | nul
 }
 
 export default function CheckPage() {
+  usePageMeta({
+    title: 'Check Your Validators \u00b7 slashr',
+    description: 'Paste your wallet address. See your validators\' incident history.',
+  });
   const isMobile = useIsMobile();
   const { data, loading, error, lookup } = useDelegations();
   const [walletInput, setWalletInput] = useState('');

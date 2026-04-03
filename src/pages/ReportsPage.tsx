@@ -2,11 +2,16 @@ import { useState, useEffect, useRef, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { useReportProviders } from '@/hooks/useReportProviders';
 import { useDebouncedValue } from '@/hooks/useDebouncedValue';
+import { usePageMeta } from '@/hooks/usePageMeta';
 
 const LETTERS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
 const monoFont = "'JetBrains Mono', monospace";
 
 export default function ReportsPage() {
+  usePageMeta({
+    title: 'Reliability Reports \u00b7 slashr',
+    description: 'Monthly validator reliability reports by staking provider.',
+  });
   const [searchInput, setSearchInput] = useState('');
   const [activeLetter, setActiveLetter] = useState<string | null>(null);
   const debouncedSearch = useDebouncedValue(searchInput, 300);

@@ -29,6 +29,10 @@ interface ValidatorData {
   events: { id: number }[];
 }
 
+interface ReportData {
+  provider_name: string;
+}
+
 // --- Helpers ---
 
 function truncateAddress(addr: string): string {
@@ -66,6 +70,27 @@ async function fetchValidatorData(
   }
 }
 
+async function fetchReportData(
+  env: Env,
+  providerSlug: string,
+): Promise<ReportData | null> {
+  try {
+    const url = `${env.API_ORIGIN}/v1/reports/${encodeURIComponent(providerSlug)}`;
+    const res = await fetch(url, {
+      headers: {
+        'CF-Access-Client-Id': env.CF_ACCESS_CLIENT_ID,
+        'CF-Access-Client-Secret': env.CF_ACCESS_CLIENT_SECRET,
+        Accept: 'application/json',
+      },
+    });
+    if (!res.ok) return null;
+    const json = (await res.json()) as { data: { provider_name: string } };
+    return json.data;
+  } catch {
+    return null;
+  }
+}
+
 // --- Route-specific meta ---
 
 interface HeadMeta {
@@ -74,7 +99,11 @@ interface HeadMeta {
   url: string;
 }
 
-function getHeadMeta(pathname: string, validator: ValidatorData | null): HeadMeta {
+function getHeadMeta(
+  pathname: string,
+  validator: ValidatorData | null,
+  report: ReportData | null,
+): HeadMeta {
   const base = 'https://slashr.dev';
 
   // /validator/:network/:address
@@ -84,15 +113,10 @@ function getHeadMeta(pathname: string, validator: ValidatorData | null): HeadMet
     const networkName = NETWORK_NAMES[network] ?? network;
     const name = validator.moniker?.trim() || truncateAddress(validator.address);
     const count = validator.events.length;
-    const lastSeen = new Date(validator.last_seen).toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric',
-    });
 
     return {
-      title: `${name} on ${networkName} - slashr`,
-      description: `${count} incident${count === 1 ? '' : 's'} recorded. Last seen ${lastSeen}.`,
+      title: `${name} \u00b7 ${networkName} \u00b7 slashr`,
+      description: `${count} incident${count === 1 ? '' : 's'} recorded on slashr.`,
       url: `${base}${pathname}`,
     };
   }
@@ -100,18 +124,65 @@ function getHeadMeta(pathname: string, validator: ValidatorData | null): HeadMet
   // /validators
   if (pathname === '/validators' || pathname === '/validators/') {
     return {
-      title: 'slashr - tracked validators',
+      title: 'Tracked Validators \u00b7 slashr',
       description:
-        'All validators with recorded slashing and delinquency incidents across Ethereum, Solana, Cosmos, and Sui.',
+        'All validators with recorded incidents across Solana, Ethereum, Sui, and Cosmos.',
       url: `${base}/validators`,
+    };
+  }
+
+  // /rankings
+  if (pathname === '/rankings' || pathname === '/rankings/') {
+    return {
+      title: 'Validator Rankings \u00b7 slashr',
+      description:
+        'Worst offenders and most reliable validators across Solana, Ethereum, Sui, and Cosmos.',
+      url: `${base}/rankings`,
+    };
+  }
+
+  // /check
+  if (pathname === '/check' || pathname === '/check/') {
+    return {
+      title: 'Check Your Validators \u00b7 slashr',
+      description:
+        "Paste your wallet address. See your validators' incident history.",
+      url: `${base}/check`,
+    };
+  }
+
+  // /reports/:slug
+  const reportMatch = pathname.match(/^\/reports\/([^/]+)\/?$/);
+  if (reportMatch) {
+    if (report) {
+      return {
+        title: `${report.provider_name} Reliability Report \u00b7 slashr`,
+        description: `Cross-chain reliability summary for ${report.provider_name}.`,
+        url: `${base}${pathname}`,
+      };
+    }
+    return {
+      title: 'Reliability Report \u00b7 slashr',
+      description: 'Validator reliability report on slashr.',
+      url: `${base}${pathname}`,
+    };
+  }
+
+  // /reports
+  if (pathname === '/reports' || pathname === '/reports/') {
+    return {
+      title: 'Reliability Reports \u00b7 slashr',
+      description:
+        'Monthly validator reliability reports by staking provider.',
+      url: `${base}/reports`,
     };
   }
 
   // / (default)
   return {
-    title: '\u26A1 slashr \u270C\uFE0F live validator incident feed',
+    title: 'slashr \u2014 live validator incident feed',
     description:
-      'Real-time slashing and delinquency events across Ethereum, Solana, Cosmos, and Sui. As they happen.',
+      'Real-time slashing, delinquency, and missed vote tracking across Solana, Ethereum, Sui, and Cosmos.',
     url: base,
   };
 }
@@ -179,7 +250,7 @@ export const onRequest: PagesFunction<Env> = async (context) => {
   const response = await context.next();
   const html = await response.text();
 
-  // Fetch data for validator pages
+  // Fetch data for dynamic pages
   let validator: ValidatorData | null = null;
   const validatorMatch = pathname.match(/^\/validator\/([^/]+)\/([^/]+)\/?$/);
   if (validatorMatch) {
@@ -190,8 +261,14 @@ export const onRequest: PagesFunction<Env> = async (context) => {
     );
   }
 
+  let report: ReportData | null = null;
+  const reportMatch = pathname.match(/^\/reports\/([^/]+)\/?$/);
+  if (reportMatch) {
+    report = await fetchReportData(context.env, reportMatch[1]!);
+  }
+
   // Generate and inject meta tags
-  const meta = getHeadMeta(pathname, validator);
+  const meta = getHeadMeta(pathname, validator, report);
   const enrichedHtml = injectMeta(html, meta);
 
   return new Response(enrichedHtml, {

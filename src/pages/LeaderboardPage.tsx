@@ -7,6 +7,7 @@ import { relativeTime } from '@/lib/time';
 import { NetworkTag } from '@/components/NetworkTag';
 import { useLeaderboard } from '@/hooks/useLeaderboard';
 import { useIsMobile } from '@/hooks/useIsMobile';
+import { usePageMeta } from '@/hooks/usePageMeta';
 
 const PERIODS: LeaderboardPeriod[] = ['7d', '30d', '90d', 'all'];
 
@@ -33,6 +34,10 @@ function isPeriod(s: string): s is LeaderboardPeriod {
 }
 
 export default function LeaderboardPage() {
+  usePageMeta({
+    title: 'Validator Rankings \u00b7 slashr',
+    description: 'Worst offenders and most reliable validators across Solana, Ethereum, Sui, and Cosmos.',
+  });
   const isMobile = useIsMobile();
   const [params, setParams] = useSearchParams();
   const sentinelRef = useRef<HTMLDivElement>(null);

@@ -5,6 +5,7 @@ import { NETWORK_ORDER } from '@/lib/constants';
 import { NetworkTag } from '@/components/NetworkTag';
 import { FeedFilter } from '@/components/FeedFilter';
 import { useIsMobile } from '@/hooks/useIsMobile';
+import { usePageMeta } from '@/hooks/usePageMeta';
 
 const BASE_URL = import.meta.env.VITE_API_URL || '';
 
@@ -24,6 +25,10 @@ interface PaginationInfo {
 }
 
 export default function ValidatorsPage() {
+  usePageMeta({
+    title: 'Tracked Validators \u00b7 slashr',
+    description: 'All validators with recorded incidents across Solana, Ethereum, Sui, and Cosmos.',
+  });
   const isMobile = useIsMobile();
   const [validators, setValidators] = useState<ValidatorSummary[]>([]);
   const [loading, setLoading] = useState(true);

@@ -1,6 +1,7 @@
 import { useParams, Link } from 'react-router-dom';
 import { useReport } from '@/hooks/useReport';
 import { useIsMobile } from '@/hooks/useIsMobile';
+import { usePageMeta } from '@/hooks/usePageMeta';
 import { NETWORK_META } from '@/lib/constants';
 import type { NetworkSlug, NetworkBreakdown } from '@/types/api';
 import { useState } from 'react';
@@ -121,6 +122,15 @@ export default function ReportDetailPage() {
   const isMobile = useIsMobile();
   const { report, loading, error } = useReport(providerSlug ?? '');
   const [copied, setCopied] = useState(false);
+
+  usePageMeta({
+    title: report
+      ? `${report.provider_name} Reliability Report \u00b7 slashr`
+      : 'Reliability Report \u00b7 slashr',
+    description: report
+      ? `Cross-chain reliability summary for ${report.provider_name}.`
+      : 'Validator reliability report on slashr.',
+  });
 
   if (loading) {
     return (

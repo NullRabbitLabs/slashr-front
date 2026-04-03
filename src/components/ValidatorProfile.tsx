@@ -5,8 +5,9 @@ import { useValidator } from '@/hooks/useValidator';
 import { useChainData } from '@/hooks/useChainData';
 import { getEventLabel } from '@/lib/constants';
 import { useIsMobile } from '@/hooks/useIsMobile';
+import { usePageMeta } from '@/hooks/usePageMeta';
 import { formatUtcTime } from '@/lib/time';
-import { truncateMiddle } from '@/lib/format';
+import { truncateMiddle, formatStakeCompact } from '@/lib/format';
 import { NETWORK_META, EVENT_TYPE_DESCRIPTIONS } from '@/lib/constants';
 import { NetworkTag } from './NetworkTag';
 import { SeverityMark } from './SeverityMark';
@@ -174,6 +175,33 @@ export function ValidatorProfile() {
     [validator],
   );
 
+  const suiName = useMemo(() => {
+    if (!chainData || chainData.network !== 'sui') return undefined;
+    return (chainData.chain_data as Record<string, unknown>).name as string | undefined;
+  }, [chainData]);
+
+  const metaDisplayName = validator
+    ? (suiName?.trim() || validator.moniker?.trim() || truncateMiddle(validator.address, 20))
+    : '';
+  const metaNetworkName = network ? (NETWORK_META[network as NetworkSlug]?.name ?? network) : '';
+
+  const verdictLabel = verdict
+    ? { neutral: 'OK', warning: 'WARNING', critical: 'DEGRADED' }[verdict.level]
+    : '';
+
+  usePageMeta({
+    title: validator
+      ? `${metaDisplayName} \u00b7 ${metaNetworkName} \u00b7 slashr`
+      : 'slashr',
+    description: validator
+      ? `${validator.events.length} incidents \u00b7 ${
+          validator.stake != null && validator.stake_token
+            ? `${formatStakeCompact(validator.stake)} ${validator.stake_token} at risk`
+            : 'stake unknown'
+        } \u00b7 Infrastructure: ${verdictLabel}`
+      : 'Validator incident history on slashr.',
+  });
+
   if (loading) return null;
 
   if (error || !validator) {
@@ -312,9 +340,6 @@ export function ValidatorProfile() {
     );
   }
 
-  const suiName = chainData?.network === 'sui'
-    ? (chainData.chain_data as Record<string, unknown>).name as string | undefined
-    : undefined;
   const isNamed = !!(suiName?.trim() || validator.moniker?.trim());
   const displayAddress = isMobile
     ? truncateMiddle(validator.address, 24)
