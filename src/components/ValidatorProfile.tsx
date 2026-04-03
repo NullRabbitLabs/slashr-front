@@ -125,10 +125,14 @@ export function ValidatorProfile() {
   }, [chainData]);
 
   useEffect(() => {
+    setKeybaseAvatar(null);
     if (!cosmosIdentity) return;
     let cancelled = false;
-    fetch(`https://keybase.io/_/api/1.0/user/lookup.json?key_suffix=${cosmosIdentity}&fields=pictures`)
-      .then(res => res.json())
+    fetch(`https://keybase.io/_/api/1.0/user/lookup.json?key_suffix=${encodeURIComponent(cosmosIdentity)}&fields=pictures`)
+      .then(res => {
+        if (!res.ok) throw new Error(`${res.status}`);
+        return res.json();
+      })
       .then(json => {
         if (cancelled) return;
         const url = json?.them?.[0]?.pictures?.primary?.url;
