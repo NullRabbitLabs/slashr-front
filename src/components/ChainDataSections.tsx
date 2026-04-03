@@ -170,6 +170,32 @@ function SolanaChainSections({
             />
           );
         })()}
+        {computed.skip_rate_trailing != null && (() => {
+          const trailingPct = (computed.skip_rate_trailing as number) * 100;
+          const currentPct = data.skip_rate != null ? data.skip_rate * 100 : 0;
+          const color =
+            trailingPct < 5
+              ? 'var(--color-accent)'
+              : trailingPct <= 10
+                ? '#e8a735'
+                : 'var(--color-danger)';
+          const diverging = trailingPct >= 5 && trailingPct > currentPct * 2;
+          return (
+            <Field
+              label="Skip Rate (Trailing)"
+              value={
+                <span>
+                  <span style={{ color }}>{trailingPct.toFixed(1)}%</span>
+                  {diverging && (
+                    <span style={{ fontSize: 10, color: 'var(--color-danger)', marginLeft: 6 }}>
+                      recovered but unreliable
+                    </span>
+                  )}
+                </span>
+              }
+            />
+          );
+        })()}
       </Section>
 
       <Section title="Staking" isMobile={isMobile}>
