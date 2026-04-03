@@ -50,6 +50,7 @@ export default function ScanAnalysisCard({ eventUuid }: ScanAnalysisCardProps) {
   const pattern = analysis.pattern as { total_events?: number; span_days?: number; events_per_day?: number } | undefined;
   const cves = analysis.cves as { total?: number; critical?: number } | undefined;
 
+  const followUps = analysis.follow_ups as Array<Record<string, unknown>> | undefined;
   const pipeline = analysis.pipeline as { completed_at?: string } | undefined;
   const scannedAt = pipeline?.completed_at;
 
@@ -183,7 +184,7 @@ export default function ScanAnalysisCard({ eventUuid }: ScanAnalysisCardProps) {
       }}>
         {pattern && (pattern.total_events ?? 0) > 1 && (
           <div>
-            Pattern: {pattern.total_events} events in {pattern.span_days} days ({pattern.events_per_day}/day)
+            Pattern: {pattern.total_events} events in {pattern.span_days} days ({typeof pattern.events_per_day === 'number' ? pattern.events_per_day.toFixed(1) : pattern.events_per_day}/day)
           </div>
         )}
         {cves && (
@@ -194,6 +195,75 @@ export default function ScanAnalysisCard({ eventUuid }: ScanAnalysisCardProps) {
           </div>
         )}
       </div>
+
+      {/* Follow-up timeline */}
+      {followUps && followUps.length > 0 && (
+        <div style={{ marginTop: 12 }}>
+          <div style={{
+            fontFamily: 'Inter, sans-serif',
+            fontSize: 11,
+            fontWeight: 600,
+            letterSpacing: '0.08em',
+            color: 'var(--color-text-secondary)',
+            textTransform: 'uppercase' as const,
+            marginBottom: 8,
+          }}>
+            Follow-ups
+          </div>
+          <div style={{ position: 'relative', paddingLeft: 16 }}>
+            <div style={{
+              position: 'absolute',
+              left: 3,
+              top: 4,
+              bottom: 4,
+              width: 1,
+              background: 'var(--color-border-strong)',
+            }} />
+            {followUps.map((fu, i) => {
+              const fuHealth = fu.health as Record<string, unknown> | undefined;
+              const fuStatus = (fuHealth?.status as string) || 'unknown';
+              const fuColor = STATUS_COLORS[fuStatus] || 'rgba(255,255,255,0.4)';
+              const historyEntry = data.history.find(h => h.follow_up_round === i + 1);
+              const timestamp = historyEntry?.received_at;
+              return (
+                <div key={i} style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 8,
+                  padding: '3px 0',
+                  position: 'relative',
+                }}>
+                  <span style={{
+                    position: 'absolute',
+                    left: -14,
+                    width: 6,
+                    height: 6,
+                    borderRadius: '50%',
+                    background: fuColor,
+                  }} />
+                  {timestamp && (
+                    <span style={{
+                      fontFamily: 'JetBrains Mono, monospace',
+                      fontSize: 11,
+                      color: 'var(--color-text-dim)',
+                      flexShrink: 0,
+                    }}>
+                      {relativeTime(timestamp)}
+                    </span>
+                  )}
+                  <span style={{
+                    fontFamily: 'JetBrains Mono, monospace',
+                    fontSize: 11,
+                    color: fuColor,
+                  }}>
+                    {fuStatus}
+                  </span>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
 
       {/* Reply link */}
       {data.reply.status === 'sent' && data.reply.tweet_id && (

@@ -87,7 +87,7 @@ export function NetworkStrip({ stats, networks }: NetworkStripProps) {
                     fontFamily: "'JetBrains Mono', monospace",
                   }}
                 >
-                  {networkStats ? networkStats.counts.last_24h : '0'}
+                  {networkStats ? networkStats.counts.last_30d : '0'}
                 </span>
               </div>
             ) : (
@@ -112,7 +112,7 @@ export function NetworkStrip({ stats, networks }: NetworkStripProps) {
                     fontFamily: "'JetBrains Mono', monospace",
                   }}
                 >
-                  {networkStats ? `${networkStats.counts.last_24h} incidents / 24h` : '\u00A0'}
+                  {networkStats ? `${networkStats.counts.last_30d} incidents / 30d` : '\u00A0'}
                 </div>
               </>
             )}

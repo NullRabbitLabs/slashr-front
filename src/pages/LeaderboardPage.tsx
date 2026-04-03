@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import type { NetworkSlug, LeaderboardPeriod, LeaderboardSort } from '@/types/api';
 import { NETWORK_META, NETWORK_ORDER } from '@/lib/constants';
-import { truncateMiddle } from '@/lib/format';
+import { truncateMiddle, formatCompact } from '@/lib/format';
 import { relativeTime } from '@/lib/time';
 import { NetworkTag } from '@/components/NetworkTag';
 import { useLeaderboard } from '@/hooks/useLeaderboard';
@@ -232,9 +232,13 @@ export default function LeaderboardPage() {
                   ? '#e8a735'
                   : 'var(--color-text-secondary)';
 
-              const stakeDisplay = v.total_stake && v.stake_token
-                ? `${Number(v.total_stake).toLocaleString()} ${v.stake_token}`
+              const stakeRaw = v.total_stake ? Number(v.total_stake) : null;
+              const stakeDisplay = stakeRaw != null && v.stake_token
+                ? `${formatCompact(stakeRaw)} ${v.stake_token}`
                 : '\u2014';
+              const stakeTitle = stakeRaw != null && v.stake_token
+                ? `${stakeRaw.toLocaleString()} ${v.stake_token}`
+                : undefined;
 
               return (
                 <tr
@@ -271,7 +275,7 @@ export default function LeaderboardPage() {
                     {v.severity_score}
                   </td>
                   {!isMobile && (
-                    <td style={{ padding: '10px 0', textAlign: 'right', color: 'var(--color-text-dim)', fontSize: 12 }}>
+                    <td style={{ padding: '10px 0', textAlign: 'right', color: 'var(--color-text-dim)', fontSize: 12 }} title={stakeTitle}>
                       {stakeDisplay}
                     </td>
                   )}
