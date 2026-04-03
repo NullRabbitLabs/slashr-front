@@ -1,5 +1,5 @@
-import { useState, useMemo } from 'react';
-import { Link } from 'react-router-dom';
+import { useState, useMemo, useEffect, useRef } from 'react';
+import { Link, useSearchParams } from 'react-router-dom';
 import { useDelegations } from '@/hooks/useDelegations';
 import { DelegationCard } from '@/components/DelegationCard';
 import { CheckCleanCTA } from '@/components/CheckCleanCTA';
@@ -29,9 +29,15 @@ export default function CheckPage() {
   const isMobile = useIsMobile();
   const placeholder = useRotatingPlaceholder(EXAMPLE_ADDRESSES, 3500);
   const { data, loading, error, lookup } = useDelegations();
-  const [walletInput, setWalletInput] = useState('');
-  const [selectedNetwork, setSelectedNetwork] = useState<NetworkSlug | 'auto'>('auto');
+  const [searchParams, setSearchParams] = useSearchParams();
+  const [walletInput, setWalletInput] = useState(() => searchParams.get('address') ?? '');
+  const [selectedNetwork, setSelectedNetwork] = useState<NetworkSlug | 'auto'>(() => {
+    const n = searchParams.get('network');
+    if (n && DELEGATION_NETWORKS.includes(n as NetworkSlug)) return n as NetworkSlug;
+    return 'auto';
+  });
   const [validationError, setValidationError] = useState<string | null>(null);
+  const didAutoSearch = useRef(false);
 
   const isPrivateKey = useMemo(
     () => looksLikePrivateKey(walletInput.trim()),
@@ -53,6 +59,18 @@ export default function CheckPage() {
     ? detectedNetwork
     : selectedNetwork;
 
+  // Auto-search on load if address is in query params
+  useEffect(() => {
+    if (didAutoSearch.current) return;
+    const addr = searchParams.get('address');
+    if (!addr || addr.trim().length < 8) return;
+    const result = validateWalletAddress(addr.trim());
+    if (!result.valid) return;
+    didAutoSearch.current = true;
+    const net = effectiveNetwork || 'auto';
+    lookup(net, addr.trim());
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
   const handleInputChange = (value: string) => {
     setWalletInput(value);
     setValidationError(null);
@@ -72,6 +90,11 @@ export default function CheckPage() {
 
     setValidationError(null);
     const network = effectiveNetwork || 'auto';
+
+    const params: Record<string, string> = { address: trimmed };
+    if (network !== 'auto') params['network'] = network;
+    setSearchParams(params);
+
     lookup(network, trimmed);
   };
 
