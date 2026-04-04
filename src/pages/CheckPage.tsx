@@ -1,18 +1,19 @@
 import { useState, useMemo, useEffect, useRef } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
-import { useDelegations } from '@/hooks/useDelegations';
-import { DelegationCard } from '@/components/DelegationCard';
-import { CheckCleanCTA } from '@/components/CheckCleanCTA';
+import { useHealthCheck } from '@/hooks/useHealthCheck';
+import { useShareCard } from '@/hooks/useShareCard';
 import { useIsMobile } from '@/hooks/useIsMobile';
 import { usePageMeta } from '@/hooks/usePageMeta';
-import { NETWORK_META, NETWORK_ORDER } from '@/lib/constants';
+import { NETWORK_META } from '@/lib/constants';
 import { detectNetwork, detectValidatorAddress, looksLikePrivateKey, validateWalletAddress } from '@/lib/addressValidation';
 import { useRotatingPlaceholder } from '@/hooks/useRotatingPlaceholder';
-import type { NetworkSlug } from '@/types/api';
-
-const DELEGATION_NETWORKS: NetworkSlug[] = NETWORK_ORDER.filter(
-  n => n !== 'polkadot'
-) as NetworkSlug[];
+import { formatUsdLarge } from '@/lib/format';
+import { PortfolioSummaryCard } from '@/components/health/PortfolioSummaryCard';
+import { ValidatorBreakdownCard } from '@/components/health/ValidatorBreakdownCard';
+import { LoadingSequence } from '@/components/health/LoadingSequence';
+import { MethodologyNote } from '@/components/health/MethodologyNote';
+import { HealthCardPng } from '@/components/health/HealthCardPng';
+import { CheckCleanCTA } from '@/components/CheckCleanCTA';
 
 const EXAMPLE_ADDRESSES = [
   'e.g. 9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM',
@@ -22,22 +23,27 @@ const EXAMPLE_ADDRESSES = [
 ];
 
 export default function CheckPage() {
-  usePageMeta({
-    title: 'Check Your Validators \u00b7 slashr',
-    description: 'Paste your wallet address. See your validators\' incident history.',
-  });
   const isMobile = useIsMobile();
   const placeholder = useRotatingPlaceholder(EXAMPLE_ADDRESSES, 3500);
-  const { data, loading, error, lookup } = useDelegations();
+  const { data, loading, error, check, reset } = useHealthCheck();
   const [searchParams, setSearchParams] = useSearchParams();
   const [walletInput, setWalletInput] = useState(() => searchParams.get('address') ?? '');
-  const [selectedNetwork, setSelectedNetwork] = useState<NetworkSlug | 'auto'>(() => {
-    const n = searchParams.get('network');
-    if (n && DELEGATION_NETWORKS.includes(n as NetworkSlug)) return n as NetworkSlug;
-    return 'auto';
-  });
   const [validationError, setValidationError] = useState<string | null>(null);
   const didAutoSearch = useRef(false);
+  const cardRef = useRef<HTMLDivElement>(null);
+  const { share, copyLink, generating, toastMessage } = useShareCard(cardRef, data);
+
+  usePageMeta(
+    data
+      ? {
+          title: `Grade ${data.portfolio.grade} \u00b7 ${data.network} \u00b7 slashr`,
+          description: `${data.portfolio.validator_count} validators \u00b7 ${formatUsdLarge(data.portfolio.total_cost_of_downtime_usd)} lost to downtime (${data.portfolio.cost_period_days}d)`,
+        }
+      : {
+          title: 'Check Your Validators \u00b7 slashr',
+          description: 'Paste your wallet address. See your validators\' grades, incident history, and how much their downtime costs you.',
+        },
+  );
 
   const isPrivateKey = useMemo(
     () => looksLikePrivateKey(walletInput.trim()),
@@ -55,10 +61,6 @@ export default function CheckPage() {
     return detectValidatorAddress(walletInput.trim());
   }, [walletInput, detectedNetwork]);
 
-  const effectiveNetwork = selectedNetwork === 'auto'
-    ? detectedNetwork
-    : selectedNetwork;
-
   // Auto-search on load if address is in query params
   useEffect(() => {
     if (didAutoSearch.current) return;
@@ -67,8 +69,7 @@ export default function CheckPage() {
     const result = validateWalletAddress(addr.trim());
     if (!result.valid) return;
     didAutoSearch.current = true;
-    const net = effectiveNetwork || 'auto';
-    lookup(net, addr.trim());
+    check(addr.trim());
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleInputChange = (value: string) => {
@@ -80,7 +81,7 @@ export default function CheckPage() {
     const trimmed = walletInput.trim();
     if (!trimmed) return;
     if (isPrivateKey) return;
-    if (detectedValidator) return; // validator address — redirect shown, don't validate as wallet
+    if (detectedValidator) return;
 
     const result = validateWalletAddress(trimmed);
     if (!result.valid) {
@@ -89,24 +90,21 @@ export default function CheckPage() {
     }
 
     setValidationError(null);
-    const network = effectiveNetwork || 'auto';
-
-    const params: Record<string, string> = { address: trimmed };
-    if (network !== 'auto') params['network'] = network;
-    setSearchParams(params);
-
-    lookup(network, trimmed);
+    setSearchParams({ address: trimmed });
+    reset();
+    check(trimmed);
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter') handleSubmit();
   };
 
-  const allClean = data && data.delegations.length > 0 &&
-    data.delegations.every(d => d.severity_score_30d === 0);
+  const allClean = data
+    && data.validators.length > 0
+    && data.validators.every(v => v.grade === 'A');
 
   return (
-    <div style={{ paddingTop: 8 }}>
+    <div style={{ paddingTop: 8, maxWidth: 640 }}>
       {/* Title */}
       <h2
         style={{
@@ -118,7 +116,7 @@ export default function CheckPage() {
           color: 'var(--color-text-primary)',
         }}
       >
-        Check your validators
+        What are your validators costing you?
       </h2>
       <p
         style={{
@@ -126,9 +124,11 @@ export default function CheckPage() {
           color: 'var(--color-text-tertiary)',
           fontFamily: "'Inter', sans-serif",
           margin: '0 0 20px',
+          lineHeight: 1.5,
         }}
       >
-        Paste your wallet address to see if any validators you've delegated to have had incidents.
+        Paste your wallet address. We'll check your validators' incident history,
+        scan their infrastructure, and estimate what their downtime costs you.
       </p>
 
       {/* Input */}
@@ -193,7 +193,7 @@ export default function CheckPage() {
         <p
           style={{
             fontSize: 12,
-            color: 'var(--color-danger)',
+            color: '#FF4545',
             fontFamily: "'JetBrains Mono', monospace",
             margin: '6px 0 0',
           }}
@@ -212,89 +212,6 @@ export default function CheckPage() {
           Please don't accidentally paste your private key in here folks 🫠
         </p>
       )}
-
-      {/* Network selector */}
-      <div
-        style={{
-          display: 'flex',
-          flexWrap: 'wrap',
-          gap: 6,
-          margin: '12px 0',
-          alignItems: 'center',
-        }}
-      >
-        <button
-          onClick={() => setSelectedNetwork('auto')}
-          style={{
-            padding: '4px 10px',
-            borderRadius: 3,
-            fontSize: 11,
-            fontFamily: "'JetBrains Mono', monospace",
-            textTransform: 'uppercase',
-            letterSpacing: '0.05em',
-            cursor: 'pointer',
-            border: `1px solid ${selectedNetwork === 'auto' ? 'var(--color-text-secondary)' : 'var(--color-border)'}`,
-            background: selectedNetwork === 'auto' ? 'var(--color-bg-surface)' : 'transparent',
-            color: selectedNetwork === 'auto' ? 'var(--color-text-primary)' : 'var(--color-text-dim)',
-            transition: 'all 0.15s ease',
-          }}
-        >
-          auto{detectedNetwork && selectedNetwork === 'auto' ? ` (${detectedNetwork})` : ''}
-        </button>
-        {DELEGATION_NETWORKS.map(slug => {
-          const meta = NETWORK_META[slug];
-          const active = selectedNetwork === slug;
-          const detected = detectedNetwork === slug && selectedNetwork === 'auto';
-          return (
-            <button
-              key={slug}
-              onClick={() => setSelectedNetwork(slug)}
-              style={{
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: 4,
-                padding: '4px 10px',
-                borderRadius: 3,
-                fontSize: 11,
-                fontFamily: "'JetBrains Mono', monospace",
-                textTransform: 'uppercase',
-                letterSpacing: '0.05em',
-                cursor: 'pointer',
-                background: active ? `${meta.color}15` : 'transparent',
-                color: active || detected ? meta.color : 'var(--color-text-dim)',
-                border: `1px solid ${active ? `${meta.color}30` : detected ? `${meta.color}20` : 'var(--color-border)'}`,
-                transition: 'all 0.15s ease',
-              }}
-            >
-              <span style={{ width: 4, height: 4, borderRadius: '50%', background: active || detected ? meta.color : 'var(--color-text-ghost)' }} />
-              {meta.ticker}
-            </button>
-          );
-        })}
-      </div>
-
-      {/* Submit */}
-      <button
-        onClick={handleSubmit}
-        disabled={loading || !walletInput.trim() || isPrivateKey}
-        style={{
-          padding: '10px 24px',
-          borderRadius: 4,
-          fontSize: 13,
-          fontFamily: "'JetBrains Mono', monospace",
-          fontWeight: 600,
-          textTransform: 'uppercase',
-          letterSpacing: '0.05em',
-          cursor: loading || !walletInput.trim() || isPrivateKey ? 'not-allowed' : 'pointer',
-          background: loading || isPrivateKey ? 'var(--color-bg-card)' : 'var(--color-text-primary)',
-          color: loading || isPrivateKey ? 'var(--color-text-dim)' : 'var(--color-bg)',
-          border: 'none',
-          opacity: !walletInput.trim() || isPrivateKey ? 0.4 : 1,
-          transition: 'all 0.15s ease',
-        }}
-      >
-        {loading ? 'checking...' : 'check'}
-      </button>
 
       {/* Validator address redirect */}
       {detectedValidator && (
@@ -320,6 +237,35 @@ export default function CheckPage() {
         </div>
       )}
 
+      {/* Submit */}
+      {!loading && !data && (
+        <button
+          onClick={handleSubmit}
+          disabled={!walletInput.trim() || isPrivateKey}
+          style={{
+            marginTop: 12,
+            padding: '10px 24px',
+            borderRadius: 4,
+            fontSize: 13,
+            fontFamily: "'JetBrains Mono', monospace",
+            fontWeight: 600,
+            textTransform: 'uppercase',
+            letterSpacing: '0.05em',
+            cursor: !walletInput.trim() || isPrivateKey ? 'not-allowed' : 'pointer',
+            background: isPrivateKey ? 'var(--color-bg-card)' : 'var(--color-text-primary)',
+            color: isPrivateKey ? 'var(--color-text-dim)' : 'var(--color-bg)',
+            border: 'none',
+            opacity: !walletInput.trim() || isPrivateKey ? 0.4 : 1,
+            transition: 'all 0.15s ease',
+          }}
+        >
+          Check health
+        </button>
+      )}
+
+      {/* Loading */}
+      {loading && <LoadingSequence />}
+
       {/* Error */}
       {error && (
         <div
@@ -337,110 +283,112 @@ export default function CheckPage() {
       {/* Results */}
       {data && (
         <div style={{ marginTop: 24 }}>
-          {/* Note (e.g. Ethereum coming soon) */}
-          {data.note && (
-            <div
-              style={{
-                fontSize: 12,
-                color: 'var(--color-text-tertiary)',
-                fontFamily: "'JetBrains Mono', monospace",
-                fontStyle: 'italic',
-                marginBottom: 12,
-                padding: '8px 12px',
-                background: 'var(--color-bg-card)',
-                border: '1px solid var(--color-border)',
-                borderRadius: 4,
-              }}
-            >
-              {data.note}
-            </div>
-          )}
-
-          {/* All clean banner */}
-          {allClean && (
-            <div style={{ marginBottom: 16 }}>
-              <div
-                style={{
-                  fontSize: 14,
-                  color: '#14F195',
-                  fontFamily: "'Inter', sans-serif",
-                  fontWeight: 500,
-                }}
-              >
-                All your validators are clean ✓
-              </div>
-              <div
-                style={{
-                  fontSize: 11,
-                  color: 'var(--color-text-dim)',
-                  fontFamily: "'Inter', sans-serif",
-                  marginTop: 4,
-                }}
-              >
-                Based on events we've collected. We may not have complete history for all validators.
-              </div>
-            </div>
-          )}
-
-          {/* Delegation cards */}
-          {data.delegations.length > 0 ? (
-            data.delegations.map(d => (
-              <DelegationCard
-                key={d.validator_address}
-                delegation={d}
-              />
-            ))
-          ) : (
+          {/* No delegations */}
+          {data.message && data.validators.length === 0 && (
             <div
               style={{
                 fontSize: 13,
                 color: 'var(--color-text-tertiary)',
                 fontFamily: "'Inter', sans-serif",
                 padding: '20px 0',
+                lineHeight: 1.6,
               }}
             >
-              No delegations found for this address.
+              <p style={{ margin: '0 0 8px' }}>{data.message}</p>
+              <p style={{ margin: 0, fontSize: 12, color: 'var(--color-text-dim)' }}>
+                Make sure you're pasting a delegator wallet address, not a validator address.
+                We currently support Solana, Ethereum, Cosmos, and Sui.
+              </p>
             </div>
           )}
 
-          {/* CTA */}
-          {allClean ? (
-            <div style={{ marginTop: 24 }}>
-              <CheckCleanCTA walletAddress={data.wallet} network={data.network} />
-            </div>
-          ) : (
-            <div
+          {/* Portfolio + validator cards */}
+          {data.validators.length > 0 && (
+            <>
+              <PortfolioSummaryCard
+                portfolio={data.portfolio}
+                network={data.network}
+                onShare={share}
+                onCopyLink={copyLink}
+                generating={generating}
+              />
+
+              {allClean && (
+                <div style={{ marginTop: 16 }}>
+                  <CheckCleanCTA walletAddress={data.address} network={data.network} />
+                </div>
+              )}
+
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 12, marginTop: 16 }}>
+                {data.validators.map(v => (
+                  <ValidatorBreakdownCard
+                    key={v.address}
+                    validator={v}
+                    network={data.network}
+                  />
+                ))}
+              </div>
+
+              <MethodologyNote />
+            </>
+          )}
+
+          {/* Check another */}
+          <div style={{ marginTop: 24 }}>
+            <button
+              onClick={() => {
+                reset();
+                setWalletInput('');
+                setSearchParams({});
+              }}
               style={{
-                marginTop: 24,
-                padding: '16px 20px',
-                background: 'var(--color-bg-card)',
+                padding: '8px 16px',
+                borderRadius: 3,
+                fontSize: 11,
+                fontFamily: "'JetBrains Mono', monospace",
+                textTransform: 'uppercase',
+                letterSpacing: '0.05em',
+                cursor: 'pointer',
+                background: 'transparent',
+                color: 'var(--color-text-secondary)',
                 border: '1px solid var(--color-border)',
-                borderRadius: 4,
-                textAlign: 'center',
               }}
             >
-              <p
-                style={{
-                  fontSize: 13,
-                  color: 'var(--color-text-secondary)',
-                  fontFamily: "'Inter', sans-serif",
-                  margin: 0,
-                }}
-              >
-                Get notified when your validators have issues
-              </p>
-              <p
-                style={{
-                  fontSize: 11,
-                  color: 'var(--color-text-dim)',
-                  fontFamily: "'JetBrains Mono', monospace",
-                  margin: '6px 0 0',
-                }}
-              >
-                coming soon
-              </p>
-            </div>
-          )}
+              Check another address
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Off-screen card for PNG capture */}
+      {data && data.validators.length > 0 && (
+        <div
+          ref={cardRef}
+          style={{ position: 'absolute', left: -9999, top: -9999, pointerEvents: 'none' }}
+        >
+          <HealthCardPng data={data} />
+        </div>
+      )}
+
+      {/* Toast */}
+      {toastMessage && (
+        <div
+          style={{
+            position: 'fixed',
+            bottom: 24,
+            left: '50%',
+            transform: 'translateX(-50%)',
+            padding: '8px 16px',
+            borderRadius: 4,
+            fontSize: 12,
+            fontFamily: "'JetBrains Mono', monospace",
+            color: 'var(--color-accent)',
+            background: 'var(--color-bg-card)',
+            border: '1px solid var(--color-border)',
+            zIndex: 1000,
+          }}
+        >
+          {toastMessage}
         </div>
       )}
     </div>
