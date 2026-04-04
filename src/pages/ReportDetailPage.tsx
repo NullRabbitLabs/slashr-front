@@ -3,6 +3,7 @@ import { useReport } from '@/hooks/useReport';
 import { useIsMobile } from '@/hooks/useIsMobile';
 import { usePageMeta } from '@/hooks/usePageMeta';
 import { NETWORK_META } from '@/lib/constants';
+import { copyToClipboard } from '@/lib/clipboard';
 import type { NetworkSlug, NetworkBreakdown } from '@/types/api';
 import { useState } from 'react';
 
@@ -152,7 +153,8 @@ export default function ReportDetailPage() {
   const networks = Object.entries(data.networks).sort(([a], [b]) => a.localeCompare(b));
 
   const handleShare = () => {
-    navigator.clipboard.writeText(window.location.href).then(() => {
+    copyToClipboard(window.location.href).then((ok) => {
+      if (!ok) return;
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
     });

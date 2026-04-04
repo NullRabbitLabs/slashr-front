@@ -80,14 +80,13 @@ export default function CheckPage() {
     const trimmed = walletInput.trim();
     if (!trimmed) return;
     if (isPrivateKey) return;
+    if (detectedValidator) return; // validator address — redirect shown, don't validate as wallet
 
     const result = validateWalletAddress(trimmed);
     if (!result.valid) {
       setValidationError(result.error);
       return;
     }
-
-    if (detectedValidator && !effectiveNetwork) return;
 
     setValidationError(null);
     const network = effectiveNetwork || 'auto';
@@ -298,7 +297,7 @@ export default function CheckPage() {
       </button>
 
       {/* Validator address redirect */}
-      {detectedValidator && !error && (
+      {detectedValidator && (
         <div
           style={{
             fontSize: 13,
@@ -307,7 +306,7 @@ export default function CheckPage() {
             padding: '12px 0 0',
           }}
         >
-          This looks like a validator address. Looking for this?{' '}
+          This looks like a validator address, not a wallet.{' '}
           <Link
             to={`/validator/${detectedValidator.network}/${encodeURIComponent(walletInput.trim())}`}
             style={{
@@ -326,7 +325,7 @@ export default function CheckPage() {
         <div
           style={{
             fontSize: 13,
-            color: 'var(--color-text-tertiary)',
+            color: '#FF4545',
             fontFamily: "'JetBrains Mono', monospace",
             padding: '12px 0',
           }}

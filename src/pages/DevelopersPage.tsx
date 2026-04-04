@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { usePageMeta } from '@/hooks/usePageMeta';
 import { useIsMobile } from '@/hooks/useIsMobile';
+import { copyToClipboard } from '@/lib/clipboard';
 
 const GITHUB_ISSUE_URL = 'https://github.com/NullRabbitLabs/slashr-front/issues/new?template=mcp-key-request.md';
 
@@ -89,9 +90,11 @@ export default function DevelopersPage() {
   });
 
   const copyConfig = () => {
-    navigator.clipboard.writeText(MCP_CONFIG);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
+    copyToClipboard(MCP_CONFIG).then((ok) => {
+      if (!ok) return;
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    });
   };
 
   return (
