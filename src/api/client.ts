@@ -10,11 +10,12 @@ import type {
   ReportResponse,
   ChainDataResponse,
   DelegationResponse,
+  HealthCheckResponse,
   ScanAnalysisDetail,
   PaginatedResponse,
   DataResponse,
 } from '@/types/api';
-import { getMockEvents, getMockNetworks, getMockStats, getMockValidator, getMockDelegations, getMockLeaderboard, getMockChainData } from './mock';
+import { getMockEvents, getMockNetworks, getMockStats, getMockValidator, getMockDelegations, getMockLeaderboard, getMockChainData, getMockHealthCheck } from './mock';
 
 const BASE_URL = import.meta.env.VITE_API_URL || '';
 const USE_MOCK = import.meta.env.VITE_USE_MOCK === 'true';
@@ -146,6 +147,25 @@ export async function fetchDelegations(
     throw new Error(message);
   }
   return res.json() as Promise<DataResponse<DelegationResponse>>;
+}
+
+export async function fetchHealthCheck(
+  address: string,
+): Promise<DataResponse<HealthCheckResponse>> {
+  if (USE_MOCK) return getMockHealthCheck(address);
+
+  const res = await fetch(`${BASE_URL}/v1/health/${encodeURIComponent(address)}`);
+  if (!res.ok) {
+    let message = `API error: ${res.status}`;
+    try {
+      const body = await res.json();
+      if (body?.error?.message) message = body.error.message;
+    } catch {
+      // keep generic message
+    }
+    throw new Error(message);
+  }
+  return res.json() as Promise<DataResponse<HealthCheckResponse>>;
 }
 
 export async function fetchScanAnalysis(eventUuid: string): Promise<ScanAnalysisDetail | null> {

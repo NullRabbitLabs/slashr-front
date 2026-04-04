@@ -36,3 +36,26 @@ export function formatStakeCompact(amount: number | string): string {
 export function stripCidr(ip: string): string {
   return ip.replace(/\/\d+$/, '');
 }
+
+export function formatUsd(amount: number | null | undefined): string {
+  if (amount == null) return '—';
+  if (amount === 0) return '$0';
+  if (amount < 0.01) return '<$0.01';
+  if (amount >= 1_000_000) return `$${strip(amount / 1_000_000, 2)}M`;
+  if (amount >= 10_000) return `$${strip(amount / 1_000, 1)}K`;
+  return `$${amount.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+}
+
+export function formatUsdLarge(amount: number | null | undefined): string {
+  if (amount == null) return '—';
+  if (amount === 0) return '$0.00';
+  if (amount >= 1_000_000) return `$${strip(amount / 1_000_000, 2)}M`;
+  if (amount >= 100_000) return `$${strip(amount / 1_000, 0)}K`;
+  return `$${amount.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+}
+
+export function formatHours(hours: number): string {
+  if (hours < 1) return `${Math.round(hours * 60)}min`;
+  if (hours < 24) return `${strip(hours, 1)}h`;
+  return `${strip(hours / 24, 1)}d`;
+}

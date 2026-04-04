@@ -238,6 +238,90 @@ export interface DelegationEvent {
   started_at: string;
 }
 
+// --- Health check types ---
+
+export type Grade = 'A' | 'B' | 'C' | 'D' | 'F';
+
+export interface HealthCheckResponse {
+  address: string;
+  network: NetworkSlug;
+  portfolio: PortfolioSummary;
+  validators: HealthValidator[];
+  message?: string;
+}
+
+export interface PortfolioSummary {
+  grade: Grade;
+  score: number;
+  total_stake_usd: number | null;
+  total_cost_of_downtime_usd: number | null;
+  cost_period_days: number;
+  validators_at_risk: number;
+  validator_count: number;
+}
+
+export interface HealthValidator {
+  address: string;
+  name: string | null;
+  stake_amount: number | null;
+  stake_token: string | null;
+  stake_usd: number | null;
+  grade: Grade;
+  score: number;
+  grade_factors: HealthGradeFactors;
+  cost_of_downtime: CostOfDowntime;
+  latest_event: HealthLatestEvent | null;
+  scan_summary: HealthScanSummary | null;
+  alternatives: HealthAlternative[];
+}
+
+export interface HealthGradeFactors {
+  incident_count_90d: number;
+  total_downtime_hours_90d: number;
+  avg_recovery_minutes: number | null;
+  cve_count: number | null;
+  exposed_services: number | null;
+  repeat_failure: boolean;
+}
+
+export interface CostOfDowntime {
+  total_usd: number | null;
+  period_days: number;
+  incident_count: number;
+  total_downtime_hours: number;
+  estimated: boolean;
+  calculation: {
+    reward_rate_apy: number;
+    token_price_usd: number | null;
+    stake_tokens: number | null;
+  };
+}
+
+export interface HealthLatestEvent {
+  id: string;
+  event_type: EventType;
+  severity: Severity;
+  started_at: string;
+  resolved_at?: string;
+  duration_minutes?: number;
+}
+
+export interface HealthScanSummary {
+  health: string | null;
+  cve_count: number;
+  exposed_services: number;
+  last_scanned?: string;
+}
+
+export interface HealthAlternative {
+  address: string;
+  name: string | null;
+  grade: Grade;
+  score: number;
+  commission: number | null;
+  incident_count_90d: number;
+}
+
 // --- Chain-specific data ---
 
 export interface ChainDataResponse {

@@ -156,3 +156,9 @@ details > summary::-webkit-details-marker {
   background: var(--color-bg-hover) !important;
   color: var(--color-text-hover) !important;
 }
+
+/* Health check loading animation */
+@keyframes pulse-dot {
+  0%, 100% { opacity: 0.3; }
+  50% { opacity: 1; }
+}
