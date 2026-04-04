@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef, useMemo } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { useHealthCheck } from '@/hooks/useHealthCheck';
+import { useShareCard } from '@/hooks/useShareCard';
 import { useIsMobile } from '@/hooks/useIsMobile';
 import { usePageMeta } from '@/hooks/usePageMeta';
 import { detectNetwork, detectValidatorAddress, isLikelyPrivateKey } from '@/lib/address';
@@ -10,6 +11,7 @@ import { PortfolioSummaryCard } from '@/components/health/PortfolioSummaryCard';
 import { ValidatorBreakdownCard } from '@/components/health/ValidatorBreakdownCard';
 import { LoadingSequence } from '@/components/health/LoadingSequence';
 import { MethodologyNote } from '@/components/health/MethodologyNote';
+import { HealthCardPng } from '@/components/health/HealthCardPng';
 const PLACEHOLDER_EXAMPLES = [
   'e.g. 9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM',
   'e.g. cosmos1clpqr4nrk4khgkxj78fcwwh6dl3uas4ep7lkhq',
@@ -23,6 +25,8 @@ export default function CheckPage() {
   const [walletInput, setWalletInput] = useState('');
   const [searchParams] = useSearchParams();
   const autoSubmitted = useRef(false);
+  const cardRef = useRef<HTMLDivElement>(null);
+  const { share, copyLink, generating, toastMessage } = useShareCard(cardRef, data);
 
   // Rotating placeholder
   const [placeholderIdx, setPlaceholderIdx] = useState(0);
@@ -273,6 +277,9 @@ export default function CheckPage() {
               <PortfolioSummaryCard
                 portfolio={data.portfolio}
                 network={data.network}
+                onShare={share}
+                onCopyLink={copyLink}
+                generating={generating}
               />
 
               {/* All clean celebration */}
@@ -350,6 +357,38 @@ export default function CheckPage() {
               Check another address
             </button>
           </div>
+        </div>
+      )}
+
+      {/* Off-screen card for PNG capture */}
+      {data && data.validators.length > 0 && (
+        <div
+          ref={cardRef}
+          style={{ position: 'absolute', left: -9999, top: -9999, pointerEvents: 'none' }}
+        >
+          <HealthCardPng data={data} />
+        </div>
+      )}
+
+      {/* Toast */}
+      {toastMessage && (
+        <div
+          style={{
+            position: 'fixed',
+            bottom: 24,
+            left: '50%',
+            transform: 'translateX(-50%)',
+            padding: '8px 16px',
+            borderRadius: 4,
+            fontSize: 12,
+            fontFamily: "'JetBrains Mono', monospace",
+            color: 'var(--color-accent)',
+            background: 'var(--color-bg-card)',
+            border: '1px solid var(--color-border)',
+            zIndex: 1000,
+          }}
+        >
+          {toastMessage}
         </div>
       )}
     </div>

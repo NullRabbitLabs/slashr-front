@@ -8,9 +8,11 @@ interface Props {
   portfolio: PortfolioSummary;
   network: NetworkSlug;
   onShare?: () => void;
+  onCopyLink?: () => void;
+  generating?: boolean;
 }
 
-export function PortfolioSummaryCard({ portfolio, network, onShare }: Props) {
+export function PortfolioSummaryCard({ portfolio, network, onShare, onCopyLink, generating }: Props) {
   const meta = NETWORK_META[network];
   const costIsZero = (portfolio.total_cost_of_downtime_usd ?? 0) === 0;
 
@@ -118,27 +120,51 @@ export function PortfolioSummaryCard({ portfolio, network, onShare }: Props) {
         </span>
       </div>
 
-      {/* Share button */}
-      {onShare && (
-        <div style={{ marginTop: 16, borderTop: '1px solid var(--color-border)', paddingTop: 12 }}>
-          <button
-            onClick={onShare}
-            style={{
-              padding: '6px 16px',
-              borderRadius: 3,
-              fontSize: 11,
-              fontFamily: "'JetBrains Mono', monospace",
-              fontWeight: 600,
-              textTransform: 'uppercase',
-              letterSpacing: '0.05em',
-              cursor: 'pointer',
-              background: 'transparent',
-              color: 'var(--color-text-secondary)',
-              border: '1px solid var(--color-border)',
-            }}
-          >
-            Share
-          </button>
+      {/* Share buttons */}
+      {(onShare || onCopyLink) && (
+        <div style={{ marginTop: 16, borderTop: '1px solid var(--color-border)', paddingTop: 12, display: 'flex', gap: 8 }}>
+          {onShare && (
+            <button
+              onClick={onShare}
+              disabled={generating}
+              style={{
+                padding: '6px 16px',
+                borderRadius: 3,
+                fontSize: 11,
+                fontFamily: "'JetBrains Mono', monospace",
+                fontWeight: 600,
+                textTransform: 'uppercase',
+                letterSpacing: '0.05em',
+                cursor: generating ? 'wait' : 'pointer',
+                background: 'transparent',
+                color: 'var(--color-text-secondary)',
+                border: '1px solid var(--color-border)',
+                opacity: generating ? 0.5 : 1,
+              }}
+            >
+              {generating ? 'Generating...' : 'Share'}
+            </button>
+          )}
+          {onCopyLink && (
+            <button
+              onClick={onCopyLink}
+              style={{
+                padding: '6px 16px',
+                borderRadius: 3,
+                fontSize: 11,
+                fontFamily: "'JetBrains Mono', monospace",
+                fontWeight: 600,
+                textTransform: 'uppercase',
+                letterSpacing: '0.05em',
+                cursor: 'pointer',
+                background: 'transparent',
+                color: 'var(--color-text-dim)',
+                border: '1px solid var(--color-border)',
+              }}
+            >
+              Copy link
+            </button>
+          )}
         </div>
       )}
     </div>
