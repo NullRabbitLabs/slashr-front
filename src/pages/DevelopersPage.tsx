@@ -2,8 +2,7 @@ import { useState } from 'react';
 import { usePageMeta } from '@/hooks/usePageMeta';
 import { useIsMobile } from '@/hooks/useIsMobile';
 
-// TODO: update with actual repo URL once created
-const GITHUB_ISSUE_URL = 'https://github.com/nullrabbitlabs/slashr-mcp/issues/new?template=access-request.md&labels=access-request';
+const GITHUB_ISSUE_URL = 'https://github.com/NullRabbitLabs/slashr-front/issues/new?template=mcp-key-request.md';
 
 const TOOLS = [
   {
