@@ -2,6 +2,9 @@ import { useState } from 'react';
 import { usePageMeta } from '@/hooks/usePageMeta';
 import { useIsMobile } from '@/hooks/useIsMobile';
 
+// TODO: update with actual repo URL once created
+const GITHUB_ISSUE_URL = 'https://github.com/nullrabbitlabs/slashr-mcp/issues/new?template=access-request.md&labels=access-request';
+
 const TOOLS = [
   {
     name: 'get_validator_incidents',
@@ -75,26 +78,10 @@ const heading: React.CSSProperties = {
   margin: 0,
 };
 
-const inputStyle: React.CSSProperties = {
-  width: '100%',
-  padding: '10px 14px',
-  background: 'var(--color-bg-card)',
-  border: '1px solid var(--color-border-medium)',
-  borderRadius: 6,
-  color: 'var(--color-text-primary)',
-  fontFamily: "'Inter', sans-serif",
-  fontSize: 14,
-  outline: 'none',
-  boxSizing: 'border-box',
-};
 
 export default function DevelopersPage() {
   const isMobile = useIsMobile();
   const [copied, setCopied] = useState(false);
-  const [submitted, setSubmitted] = useState(false);
-  const [formName, setFormName] = useState('');
-  const [formBuilding, setFormBuilding] = useState('');
-  const [formContact, setFormContact] = useState('');
 
   usePageMeta({
     title: 'Developers \u2014 Slashr',
@@ -108,20 +95,8 @@ export default function DevelopersPage() {
     setTimeout(() => setCopied(false), 2000);
   };
 
-  const submitForm = () => {
-    if (!formName.trim() || !formContact.trim()) return;
-    const subject = encodeURIComponent(`MCP API key request: ${formName}`);
-    const body = encodeURIComponent(
-      `Name: ${formName}\nBuilding: ${formBuilding}\nContact: ${formContact}`
-    );
-    window.location.href = `mailto:simon@nullrabbit.ai?subject=${subject}&body=${body}`;
-    setSubmitted(true);
-  };
-
-  const pad = isMobile ? '0 16px' : '0';
-
   return (
-    <div style={{ padding: pad, maxWidth: 860, margin: '0 auto' }}>
+    <div>
 
       {/* Hero */}
       <div style={{ marginTop: isMobile ? 24 : 40, marginBottom: 40 }}>
@@ -290,64 +265,28 @@ export default function DevelopersPage() {
           Slashr MCP is in early access. Request an API key and we'll get back to you.
         </p>
 
-        {submitted ? (
-          <div
-            style={{
-              padding: '20px 24px',
-              background: 'var(--color-bg-card)',
-              border: '1px solid rgba(20, 241, 149, 0.2)',
-              borderRadius: 8,
-              fontFamily: "'Inter', sans-serif",
-              fontSize: 14,
-              color: 'var(--color-accent)',
-            }}
-          >
-            Thanks! We'll be in touch.
-          </div>
-        ) : (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 12, maxWidth: 480 }}>
-            <input
-              type="text"
-              placeholder="Name or project name"
-              value={formName}
-              onChange={(e) => setFormName(e.target.value)}
-              style={inputStyle}
-            />
-            <input
-              type="text"
-              placeholder="What you're building"
-              value={formBuilding}
-              onChange={(e) => setFormBuilding(e.target.value)}
-              style={inputStyle}
-            />
-            <input
-              type="text"
-              placeholder="Email or X handle"
-              value={formContact}
-              onChange={(e) => setFormContact(e.target.value)}
-              style={inputStyle}
-            />
-            <button
-              onClick={submitForm}
-              disabled={!formName.trim() || !formContact.trim()}
-              style={{
-                padding: '10px 24px',
-                background: formName.trim() && formContact.trim() ? 'var(--color-accent)' : 'var(--color-bg-surface)',
-                color: formName.trim() && formContact.trim() ? '#0a0a0b' : 'var(--color-text-dim)',
-                border: 'none',
-                borderRadius: 6,
-                fontFamily: "'Inter', sans-serif",
-                fontSize: 14,
-                fontWeight: 600,
-                cursor: formName.trim() && formContact.trim() ? 'pointer' : 'default',
-                transition: 'background 0.15s ease',
-                alignSelf: 'flex-start',
-              }}
-            >
-              Request key
-            </button>
-          </div>
-        )}
+        <a
+          href={GITHUB_ISSUE_URL}
+          target="_blank"
+          rel="noopener noreferrer"
+          style={{
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: 8,
+            padding: '10px 24px',
+            background: 'var(--color-accent)',
+            color: '#0a0a0b',
+            border: 'none',
+            borderRadius: 6,
+            fontFamily: "'Inter', sans-serif",
+            fontSize: 14,
+            fontWeight: 600,
+            textDecoration: 'none',
+            transition: 'opacity 0.15s ease',
+          }}
+        >
+          Request access on GitHub
+        </a>
 
         <p
           style={{
