@@ -179,7 +179,7 @@ export default function DevelopersPage() {
             <div
               key={tool.name}
               style={{
-                padding: '14px 16px',
+                padding: '14px 0',
                 borderBottom: '1px solid var(--color-border)',
               }}
             >
