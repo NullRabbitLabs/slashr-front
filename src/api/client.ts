@@ -178,3 +178,41 @@ export async function fetchScanAnalysis(eventUuid: string): Promise<ScanAnalysis
   const json = await res.json() as DataResponse<ScanAnalysisDetail>;
   return json.data;
 }
+
+// --- Self-serve API key generation (MCP server) ---
+
+const MCP_BASE_URL = import.meta.env.VITE_MCP_URL || 'https://mcp.slashr.dev';
+
+export interface GenerateKeyResponse {
+  key: string;
+  docs: string;
+  mcp_url: string;
+}
+
+export interface GenerateKeyError {
+  status: number;
+  message: string;
+  retryAfter?: number;
+}
+
+export async function generateMcpKey(): Promise<GenerateKeyResponse> {
+  const res = await fetch(`${MCP_BASE_URL}/mcp/keys/generate`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: '{}',
+  });
+
+  if (!res.ok) {
+    const data = await res.json().catch(() => null);
+    const message = data?.error || `API error: ${res.status}`;
+    const retryAfter = res.headers.get('retry-after');
+    const err: GenerateKeyError = {
+      status: res.status,
+      message,
+      retryAfter: retryAfter ? parseInt(retryAfter, 10) : undefined,
+    };
+    throw err;
+  }
+
+  return res.json() as Promise<GenerateKeyResponse>;
+}
