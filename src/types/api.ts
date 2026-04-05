@@ -67,6 +67,8 @@ export interface EventListItem {
   validator_website: string | null;
   has_contact: boolean;
   in_scan_db: boolean;
+  loss_per_hour_usd: number | null;
+  estimated_loss_usd: number | null;
 }
 
 export interface EventDetail extends EventListItem {

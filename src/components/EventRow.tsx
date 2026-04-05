@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import type { EventListItem } from '@/types/api';
 import { getEventLabel } from '@/lib/constants';
 import { relativeTime, formatUtcTime } from '@/lib/time';
-import { formatStake, stripCidr } from '@/lib/format';
+import { formatStake, formatUsd, stripCidr } from '@/lib/format';
 import { useIsMobile } from '@/hooks/useIsMobile';
 import { EVENT_TYPE_DESCRIPTIONS } from '@/lib/constants';
 import { NetworkTag } from './NetworkTag';
@@ -207,6 +207,17 @@ function EnrichmentRow({ event, isMobile, hideNodeIp, indent }: { event: EventLi
     items.push(
       <span key="stake" style={pillStyle}>
         {formatStake(event.validator_stake, event.validator_stake_token)}
+      </span>,
+    );
+  }
+
+  if (event.loss_per_hour_usd != null) {
+    const label = event.estimated_loss_usd != null
+      ? `${formatUsd(event.estimated_loss_usd)} lost`
+      : `${formatUsd(event.loss_per_hour_usd)}/hr`;
+    items.push(
+      <span key="loss" style={{ ...pillStyle, color: event.estimated_loss_usd != null ? '#e8a735' : 'var(--color-text-tertiary)' }}>
+        {label}
       </span>,
     );
   }

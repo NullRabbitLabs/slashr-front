@@ -24,6 +24,8 @@ const ENRICHMENT_DEFAULTS = {
   validator_website: null as string | null,
   has_contact: false,
   in_scan_db: false,
+  loss_per_hour_usd: null as number | null,
+  estimated_loss_usd: null as number | null,
 };
 
 const MOCK_EVENTS: EventListItem[] = [
