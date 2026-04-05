@@ -37,7 +37,7 @@ export function Layout({ children, stats }: LayoutProps) {
       }}
     >
       {/* Top bar */}
-      <div
+      <header
         style={{
           borderBottom: '1px solid var(--color-border)',
         }}
@@ -184,9 +184,9 @@ export function Layout({ children, stats }: LayoutProps) {
             </button>
           </div>
         </div>
-      </div>
+      </header>
 
-      <div
+      <main
         style={{
           maxWidth: 860,
           margin: '0 auto',
@@ -220,33 +220,38 @@ export function Layout({ children, stats }: LayoutProps) {
 
         {/* Page content */}
         {children}
-      </div>
+      </main>
 
       {/* Fixed bottom-left attribution */}
-      <a
-        href="https://nullrabbit.ai"
-        target="_blank"
-        rel="noopener noreferrer"
+      <footer
         style={{
           position: 'fixed',
           bottom: isMobile ? 16 : 24,
           left: isMobile ? 16 : 24,
-          display: 'flex',
-          alignItems: 'center',
-          gap: 5,
-          color: 'var(--color-text-dim)',
-          textDecoration: 'none',
-          fontSize: 10,
-          fontFamily: "'JetBrains Mono', monospace",
           zIndex: 100,
         }}
       >
-        <img
-          src="/nullrabbit.png"
-          alt="NullRabbit"
-          style={{ height: 22, width: 22, objectFit: 'contain' }}
-        />
-      </a>
+        <a
+          href="https://nullrabbit.ai"
+          target="_blank"
+          rel="noopener noreferrer"
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: 5,
+            color: 'var(--color-text-dim)',
+            textDecoration: 'none',
+            fontSize: 10,
+            fontFamily: "'JetBrains Mono', monospace",
+          }}
+        >
+          <img
+            src="/nullrabbit.png"
+            alt="NullRabbit"
+            style={{ height: 22, width: 22, objectFit: 'contain' }}
+          />
+        </a>
+      </footer>
 
       <WaitlistDrawer />
     </div>

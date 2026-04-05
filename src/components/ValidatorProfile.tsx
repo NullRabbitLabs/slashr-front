@@ -70,6 +70,7 @@ function computeVerdict(events: ValidatorEventItem[]): Verdict {
 
 const sectionHeadingStyle: React.CSSProperties = {
   fontSize: 12,
+  fontWeight: 400,
   color: 'var(--color-text-heading)',
   fontFamily: "'JetBrains Mono', monospace",
   textTransform: 'uppercase',
@@ -658,7 +659,7 @@ export function ValidatorProfile() {
               : 'var(--color-danger)';
         return (
           <div style={{ marginBottom: 24, paddingBottom: 24, borderBottom: '1px solid var(--color-border)' }}>
-            <div style={sectionHeadingStyle}>Reliability</div>
+            <h2 style={sectionHeadingStyle}>Reliability</h2>
             <div style={{ marginTop: 12 }}>
               <div style={metaLabelStyle}>Delinquency</div>
               <div style={{ ...metaValueStyle, color }}>
@@ -673,9 +674,9 @@ export function ValidatorProfile() {
       {chainData && <ChainDataSections chainData={chainData} isMobile={isMobile} />}
 
       {/* Event history header */}
-      <div style={sectionHeadingStyle}>
+      <h2 style={sectionHeadingStyle}>
         event history
-      </div>
+      </h2>
 
       {titleGroups.length === 0 ? (
         <div
@@ -865,9 +866,9 @@ export function ValidatorProfile() {
       {/* Infrastructure section */}
       {showInfrastructure && (
         <div style={{ marginTop: 32 }}>
-          <div style={sectionHeadingStyle}>
+          <h2 style={sectionHeadingStyle}>
             infrastructure
-          </div>
+          </h2>
 
           <div
             style={

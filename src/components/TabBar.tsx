@@ -15,7 +15,7 @@ export function TabBar() {
   const { pathname } = useLocation();
   const isMobile = useIsMobile();
   const [open, setOpen] = useState(false);
-  const containerRef = useRef<HTMLDivElement>(null);
+  const containerRef = useRef<HTMLElement>(null);
 
   const currentTab = TABS.find(t => t.path === pathname) ?? TABS[0];
 
@@ -53,7 +53,7 @@ export function TabBar() {
   // Desktop: horizontal tab bar (unchanged)
   if (!isMobile) {
     return (
-      <div
+      <nav
         style={{
           display: 'flex',
           gap: 0,
@@ -86,13 +86,13 @@ export function TabBar() {
             </Link>
           );
         })}
-      </div>
+      </nav>
     );
   }
 
   // Mobile: dropdown trigger + menu
   return (
-    <div ref={containerRef} style={{ position: 'relative', marginBottom: 12 }}>
+    <nav ref={containerRef} style={{ position: 'relative', marginBottom: 12 }}>
       <button
         onClick={() => setOpen(prev => !prev)}
         aria-expanded={open}
@@ -172,6 +172,6 @@ export function TabBar() {
           })}
         </div>
       )}
-    </div>
+    </nav>
   );
 }
