@@ -349,6 +349,50 @@ export default function DevelopersPage() {
         </p>
       </div>
 
+      {/* Programmatic access */}
+      <div style={{ marginBottom: 48 }}>
+        <h2 style={{ ...heading, fontSize: isMobile ? 18 : 20, marginBottom: 16 }}>Programmatic key generation</h2>
+        <p
+          style={{
+            fontFamily: "'Inter', sans-serif",
+            fontSize: 14,
+            color: 'var(--color-text-secondary)',
+            lineHeight: 1.6,
+            marginBottom: 16,
+            maxWidth: 640,
+          }}
+        >
+          Agents that hit the MCP server without a token receive a JSON response explaining how to get one.
+          The key generation endpoint is rate-limited to 1 key per IP per day.
+        </p>
+        <pre style={codeBlock}>{`# Request without auth → server tells you how to get a key
+curl -X POST https://mcp.slashr.dev/mcp
+
+{
+  "error": "authentication_required",
+  "message": "Slashr MCP requires an API key.",
+  "get_key": "POST https://mcp.slashr.dev/mcp/keys/generate",
+  "docs": "https://slashr.dev/developers"
+}
+
+# Generate a key (1 per IP per day, no auth required)
+curl -X POST https://mcp.slashr.dev/mcp/keys/generate \\
+  -H "Content-Type: application/json" -d '{}'
+
+{
+  "key": "slashr_...",
+  "docs": "https://slashr.dev/developers",
+  "mcp_url": "https://mcp.slashr.dev/mcp"
+}
+
+# Use the key
+curl -X POST https://mcp.slashr.dev/mcp \\
+  -H "Authorization: Bearer slashr_..." \\
+  -H "Content-Type: application/json" \\
+  -H "Accept: application/json, text/event-stream" \\
+  -d '{"jsonrpc":"2.0","id":1,"method":"initialize",...}'`}</pre>
+      </div>
+
       {/* API key generation */}
       <div style={{ marginBottom: 48 }}>
         <h2 style={{ ...heading, fontSize: isMobile ? 18 : 20, marginBottom: 8 }}>Get your API key</h2>
@@ -419,9 +463,6 @@ export default function DevelopersPage() {
           </div>
         ) : (
           <div>
-            {TURNSTILE_SITE_KEY && (
-              <div ref={turnstileRef} style={{ marginBottom: 16 }} />
-            )}
             <button
               onClick={handleGenerate}
               disabled={generating || (!canRetry && !!error) || (!!TURNSTILE_SITE_KEY && !turnstileToken)}
@@ -445,6 +486,9 @@ export default function DevelopersPage() {
             >
               {generating ? 'Generating...' : 'Generate API Key'}
             </button>
+            {TURNSTILE_SITE_KEY && (
+              <div ref={turnstileRef} style={{ marginTop: 16 }} />
+            )}
             {error && (
               <p
                 style={{
@@ -479,50 +523,6 @@ export default function DevelopersPage() {
           </a>{' '}
           on X
         </p>
-      </div>
-
-      {/* Programmatic access */}
-      <div style={{ marginBottom: 48 }}>
-        <h2 style={{ ...heading, fontSize: isMobile ? 18 : 20, marginBottom: 16 }}>Programmatic key generation</h2>
-        <p
-          style={{
-            fontFamily: "'Inter', sans-serif",
-            fontSize: 14,
-            color: 'var(--color-text-secondary)',
-            lineHeight: 1.6,
-            marginBottom: 16,
-            maxWidth: 640,
-          }}
-        >
-          Agents that hit the MCP server without a token receive a JSON response explaining how to get one.
-          The key generation endpoint is rate-limited to 1 key per IP per day.
-        </p>
-        <pre style={codeBlock}>{`# Request without auth → server tells you how to get a key
-curl -X POST https://mcp.slashr.dev/mcp
-
-{
-  "error": "authentication_required",
-  "message": "Slashr MCP requires an API key.",
-  "get_key": "POST https://mcp.slashr.dev/mcp/keys/generate",
-  "docs": "https://slashr.dev/developers"
-}
-
-# Generate a key (1 per IP per day, no auth required)
-curl -X POST https://mcp.slashr.dev/mcp/keys/generate \\
-  -H "Content-Type: application/json" -d '{}'
-
-{
-  "key": "slashr_...",
-  "docs": "https://slashr.dev/developers",
-  "mcp_url": "https://mcp.slashr.dev/mcp"
-}
-
-# Use the key
-curl -X POST https://mcp.slashr.dev/mcp \\
-  -H "Authorization: Bearer slashr_..." \\
-  -H "Content-Type: application/json" \\
-  -H "Accept: application/json, text/event-stream" \\
-  -d '{"jsonrpc":"2.0","id":1,"method":"initialize",...}'`}</pre>
       </div>
 
       {/* Footer */}
