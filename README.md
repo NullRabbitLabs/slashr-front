@@ -65,8 +65,51 @@ src/
 | `/reports` | Provider reliability reports |
 | `/check` | Paste a wallet address to check your validators |
 | `/validator/:network/:address` | Individual validator profile + event history |
+| `/developers` | MCP integration docs and API key request |
 
-## API
+## MCP Server
+
+Slashr exposes validator incident data to AI agents via the [Model Context Protocol](https://modelcontextprotocol.io). Published on the MCP Registry as [`dev.slashr/mcp`](https://registry.modelcontextprotocol.io).
+
+**Endpoint:** `https://mcp.slashr.dev/mcp`
+**Transport:** Streamable HTTP
+**Auth:** Bearer token
+
+### Connect your agent
+
+```json
+{
+  "mcpServers": {
+    "slashr": {
+      "url": "https://mcp.slashr.dev/mcp",
+      "headers": {
+        "Authorization": "Bearer YOUR_API_KEY"
+      }
+    }
+  }
+}
+```
+
+### Get an API key
+
+[Request access](https://github.com/NullRabbitLabs/slashr-front/issues/new?template=mcp-key-request.md) — open an issue with your project name and we'll DM you a key.
+
+### Tools
+
+| Tool | Description |
+|------|-------------|
+| `get_validator_incidents` | Incident history for a validator (delinquency, slashing, jailing) |
+| `get_validator_stats` | Chain-specific performance data (stake, commission, epoch credits) |
+| `get_scan_results` | Infrastructure scan: port states, CVEs, health verdict |
+| `get_worst_offenders` | Validators ranked by incident severity |
+| `check_delegation` | Health check on a wallet's staked positions |
+| `get_network_summary` | Aggregate incident stats for a chain |
+
+Chains: `sol`, `eth`, `sui`, `atom`. Auto-detected from address format when omitted.
+
+See [slashr.dev/developers](https://slashr.dev/developers) for full docs.
+
+## REST API
 
 The frontend consumes the Slashr REST API. All responses use `{"data": ...}` envelope with optional cursor pagination. Set `VITE_USE_MOCK=true` to run without a backend.
 
