@@ -78,7 +78,7 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
       'X-Forwarded-For': ip,
       'X-Real-Client-IP': ip,
     },
-    body: '{}',
+    body: JSON.stringify({ source: 'web' }),
   });
 
   const data = await upstream.text();
