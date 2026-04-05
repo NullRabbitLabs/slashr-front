@@ -1,9 +1,11 @@
-import { useState } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { usePageMeta } from '@/hooks/usePageMeta';
 import { useIsMobile } from '@/hooks/useIsMobile';
 import { copyToClipboard } from '@/lib/clipboard';
 import { generateMcpKey } from '@/api/client';
 import type { GenerateKeyError } from '@/api/client';
+
+const TURNSTILE_SITE_KEY = import.meta.env.VITE_TURNSTILE_SITE_KEY || '';
 
 const TOOLS = [
   {
@@ -89,6 +91,46 @@ export default function DevelopersPage() {
   const [generating, setGenerating] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [canRetry, setCanRetry] = useState(true);
+  const [turnstileToken, setTurnstileToken] = useState<string | null>(null);
+  const turnstileRef = useRef<HTMLDivElement>(null);
+  const widgetIdRef = useRef<string | null>(null);
+
+  // Load Turnstile script and render widget
+  useEffect(() => {
+    if (!TURNSTILE_SITE_KEY || apiKey) return;
+
+    const renderWidget = () => {
+      if (!turnstileRef.current || widgetIdRef.current) return;
+      const w = window as unknown as { turnstile?: { render: (el: HTMLElement, opts: Record<string, unknown>) => string; reset: (id: string) => void } };
+      if (!w.turnstile) return;
+      widgetIdRef.current = w.turnstile.render(turnstileRef.current, {
+        sitekey: TURNSTILE_SITE_KEY,
+        theme: 'dark',
+        callback: (token: string) => setTurnstileToken(token),
+        'expired-callback': () => setTurnstileToken(null),
+      });
+    };
+
+    // If script already loaded
+    if (document.querySelector('script[src*="turnstile"]')) {
+      renderWidget();
+      return;
+    }
+
+    const script = document.createElement('script');
+    script.src = 'https://challenges.cloudflare.com/turnstile/v0/api.js';
+    script.async = true;
+    script.onload = renderWidget;
+    document.head.appendChild(script);
+  }, [apiKey]);
+
+  const resetTurnstile = useCallback(() => {
+    const w = window as unknown as { turnstile?: { reset: (id: string) => void } };
+    if (w.turnstile && widgetIdRef.current) {
+      w.turnstile.reset(widgetIdRef.current);
+      setTurnstileToken(null);
+    }
+  }, []);
 
   usePageMeta({
     title: 'Developers \u2014 Slashr',
@@ -116,13 +158,18 @@ export default function DevelopersPage() {
   };
 
   const handleGenerate = async () => {
+    if (!turnstileToken && TURNSTILE_SITE_KEY) {
+      setError('Please complete the verification first.');
+      return;
+    }
     setGenerating(true);
     setError(null);
     try {
-      const res = await generateMcpKey();
+      const res = await generateMcpKey(turnstileToken || '');
       setApiKey(res.key);
     } catch (e: unknown) {
       const err = e as GenerateKeyError;
+      resetTurnstile();
       if (err.status === 429) {
         if (err.message?.includes('one key per IP')) {
           setError("You've already generated a key today. Check your notes if you saved it.");
@@ -131,6 +178,9 @@ export default function DevelopersPage() {
           setError('Key generation is temporarily paused. Try again in a few minutes.');
           setCanRetry(true);
         }
+      } else if (err.status === 403) {
+        setError('Verification failed. Please try again.');
+        setCanRetry(true);
       } else if (err.status === 503) {
         setError('Key generation is temporarily unavailable. Please try again later.');
         setCanRetry(true);
@@ -369,9 +419,12 @@ export default function DevelopersPage() {
           </div>
         ) : (
           <div>
+            {TURNSTILE_SITE_KEY && (
+              <div ref={turnstileRef} style={{ marginBottom: 16 }} />
+            )}
             <button
               onClick={handleGenerate}
-              disabled={generating || (!canRetry && !!error)}
+              disabled={generating || (!canRetry && !!error) || (!!TURNSTILE_SITE_KEY && !turnstileToken)}
               style={{
                 display: 'flex',
                 alignItems: 'center',
@@ -379,14 +432,14 @@ export default function DevelopersPage() {
                 gap: 8,
                 width: isMobile ? '100%' : 'auto',
                 padding: '10px 24px',
-                background: generating || (!canRetry && !!error) ? 'var(--color-bg-surface)' : 'var(--color-accent)',
-                color: generating || (!canRetry && !!error) ? 'var(--color-text-dim)' : '#0a0a0b',
+                background: generating || (!canRetry && !!error) || (!!TURNSTILE_SITE_KEY && !turnstileToken) ? 'var(--color-bg-surface)' : 'var(--color-accent)',
+                color: generating || (!canRetry && !!error) || (!!TURNSTILE_SITE_KEY && !turnstileToken) ? 'var(--color-text-dim)' : '#0a0a0b',
                 border: 'none',
                 borderRadius: 6,
                 fontFamily: "'Inter', sans-serif",
                 fontSize: 14,
                 fontWeight: 600,
-                cursor: generating || (!canRetry && !!error) ? 'not-allowed' : 'pointer',
+                cursor: generating || (!canRetry && !!error) || (!!TURNSTILE_SITE_KEY && !turnstileToken) ? 'not-allowed' : 'pointer',
                 transition: 'opacity 0.15s ease',
               }}
             >
@@ -426,6 +479,50 @@ export default function DevelopersPage() {
           </a>{' '}
           on X
         </p>
+      </div>
+
+      {/* Programmatic access */}
+      <div style={{ marginBottom: 48 }}>
+        <h2 style={{ ...heading, fontSize: isMobile ? 18 : 20, marginBottom: 16 }}>Programmatic key generation</h2>
+        <p
+          style={{
+            fontFamily: "'Inter', sans-serif",
+            fontSize: 14,
+            color: 'var(--color-text-secondary)',
+            lineHeight: 1.6,
+            marginBottom: 16,
+            maxWidth: 640,
+          }}
+        >
+          Agents that hit the MCP server without a token receive a JSON response explaining how to get one.
+          The key generation endpoint is rate-limited to 1 key per IP per day.
+        </p>
+        <pre style={codeBlock}>{`# Request without auth → server tells you how to get a key
+curl -X POST https://mcp.slashr.dev/mcp
+
+{
+  "error": "authentication_required",
+  "message": "Slashr MCP requires an API key.",
+  "get_key": "POST https://mcp.slashr.dev/mcp/keys/generate",
+  "docs": "https://slashr.dev/developers"
+}
+
+# Generate a key (1 per IP per day, no auth required)
+curl -X POST https://mcp.slashr.dev/mcp/keys/generate \\
+  -H "Content-Type: application/json" -d '{}'
+
+{
+  "key": "slashr_...",
+  "docs": "https://slashr.dev/developers",
+  "mcp_url": "https://mcp.slashr.dev/mcp"
+}
+
+# Use the key
+curl -X POST https://mcp.slashr.dev/mcp \\
+  -H "Authorization: Bearer slashr_..." \\
+  -H "Content-Type: application/json" \\
+  -H "Accept: application/json, text/event-stream" \\
+  -d '{"jsonrpc":"2.0","id":1,"method":"initialize",...}'`}</pre>
       </div>
 
       {/* Footer */}

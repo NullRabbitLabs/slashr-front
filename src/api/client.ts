@@ -181,8 +181,6 @@ export async function fetchScanAnalysis(eventUuid: string): Promise<ScanAnalysis
 
 // --- Self-serve API key generation (MCP server) ---
 
-const MCP_BASE_URL = import.meta.env.VITE_MCP_URL || 'https://mcp.slashr.dev';
-
 export interface GenerateKeyResponse {
   key: string;
   docs: string;
@@ -195,11 +193,11 @@ export interface GenerateKeyError {
   retryAfter?: number;
 }
 
-export async function generateMcpKey(): Promise<GenerateKeyResponse> {
-  const res = await fetch(`${MCP_BASE_URL}/mcp/keys/generate`, {
+export async function generateMcpKey(turnstileToken: string): Promise<GenerateKeyResponse> {
+  const res = await fetch('/api/generate-key', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: '{}',
+    body: JSON.stringify({ turnstile_token: turnstileToken }),
   });
 
   if (!res.ok) {
