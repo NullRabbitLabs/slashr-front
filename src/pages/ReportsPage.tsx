@@ -59,9 +59,10 @@ export default function ReportsPage() {
 
   return (
     <div>
-      <div
+      <h2
         style={{
           fontSize: 11,
+          fontWeight: 400,
           fontFamily: monoFont,
           textTransform: 'uppercase',
           letterSpacing: '0.08em',
@@ -70,7 +71,7 @@ export default function ReportsPage() {
         }}
       >
         Provider Reliability Reports
-      </div>
+      </h2>
 
       {/* Search input */}
       <input

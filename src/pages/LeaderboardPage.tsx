@@ -77,9 +77,10 @@ export default function LeaderboardPage() {
   return (
     <div style={{ marginTop: 8 }}>
       {/* Heading */}
-      <div
+      <h2
         style={{
           fontSize: 11,
+          fontWeight: 400,
           fontFamily: "'JetBrains Mono', monospace",
           textTransform: 'uppercase',
           letterSpacing: '0.08em',
@@ -88,17 +89,17 @@ export default function LeaderboardPage() {
         }}
       >
         {sort === 'worst' ? 'Worst Offenders' : 'Most Reliable'}
-      </div>
-      <div
+      </h2>
+      <p
         style={{
           fontSize: 12,
           fontFamily: "'Inter', sans-serif",
           color: 'var(--color-text-tertiary)',
-          marginBottom: 16,
+          margin: '0 0 16px',
         }}
       >
         Validators ranked by incident severity over {periodLabel}
-      </div>
+      </p>
 
       {/* Controls */}
       <div style={{ display: 'flex', flexWrap: 'wrap', gap: isMobile ? 6 : 8, marginBottom: 16, alignItems: 'center' }}>
