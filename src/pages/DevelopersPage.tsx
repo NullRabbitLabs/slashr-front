@@ -220,6 +220,40 @@ export default function DevelopersPage() {
         </p>
       </div>
 
+      {/* Add to Claude.ai */}
+      <div style={{ marginBottom: 48 }}>
+        <h2 style={{ ...heading, fontSize: isMobile ? 18 : 20, marginBottom: 16 }}>Add to Claude.ai</h2>
+        <ol
+          style={{
+            fontFamily: "'Inter', sans-serif",
+            fontSize: 14,
+            lineHeight: 2,
+            color: 'var(--color-text-secondary)',
+            margin: 0,
+            paddingLeft: 20,
+          }}
+        >
+          <li>Go to <strong style={{ color: 'var(--color-text-primary)' }}>claude.ai</strong> &rarr; Settings &rarr; Connectors &rarr; Add custom connector</li>
+          <li>Name: <code style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 13 }}>Slashr</code></li>
+          <li>URL: <code style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 13 }}>https://mcp.slashr.dev/mcp</code></li>
+          <li>OAuth Client ID: <code style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 13 }}>slashr</code>{' '}
+            <span style={{ color: 'var(--color-text-dim)', fontSize: 12 }}>(any value — this field is not used)</span>
+          </li>
+          <li>OAuth Client Secret: <strong style={{ color: 'var(--color-text-primary)' }}>your API key</strong></li>
+          <li>Click <strong style={{ color: 'var(--color-text-primary)' }}>Add</strong></li>
+        </ol>
+        <p
+          style={{
+            fontFamily: "'Inter', sans-serif",
+            fontSize: 13,
+            color: 'var(--color-text-dim)',
+            marginTop: 10,
+          }}
+        >
+          Claude.ai uses OAuth to exchange your API key for a token. Slashr tools will appear in new conversations.
+        </p>
+      </div>
+
       {/* Tools */}
       <div style={{ marginBottom: 48 }}>
         <h2 style={{ ...heading, fontSize: isMobile ? 18 : 20, marginBottom: 16 }}>Tools</h2>
