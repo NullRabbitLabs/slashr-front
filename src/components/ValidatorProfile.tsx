@@ -182,6 +182,8 @@ export function ValidatorProfile() {
       validator_website: validator.website,
       has_contact: validator.has_contact,
       in_scan_db: validator.in_scan_db,
+      loss_per_hour_usd: null,
+      estimated_loss_usd: null,
     }));
   }, [validator]);
 
