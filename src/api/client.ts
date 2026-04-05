@@ -14,6 +14,11 @@ import type {
   ScanAnalysisDetail,
   PaginatedResponse,
   DataResponse,
+  NetworkSlug,
+  SubscribeAlertResponse,
+  VerifyAlertResponse,
+  UnsubscribeAlertResponse,
+  ManageAlertsResponse,
 } from '@/types/api';
 import { getMockEvents, getMockNetworks, getMockStats, getMockValidator, getMockDelegations, getMockLeaderboard, getMockChainData, getMockHealthCheck } from './mock';
 
@@ -213,4 +218,83 @@ export async function generateMcpKey(turnstileToken: string): Promise<GenerateKe
   }
 
   return res.json() as Promise<GenerateKeyResponse>;
+}
+
+// --- Email alerts ---
+
+export async function subscribeAlert(
+  email: string,
+  targetAddress: string,
+  chain?: NetworkSlug,
+): Promise<DataResponse<SubscribeAlertResponse>> {
+  const body: Record<string, string> = { email, target_address: targetAddress };
+  if (chain) body.chain = chain;
+
+  const res = await fetch(`${BASE_URL}/v1/alerts/subscribe`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(body),
+  });
+  if (!res.ok) {
+    let message = `API error: ${res.status}`;
+    try {
+      const data = await res.json();
+      if (data?.error?.message) message = data.error.message;
+    } catch {
+      // keep generic message
+    }
+    throw new Error(message);
+  }
+  return res.json() as Promise<DataResponse<SubscribeAlertResponse>>;
+}
+
+export async function verifyAlert(
+  token: string,
+): Promise<DataResponse<VerifyAlertResponse>> {
+  const res = await fetch(`${BASE_URL}/v1/alerts/verify?token=${encodeURIComponent(token)}`);
+  if (!res.ok) {
+    let message = `API error: ${res.status}`;
+    try {
+      const data = await res.json();
+      if (data?.error?.message) message = data.error.message;
+    } catch {
+      // keep generic message
+    }
+    throw new Error(message);
+  }
+  return res.json() as Promise<DataResponse<VerifyAlertResponse>>;
+}
+
+export async function unsubscribeAlert(
+  token: string,
+): Promise<DataResponse<UnsubscribeAlertResponse>> {
+  const res = await fetch(`${BASE_URL}/v1/alerts/unsubscribe?token=${encodeURIComponent(token)}`);
+  if (!res.ok) {
+    let message = `API error: ${res.status}`;
+    try {
+      const data = await res.json();
+      if (data?.error?.message) message = data.error.message;
+    } catch {
+      // keep generic message
+    }
+    throw new Error(message);
+  }
+  return res.json() as Promise<DataResponse<UnsubscribeAlertResponse>>;
+}
+
+export async function fetchAlertSubscriptions(
+  managementToken: string,
+): Promise<DataResponse<ManageAlertsResponse>> {
+  const res = await fetch(`${BASE_URL}/v1/alerts/manage?token=${encodeURIComponent(managementToken)}`);
+  if (!res.ok) {
+    let message = `API error: ${res.status}`;
+    try {
+      const data = await res.json();
+      if (data?.error?.message) message = data.error.message;
+    } catch {
+      // keep generic message
+    }
+    throw new Error(message);
+  }
+  return res.json() as Promise<DataResponse<ManageAlertsResponse>>;
 }

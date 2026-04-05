@@ -445,3 +445,49 @@ export interface ScanAnalysisDetail {
     received_at: string;
   }>;
 }
+
+// --- Email alerts ---
+
+export interface SubscribeAlertRequest {
+  email: string;
+  target_address: string;
+  chain?: NetworkSlug;
+}
+
+export interface SubscribeAlertResponse {
+  message: string;
+  status: 'created' | 'resent' | 'already_verified';
+}
+
+export interface VerifyAlertResponse {
+  subscription: {
+    target_address: string;
+    chain: NetworkSlug;
+    validator_name: string | null;
+  };
+  management_token: string;
+}
+
+export interface UnsubscribeAlertResponse {
+  target_address: string;
+  chain: NetworkSlug;
+}
+
+export interface AlertSubscription {
+  id: string;
+  target_type: 'validator' | 'wallet';
+  target_address: string;
+  chain: NetworkSlug;
+  validator_name: string | null;
+  created_at: string;
+  delegations?: Array<{
+    address: string;
+    name: string | null;
+  }>;
+}
+
+export interface ManageAlertsResponse {
+  email_masked: string;
+  subscriptions: AlertSubscription[];
+  max_subscriptions: number;
+}

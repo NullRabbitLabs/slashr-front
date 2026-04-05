@@ -500,6 +500,17 @@ export function ValidatorProfile() {
               </a>
             );
           })()}
+          <Link
+            to={`/alerts?address=${encodeURIComponent(address ?? '')}`}
+            style={{
+              fontSize: 12,
+              fontFamily: "'JetBrains Mono', monospace",
+              color: 'var(--color-text-tertiary)',
+              textDecoration: 'none',
+            }}
+          >
+            Get alerts →
+          </Link>
           {(() => {
             const net = NETWORK_META[validator.network]?.name ?? network;
             const total = validator.events.length;

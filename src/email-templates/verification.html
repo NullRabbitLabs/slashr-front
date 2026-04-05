@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Confirm your Slashr alert</title>
+</head>
+<body style="margin: 0; padding: 0; background-color: #0a0a0b; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;">
+  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color: #0a0a0b;">
+    <tr>
+      <td align="center" style="padding: 40px 16px;">
+        <table role="presentation" width="600" cellpadding="0" cellspacing="0" border="0" style="max-width: 600px; width: 100%;">
+
+          <!-- Header -->
+          <tr>
+            <td style="padding: 20px 24px; background-color: #111113; border-bottom: 1px solid rgba(255,255,255,0.06);">
+              <span style="font-size: 14px; font-weight: 700; color: rgba(255,255,255,0.87); letter-spacing: -0.02em;">Confirm your Slashr alert</span>
+            </td>
+          </tr>
+
+          <!-- Body -->
+          <tr>
+            <td style="padding: 32px 24px; background-color: #111113;">
+              <p style="margin: 0 0 20px; font-size: 15px; line-height: 1.6; color: rgba(255,255,255,0.70);">
+                You requested alerts for <strong style="color: rgba(255,255,255,0.87);">{{TARGET_NAME}}</strong> on <strong style="color: rgba(255,255,255,0.87);">{{CHAIN_NAME}}</strong>.
+              </p>
+
+              <!-- CTA Button (table-based for Outlook) -->
+              <table role="presentation" cellpadding="0" cellspacing="0" border="0" style="margin: 24px 0;">
+                <tr>
+                  <td style="border-radius: 4px; background-color: rgba(255,255,255,0.87);">
+                    <a href="{{VERIFY_URL}}" target="_blank" style="display: inline-block; padding: 12px 28px; font-size: 13px; font-weight: 600; font-family: 'Courier New', monospace; color: #0a0a0b; text-decoration: none; letter-spacing: 0.03em;">
+                      Confirm &rarr;
+                    </a>
+                  </td>
+                </tr>
+              </table>
+
+              <p style="margin: 24px 0 0; font-size: 13px; line-height: 1.5; color: rgba(255,255,255,0.40);">
+                If you didn't request this, ignore this email.
+              </p>
+            </td>
+          </tr>
+
+          <!-- Footer -->
+          <tr>
+            <td style="padding: 16px 24px; background-color: #111113; border-top: 1px solid rgba(255,255,255,0.06);">
+              <p style="margin: 0; font-size: 11px; color: rgba(255,255,255,0.25);">
+                slashr.dev &mdash; validator incident tracking
+              </p>
+            </td>
+          </tr>
+
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>

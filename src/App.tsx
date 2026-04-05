@@ -9,6 +9,10 @@ import ReportsPage from '@/pages/ReportsPage';
 import ReportDetailPage from '@/pages/ReportDetailPage';
 import CheckPage from '@/pages/CheckPage';
 import DevelopersPage from '@/pages/DevelopersPage';
+import AlertsPage from '@/pages/AlertsPage';
+import AlertsVerifyPage from '@/pages/AlertsVerifyPage';
+import AlertsUnsubscribePage from '@/pages/AlertsUnsubscribePage';
+import AlertsManagePage from '@/pages/AlertsManagePage';
 
 function AppRoutes() {
   const { stats } = useStats();
@@ -25,6 +29,10 @@ function AppRoutes() {
         <Route path="/validator/:network/:address" element={<ValidatorPage />} />
         <Route path="/reports" element={<ReportsPage />} />
         <Route path="/reports/:providerSlug" element={<ReportDetailPage />} />
+        <Route path="/alerts" element={<AlertsPage />} />
+        <Route path="/alerts/verify" element={<AlertsVerifyPage />} />
+        <Route path="/alerts/unsubscribe" element={<AlertsUnsubscribePage />} />
+        <Route path="/alerts/manage" element={<AlertsManagePage />} />
       </Routes>
     </Layout>
   );
