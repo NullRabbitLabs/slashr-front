@@ -2,7 +2,6 @@ import { useState, useMemo, useEffect, useRef } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { useHealthCheck } from '@/hooks/useHealthCheck';
 import { useShareCard } from '@/hooks/useShareCard';
-import { useIsMobile } from '@/hooks/useIsMobile';
 import { usePageMeta } from '@/hooks/usePageMeta';
 import { NETWORK_META } from '@/lib/constants';
 import { detectNetwork, detectValidatorAddress, looksLikePrivateKey, validateWalletAddress } from '@/lib/addressValidation';
@@ -23,7 +22,6 @@ const EXAMPLE_ADDRESSES = [
 ];
 
 export default function CheckPage() {
-  const isMobile = useIsMobile();
   const placeholder = useRotatingPlaceholder(EXAMPLE_ADDRESSES, 3500);
   const { data, loading, error, check, reset } = useHealthCheck();
   const [searchParams, setSearchParams] = useSearchParams();
@@ -104,32 +102,30 @@ export default function CheckPage() {
     && data.validators.every(v => v.grade === 'A');
 
   return (
-    <div style={{ paddingTop: 8, maxWidth: 640 }}>
-      {/* Title */}
-      <h2
+    <div style={{ marginTop: 8 }}>
+      {/* Heading */}
+      <div
         style={{
-          fontSize: isMobile ? 20 : 24,
-          fontWeight: 700,
-          fontFamily: "'Space Grotesk', sans-serif",
-          letterSpacing: '-0.04em',
-          margin: '0 0 8px',
-          color: 'var(--color-text-primary)',
+          fontSize: 11,
+          fontFamily: "'JetBrains Mono', monospace",
+          textTransform: 'uppercase',
+          letterSpacing: '0.08em',
+          color: 'var(--color-text-dim)',
+          marginBottom: 4,
         }}
       >
-        What are your validators costing you?
-      </h2>
-      <p
+        Check Wallet
+      </div>
+      <div
         style={{
-          fontSize: 13,
-          color: 'var(--color-text-tertiary)',
+          fontSize: 12,
           fontFamily: "'Inter', sans-serif",
-          margin: '0 0 20px',
-          lineHeight: 1.5,
+          color: 'var(--color-text-tertiary)',
+          marginBottom: 16,
         }}
       >
-        Paste your wallet address. We'll check your validators' incident history,
-        scan their infrastructure, and estimate what their downtime costs you.
-      </p>
+        Paste your wallet address to check your validators' grades, downtime costs, and incident history
+      </div>
 
       {/* Input */}
       <div style={{ position: 'relative' }}>
@@ -140,12 +136,12 @@ export default function CheckPage() {
           onKeyDown={handleKeyDown}
           style={{
             width: '100%',
-            padding: '12px 16px',
+            padding: '8px 12px',
             background: 'var(--color-bg-surface, var(--color-bg-card))',
             border: `1px solid ${isPrivateKey || validationError ? 'var(--color-danger)' : 'var(--color-separator)'}`,
             borderRadius: 4,
             color: 'var(--color-text-primary)',
-            fontSize: 15,
+            fontSize: 13,
             fontFamily: "'JetBrains Mono', monospace",
             outline: 'none',
             boxSizing: 'border-box',
@@ -159,9 +155,9 @@ export default function CheckPage() {
               top: 0,
               left: 0,
               right: 0,
-              padding: '12px 16px',
+              padding: '8px 12px',
               color: 'var(--color-text-ghost)',
-              fontSize: 15,
+              fontSize: 13,
               fontFamily: "'JetBrains Mono', monospace",
               pointerEvents: 'none',
               opacity: placeholder.opacity,
@@ -244,9 +240,9 @@ export default function CheckPage() {
           disabled={!walletInput.trim() || isPrivateKey}
           style={{
             marginTop: 12,
-            padding: '10px 24px',
+            padding: '8px 20px',
             borderRadius: 4,
-            fontSize: 13,
+            fontSize: 12,
             fontFamily: "'JetBrains Mono', monospace",
             fontWeight: 600,
             textTransform: 'uppercase',
@@ -282,7 +278,7 @@ export default function CheckPage() {
 
       {/* Results */}
       {data && (
-        <div style={{ marginTop: 24 }}>
+        <div style={{ marginTop: 16 }}>
           {/* No delegations */}
           {data.message && data.validators.length === 0 && (
             <div
@@ -342,10 +338,11 @@ export default function CheckPage() {
                 setSearchParams({});
               }}
               style={{
-                padding: '8px 16px',
+                padding: '6px 16px',
                 borderRadius: 3,
                 fontSize: 11,
                 fontFamily: "'JetBrains Mono', monospace",
+                fontWeight: 600,
                 textTransform: 'uppercase',
                 letterSpacing: '0.05em',
                 cursor: 'pointer',
