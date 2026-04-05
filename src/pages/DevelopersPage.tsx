@@ -2,8 +2,8 @@ import { useState } from 'react';
 import { usePageMeta } from '@/hooks/usePageMeta';
 import { useIsMobile } from '@/hooks/useIsMobile';
 import { copyToClipboard } from '@/lib/clipboard';
-
-const GITHUB_ISSUE_URL = 'https://github.com/NullRabbitLabs/slashr-front/issues/new?template=mcp-key-request.md';
+import { generateMcpKey } from '@/api/client';
+import type { GenerateKeyError } from '@/api/client';
 
 const TOOLS = [
   {
@@ -38,16 +38,18 @@ const TOOLS = [
   },
 ];
 
-const MCP_CONFIG = `{
+function getMcpConfig(key: string) {
+  return `{
   "mcpServers": {
     "slashr": {
       "url": "https://mcp.slashr.dev/mcp",
       "headers": {
-        "Authorization": "Bearer YOUR_API_KEY"
+        "Authorization": "Bearer ${key}"
       }
     }
   }
 }`;
+}
 
 const EXAMPLE_RESPONSE = `Found 3 incident(s) for validator 3dXXxEaV...RjhF on solana (last 7 days):
 
@@ -82,6 +84,11 @@ const heading: React.CSSProperties = {
 export default function DevelopersPage() {
   const isMobile = useIsMobile();
   const [copied, setCopied] = useState(false);
+  const [apiKey, setApiKey] = useState<string | null>(null);
+  const [keyCopied, setKeyCopied] = useState(false);
+  const [generating, setGenerating] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [canRetry, setCanRetry] = useState(true);
 
   usePageMeta({
     title: 'Developers \u2014 Slashr',
@@ -89,12 +96,51 @@ export default function DevelopersPage() {
       'Integrate validator incident data into your AI agent via MCP. Query delinquency, slashing, infrastructure scans, and delegation health across Solana, Ethereum, Sui, and Cosmos.',
   });
 
+  const mcpConfig = getMcpConfig(apiKey || 'YOUR_API_KEY');
+
   const copyConfig = () => {
-    copyToClipboard(MCP_CONFIG).then((ok) => {
+    copyToClipboard(mcpConfig).then((ok) => {
       if (!ok) return;
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
     });
+  };
+
+  const copyKey = () => {
+    if (!apiKey) return;
+    copyToClipboard(apiKey).then((ok) => {
+      if (!ok) return;
+      setKeyCopied(true);
+      setTimeout(() => setKeyCopied(false), 2000);
+    });
+  };
+
+  const handleGenerate = async () => {
+    setGenerating(true);
+    setError(null);
+    try {
+      const res = await generateMcpKey();
+      setApiKey(res.key);
+    } catch (e: unknown) {
+      const err = e as GenerateKeyError;
+      if (err.status === 429) {
+        if (err.message?.includes('one key per IP')) {
+          setError("You've already generated a key today. Check your notes if you saved it.");
+          setCanRetry(false);
+        } else {
+          setError('Key generation is temporarily paused. Try again in a few minutes.');
+          setCanRetry(true);
+        }
+      } else if (err.status === 503) {
+        setError('Key generation is temporarily unavailable. Please try again later.');
+        setCanRetry(true);
+      } else {
+        setError('Something went wrong. Please try again.');
+        setCanRetry(true);
+      }
+    } finally {
+      setGenerating(false);
+    }
   };
 
   return (
@@ -141,7 +187,7 @@ export default function DevelopersPage() {
       <div style={{ marginBottom: 48 }}>
         <h2 style={{ ...heading, fontSize: isMobile ? 18 : 20, marginBottom: 16 }}>Quick start</h2>
         <div style={{ position: 'relative' }}>
-          <pre style={codeBlock}>{MCP_CONFIG}</pre>
+          <pre style={codeBlock}>{mcpConfig}</pre>
           <button
             onClick={copyConfig}
             style={{
@@ -171,6 +217,40 @@ export default function DevelopersPage() {
           }}
         >
           Transport: Streamable HTTP · Auth: Bearer token · Read-only
+        </p>
+      </div>
+
+      {/* Add to Claude.ai */}
+      <div style={{ marginBottom: 48 }}>
+        <h2 style={{ ...heading, fontSize: isMobile ? 18 : 20, marginBottom: 16 }}>Add to Claude.ai</h2>
+        <ol
+          style={{
+            fontFamily: "'Inter', sans-serif",
+            fontSize: 14,
+            lineHeight: 2,
+            color: 'var(--color-text-secondary)',
+            margin: 0,
+            paddingLeft: 20,
+          }}
+        >
+          <li>Go to <strong style={{ color: 'var(--color-text-primary)' }}>claude.ai</strong> &rarr; Settings &rarr; Connectors &rarr; Add custom connector</li>
+          <li>Name: <code style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 13 }}>Slashr</code></li>
+          <li>URL: <code style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 13 }}>https://mcp.slashr.dev/mcp</code></li>
+          <li>OAuth Client ID: <code style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 13 }}>slashr</code>{' '}
+            <span style={{ color: 'var(--color-text-dim)', fontSize: 12 }}>(any value — this field is not used)</span>
+          </li>
+          <li>OAuth Client Secret: <strong style={{ color: 'var(--color-text-primary)' }}>your API key</strong></li>
+          <li>Click <strong style={{ color: 'var(--color-text-primary)' }}>Add</strong></li>
+        </ol>
+        <p
+          style={{
+            fontFamily: "'Inter', sans-serif",
+            fontSize: 13,
+            color: 'var(--color-text-dim)',
+            marginTop: 10,
+          }}
+        >
+          Claude.ai uses OAuth to exchange your API key for a token. Slashr tools will appear in new conversations.
         </p>
       </div>
 
@@ -253,9 +333,9 @@ export default function DevelopersPage() {
         </p>
       </div>
 
-      {/* Request API key */}
+      {/* API key generation */}
       <div style={{ marginBottom: 48 }}>
-        <h2 style={{ ...heading, fontSize: isMobile ? 18 : 20, marginBottom: 8 }}>Get access</h2>
+        <h2 style={{ ...heading, fontSize: isMobile ? 18 : 20, marginBottom: 8 }}>Get your API key</h2>
         <p
           style={{
             fontFamily: "'Inter', sans-serif",
@@ -264,31 +344,102 @@ export default function DevelopersPage() {
             marginBottom: 20,
           }}
         >
-          Slashr MCP is in early access. Request an API key and we'll get back to you.
+          Generate an API key instantly. No account required.
         </p>
 
-        <a
-          href={GITHUB_ISSUE_URL}
-          target="_blank"
-          rel="noopener noreferrer"
-          style={{
-            display: 'inline-flex',
-            alignItems: 'center',
-            gap: 8,
-            padding: '10px 24px',
-            background: 'var(--color-accent)',
-            color: '#0a0a0b',
-            border: 'none',
-            borderRadius: 6,
-            fontFamily: "'Inter', sans-serif",
-            fontSize: 14,
-            fontWeight: 600,
-            textDecoration: 'none',
-            transition: 'opacity 0.15s ease',
-          }}
-        >
-          Request access on GitHub
-        </a>
+        {apiKey ? (
+          <div>
+            <p
+              style={{
+                fontFamily: "'Inter', sans-serif",
+                fontSize: 13,
+                color: 'var(--color-text-secondary)',
+                marginBottom: 8,
+              }}
+            >
+              Your API key
+            </p>
+            <div style={{ position: 'relative' }}>
+              <pre
+                style={{
+                  ...codeBlock,
+                  padding: '14px 80px 14px 16px',
+                  wordBreak: 'break-all',
+                  whiteSpace: 'pre-wrap',
+                }}
+              >
+                {apiKey}
+              </pre>
+              <button
+                onClick={copyKey}
+                style={{
+                  position: 'absolute',
+                  top: 12,
+                  right: 12,
+                  background: 'var(--color-bg-surface)',
+                  border: '1px solid var(--color-border-medium)',
+                  borderRadius: 4,
+                  padding: '4px 10px',
+                  fontFamily: "'JetBrains Mono', monospace",
+                  fontSize: 11,
+                  color: keyCopied ? 'var(--color-accent)' : 'var(--color-text-dim)',
+                  cursor: 'pointer',
+                  transition: 'color 0.15s ease',
+                }}
+              >
+                {keyCopied ? 'Copied' : 'Copy'}
+              </button>
+            </div>
+            <p
+              style={{
+                fontFamily: "'Inter', sans-serif",
+                fontSize: 13,
+                color: 'var(--color-accent)',
+                marginTop: 10,
+              }}
+            >
+              Save this key now. It won't be shown again.
+            </p>
+          </div>
+        ) : (
+          <div>
+            <button
+              onClick={handleGenerate}
+              disabled={generating || (!canRetry && !!error)}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: 8,
+                width: isMobile ? '100%' : 'auto',
+                padding: '10px 24px',
+                background: generating || (!canRetry && !!error) ? 'var(--color-bg-surface)' : 'var(--color-accent)',
+                color: generating || (!canRetry && !!error) ? 'var(--color-text-dim)' : '#0a0a0b',
+                border: 'none',
+                borderRadius: 6,
+                fontFamily: "'Inter', sans-serif",
+                fontSize: 14,
+                fontWeight: 600,
+                cursor: generating || (!canRetry && !!error) ? 'not-allowed' : 'pointer',
+                transition: 'opacity 0.15s ease',
+              }}
+            >
+              {generating ? 'Generating...' : 'Generate API Key'}
+            </button>
+            {error && (
+              <p
+                style={{
+                  fontFamily: "'Inter', sans-serif",
+                  fontSize: 13,
+                  color: 'var(--color-text-dim)',
+                  marginTop: 12,
+                }}
+              >
+                {error}
+              </p>
+            )}
+          </div>
+        )}
 
         <p
           style={{
