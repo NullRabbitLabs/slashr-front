@@ -8,7 +8,6 @@ const TABS = [
   { label: 'rankings', path: '/rankings' },
   { label: 'reports', path: '/reports' },
   { label: 'check wallet', path: '/check' },
-  { label: 'developers', path: '/developers' },
 ] as const;
 
 export function TabBar() {

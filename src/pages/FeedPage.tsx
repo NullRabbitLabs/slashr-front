@@ -44,6 +44,19 @@ export default function FeedPage() {
 
   return (
     <>
+      <div
+        style={{
+          fontSize: 11,
+          fontFamily: "'JetBrains Mono', monospace",
+          textTransform: 'uppercase',
+          letterSpacing: '0.08em',
+          color: 'var(--color-text-dim)',
+          marginBottom: 4,
+        }}
+      >
+        Live Feed
+      </div>
+
       <FeedFilter
         activeNetworks={activeNetworks}
         onToggleNetwork={handleToggleNetwork}

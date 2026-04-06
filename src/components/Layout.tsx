@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import type { ReactNode } from 'react';
 import { useLocation } from 'react-router-dom';
 import type { StatsResponse } from '@/types/api';
@@ -10,6 +11,7 @@ import { useIsMobile } from '@/hooks/useIsMobile';
 import { useTheme } from '@/hooks/useTheme';
 import { useNetworks } from '@/hooks/useNetworks';
 import { WaitlistDrawer } from './WaitlistDrawer';
+import { Footer } from './Footer';
 import { TelegramIcon } from './TelegramIcon';
 import { XIcon } from './XIcon';
 
@@ -23,6 +25,7 @@ export function Layout({ children, stats }: LayoutProps) {
   const { theme, toggle: toggleTheme } = useTheme();
   const { networks } = useNetworks();
   const { pathname } = useLocation();
+  const [waitlistOpen, setWaitlistOpen] = useState(false);
   const totalEvents = stats?.totals.all_time;
   const showFeedHeader = pathname === '/' || pathname === '/validators' || pathname === '/rankings' || pathname === '/reports' || pathname === '/check';
 
@@ -31,7 +34,9 @@ export function Layout({ children, stats }: LayoutProps) {
       style={{
         background: 'var(--color-bg)',
         color: 'var(--color-text-primary)',
-        minHeight: '100vh',
+        height: '100vh',
+        display: 'flex',
+        flexDirection: 'column',
         fontFamily: "'Inter', 'Helvetica Neue', -apple-system, sans-serif",
         overflowX: 'hidden',
       }}
@@ -186,69 +191,47 @@ export function Layout({ children, stats }: LayoutProps) {
         </div>
       </div>
 
-      <div
-        style={{
-          maxWidth: 860,
-          margin: '0 auto',
-          padding: isMobile ? '0 16px' : '0 20px',
-        }}
-      >
-        {/* Spacer */}
-        <div style={{ height: isMobile ? 12 : 32 }} />
+      <div style={{ flex: 1, minHeight: 0, overflowY: 'auto' }}>
+        <div
+          style={{
+            maxWidth: 860,
+            margin: '0 auto',
+            padding: isMobile ? '0 16px' : '0 20px',
+          }}
+        >
+          {/* Spacer */}
+          <div style={{ height: isMobile ? 12 : 32 }} />
 
-        {/* Shared feed header - only on feed/validators pages */}
-        {showFeedHeader && (
-          <>
-            <NetworkStrip stats={stats} networks={networks} />
-            <Explainer />
+          {/* Network strip - on all feed routes */}
+          {showFeedHeader && <NetworkStrip stats={stats} networks={networks} />}
 
-            <p
-              style={{
-                fontSize: isMobile ? 12 : 13,
-                color: 'var(--color-text-tertiary)',
-                fontStyle: 'italic',
-                margin: isMobile ? '0 0 12px' : '0 0 20px',
-                fontFamily: "'Inter', sans-serif",
-              }}
-            >
-              Your staking rewards depend on your validator staying online. Here&rsquo;s every time one didn&rsquo;t.
-            </p>
-          </>
-        )}
+          {/* Onboarding - live feed only */}
+          {pathname === '/' && (
+            <>
+              <Explainer />
+              <p
+                style={{
+                  fontSize: isMobile ? 12 : 13,
+                  color: 'var(--color-text-tertiary)',
+                  fontStyle: 'italic',
+                  margin: isMobile ? '0 0 12px' : '0 0 20px',
+                  fontFamily: "'Inter', sans-serif",
+                }}
+              >
+                Your staking rewards depend on your validator staying online. Here&rsquo;s every time one didn&rsquo;t.
+              </p>
+            </>
+          )}
 
-        {showFeedHeader && <TabBar />}
+          {showFeedHeader && <TabBar />}
 
-        {/* Page content */}
-        {children}
+          {/* Page content */}
+          {children}
+        </div>
       </div>
 
-      {/* Fixed bottom-left attribution */}
-      <a
-        href="https://nullrabbit.ai"
-        target="_blank"
-        rel="noopener noreferrer"
-        style={{
-          position: 'fixed',
-          bottom: isMobile ? 16 : 24,
-          left: isMobile ? 16 : 24,
-          display: 'flex',
-          alignItems: 'center',
-          gap: 5,
-          color: 'var(--color-text-dim)',
-          textDecoration: 'none',
-          fontSize: 10,
-          fontFamily: "'JetBrains Mono', monospace",
-          zIndex: 100,
-        }}
-      >
-        <img
-          src="/nullrabbit.png"
-          alt="NullRabbit"
-          style={{ height: 22, width: 22, objectFit: 'contain' }}
-        />
-      </a>
-
-      <WaitlistDrawer />
+      <Footer onOpenWaitlist={() => setWaitlistOpen(true)} />
+      <WaitlistDrawer open={waitlistOpen} onOpenChange={setWaitlistOpen} />
     </div>
   );
 }

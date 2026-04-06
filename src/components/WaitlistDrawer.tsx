@@ -7,11 +7,15 @@ interface WaitlistPayload {
   other: string;
 }
 
+interface WaitlistDrawerProps {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+}
+
 const INTEGRATIONS = ['Slack', 'PagerDuty', 'Webhook / API', 'Telegram'] as const;
 
-export function WaitlistDrawer() {
+export function WaitlistDrawer({ open, onOpenChange }: WaitlistDrawerProps) {
   const isMobile = useIsMobile();
-  const [open, setOpen] = useState(false);
   const [email, setEmail] = useState('');
   const [integrations, setIntegrations] = useState<Set<string>>(new Set());
   const [other, setOther] = useState('');
@@ -24,10 +28,18 @@ export function WaitlistDrawer() {
   useEffect(() => {
     if (!open) return;
     const handler = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') setOpen(false);
+      if (e.key === 'Escape') onOpenChange(false);
     };
     document.addEventListener('keydown', handler);
     return () => document.removeEventListener('keydown', handler);
+  }, [open]);
+
+  // Reset state on open
+  useEffect(() => {
+    if (open) {
+      setSuccess(false);
+      setError(null);
+    }
   }, [open]);
 
   // Body scroll lock + focus email
@@ -83,48 +95,21 @@ export function WaitlistDrawer() {
     }
   }, [email, integrations, other]);
 
-  return (
-    <>
-      {/* Trigger button - fixed bottom-right */}
-      <button
-        onClick={() => {
-          setOpen(true);
-          setSuccess(false);
-          setError(null);
-        }}
-        className="btn-ghost"
-        style={{
-          position: 'fixed',
-          bottom: isMobile ? 16 : 24,
-          right: isMobile ? 16 : 24,
-          background: 'var(--color-border)',
-          border: '1px solid var(--color-border-medium)',
-          borderRadius: 6,
-          color: 'var(--color-text-secondary)',
-          fontSize: 12,
-          fontFamily: "'JetBrains Mono', monospace",
-          padding: '8px 14px',
-          cursor: 'pointer',
-          zIndex: 100,
-        }}
-      >
-        stay in the loop {'\u2197'}
-      </button>
+  if (!open) return null;
 
-      {/* Overlay */}
-      {open && (
-        <div
-          style={{
-            position: 'fixed',
-            inset: 0,
-            zIndex: 200,
-            display: 'flex',
-            alignItems: isMobile ? 'flex-end' : 'center',
-            justifyContent: 'center',
-            background: 'var(--color-overlay)',
-          }}
-          onClick={() => setOpen(false)}
-        >
+  return (
+    <div
+      style={{
+        position: 'fixed',
+        inset: 0,
+        zIndex: 200,
+        display: 'flex',
+        alignItems: isMobile ? 'flex-end' : 'center',
+        justifyContent: 'center',
+        background: 'var(--color-overlay)',
+      }}
+      onClick={() => onOpenChange(false)}
+    >
           <div
             onClick={e => e.stopPropagation()}
             style={{
@@ -309,7 +294,5 @@ export function WaitlistDrawer() {
             )}
           </div>
         </div>
-      )}
-    </>
   );
 }
