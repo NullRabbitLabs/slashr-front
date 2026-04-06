@@ -34,9 +34,16 @@ export const onRequest: PagesFunction<Env> = async (context) => {
     headers.set('X-Real-Client-IP', clientIp);
   }
 
+  // Forward Content-Type for POST/PUT/PATCH requests
+  const contentType = request.headers.get('Content-Type');
+  if (contentType) {
+    headers.set('Content-Type', contentType);
+  }
+
   const res = await fetch(upstream, {
     method: request.method,
     headers,
+    body: request.body,
   });
 
   // Pass through the JSON response, stripping any backend CORS headers
