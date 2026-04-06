@@ -32,18 +32,23 @@ function formatDate(daysAgo: number): string {
   return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
 }
 
-function barColor(count: number, max: number): string {
+function barColor(count: number, max: number, isDark: boolean): string {
   const intensity = count / max;
   if (intensity >= 0.8) return 'rgba(255, 69, 69, 0.85)';
   if (intensity >= 0.5) return 'rgba(232, 167, 53, 0.80)';
-  if (intensity >= 0.25) return 'rgba(255, 255, 255, 0.45)';
-  return 'rgba(255, 255, 255, 0.25)';
+  if (isDark) {
+    if (intensity >= 0.25) return 'rgba(255, 255, 255, 0.45)';
+    return 'rgba(255, 255, 255, 0.25)';
+  }
+  if (intensity >= 0.25) return 'rgba(0, 0, 0, 0.35)';
+  return 'rgba(0, 0, 0, 0.18)';
 }
 
 export function Sparkline({ events }: SparklineProps) {
   const buckets = useMemo(() => bucketEvents(events), [events]);
   const max = useMemo(() => Math.max(...buckets, 1), [buckets]);
   const hasAnyBars = buckets.some(c => c > 0);
+  const isDark = typeof document !== 'undefined' && document.documentElement.getAttribute('data-theme') !== 'light';
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
 
   if (!hasAnyBars) return null;
@@ -70,7 +75,7 @@ export function Sparkline({ events }: SparklineProps) {
               width={w}
               height={h}
               rx={1}
-              fill={barColor(count, max)}
+              fill={barColor(count, max, isDark)}
               onMouseEnter={() => setHoveredIndex(i)}
               onMouseLeave={() => setHoveredIndex(null)}
               style={{ cursor: 'default' }}
