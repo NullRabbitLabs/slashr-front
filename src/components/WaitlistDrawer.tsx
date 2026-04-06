@@ -7,11 +7,15 @@ interface WaitlistPayload {
   other: string;
 }
 
+interface WaitlistDrawerProps {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+}
+
 const INTEGRATIONS = ['Slack', 'PagerDuty', 'Webhook / API', 'Telegram'] as const;
 
-export function WaitlistDrawer() {
+export function WaitlistDrawer({ open, onOpenChange }: WaitlistDrawerProps) {
   const isMobile = useIsMobile();
-  const [open, setOpen] = useState(false);
   const [email, setEmail] = useState('');
   const [integrations, setIntegrations] = useState<Set<string>>(new Set());
   const [other, setOther] = useState('');
@@ -24,10 +28,18 @@ export function WaitlistDrawer() {
   useEffect(() => {
     if (!open) return;
     const handler = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') setOpen(false);
+      if (e.key === 'Escape') onOpenChange(false);
     };
     document.addEventListener('keydown', handler);
     return () => document.removeEventListener('keydown', handler);
+  }, [open, onOpenChange]);
+
+  // Reset state on open
+  useEffect(() => {
+    if (open) {
+      setSuccess(false);
+      setError(null);
+    }
   }, [open]);
 
   // Body scroll lock + focus email
@@ -83,233 +95,204 @@ export function WaitlistDrawer() {
     }
   }, [email, integrations, other]);
 
+  if (!open) return null;
+
   return (
-    <>
-      {/* Trigger button - fixed bottom-right */}
-      <button
-        onClick={() => {
-          setOpen(true);
-          setSuccess(false);
-          setError(null);
-        }}
-        className="btn-ghost"
+    <div
+      style={{
+        position: 'fixed',
+        inset: 0,
+        zIndex: 200,
+        display: 'flex',
+        alignItems: isMobile ? 'flex-end' : 'center',
+        justifyContent: 'center',
+        background: 'var(--color-overlay)',
+      }}
+      onClick={() => onOpenChange(false)}
+    >
+      <div
+        onClick={e => e.stopPropagation()}
         style={{
-          position: 'fixed',
-          bottom: isMobile ? 16 : 24,
-          right: isMobile ? 16 : 24,
-          background: 'var(--color-border)',
+          background: 'var(--color-bg)',
+          color: 'var(--color-text-primary)',
           border: '1px solid var(--color-border-medium)',
-          borderRadius: 6,
-          color: 'var(--color-text-secondary)',
-          fontSize: 12,
-          fontFamily: "'JetBrains Mono', monospace",
-          padding: '8px 14px',
-          cursor: 'pointer',
-          zIndex: 100,
+          borderRadius: isMobile ? '12px 12px 0 0' : 8,
+          padding: isMobile ? '24px 20px 32px' : '32px 28px',
+          width: isMobile ? '100%' : 420,
+          maxHeight: '90vh',
+          overflowY: 'auto',
         }}
       >
-        stay in the loop {'\u2197'}
-      </button>
-
-      {/* Overlay */}
-      {open && (
-        <div
-          style={{
-            position: 'fixed',
-            inset: 0,
-            zIndex: 200,
-            display: 'flex',
-            alignItems: isMobile ? 'flex-end' : 'center',
-            justifyContent: 'center',
-            background: 'var(--color-overlay)',
-          }}
-          onClick={() => setOpen(false)}
-        >
+        {success ? (
           <div
-            onClick={e => e.stopPropagation()}
             style={{
-              background: 'var(--color-bg)',
-              color: 'var(--color-text-primary)',
-              border: '1px solid var(--color-border-medium)',
-              borderRadius: isMobile ? '12px 12px 0 0' : 8,
-              padding: isMobile ? '24px 20px 32px' : '32px 28px',
-              width: isMobile ? '100%' : 420,
-              maxHeight: '90vh',
-              overflowY: 'auto',
+              fontSize: 14,
+              color: 'var(--color-text-hover)',
+              fontFamily: "'JetBrains Mono', monospace",
+              textAlign: 'center',
+              padding: '24px 0',
             }}
           >
-            {success ? (
+            noted. we'll be in touch.
+          </div>
+        ) : (
+          <>
+            <h3
+              style={{
+                fontSize: 18,
+                fontWeight: 700,
+                fontFamily: "'Space Grotesk', sans-serif",
+                letterSpacing: '-0.02em',
+                margin: '0 0 6px',
+                color: 'var(--color-text-primary)',
+              }}
+            >
+              stay in the loop
+            </h3>
+            <p
+              style={{
+                fontSize: 13,
+                color: 'var(--color-text-tertiary)',
+                margin: '0 0 20px',
+                lineHeight: 1.5,
+              }}
+            >
+              We'll let you know when integrations land. No newsletters.
+            </p>
+
+            {/* Email */}
+            <input
+              ref={emailRef}
+              type="email"
+              placeholder="you@example.com"
+              value={email}
+              onChange={e => setEmail(e.target.value)}
+              className="waitlist-input"
+              style={{
+                width: '100%',
+                background: 'var(--color-bg-surface)',
+                border: '1px solid var(--color-border-medium)',
+                borderRadius: 4,
+                color: 'var(--color-text-primary)',
+                fontSize: 13,
+                fontFamily: "'JetBrains Mono', monospace",
+                padding: '10px 12px',
+                outline: 'none',
+                boxSizing: 'border-box',
+              }}
+            />
+
+            {/* Integrations */}
+            <div style={{ marginTop: 16 }}>
               <div
                 style={{
-                  fontSize: 14,
-                  color: 'var(--color-text-hover)',
+                  fontSize: 12,
+                  color: 'var(--color-text-tertiary)',
                   fontFamily: "'JetBrains Mono', monospace",
-                  textAlign: 'center',
-                  padding: '24px 0',
+                  marginBottom: 8,
                 }}
               >
-                noted. we'll be in touch.
+                what would you plug this into?
               </div>
-            ) : (
-              <>
-                <h3
+              {INTEGRATIONS.map(name => (
+                <label
+                  key={name}
                   style={{
-                    fontSize: 18,
-                    fontWeight: 700,
-                    fontFamily: "'Space Grotesk', sans-serif",
-                    letterSpacing: '-0.02em',
-                    margin: '0 0 6px',
-                    color: 'var(--color-text-primary)',
-                  }}
-                >
-                  stay in the loop
-                </h3>
-                <p
-                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 8,
                     fontSize: 13,
-                    color: 'var(--color-text-tertiary)',
-                    margin: '0 0 20px',
-                    lineHeight: 1.5,
-                  }}
-                >
-                  We'll let you know when integrations land. No newsletters.
-                </p>
-
-                {/* Email */}
-                <input
-                  ref={emailRef}
-                  type="email"
-                  placeholder="you@example.com"
-                  value={email}
-                  onChange={e => setEmail(e.target.value)}
-                  className="waitlist-input"
-                  style={{
-                    width: '100%',
-                    background: 'var(--color-bg-surface)',
-                    border: '1px solid var(--color-border-medium)',
-                    borderRadius: 4,
-                    color: 'var(--color-text-primary)',
-                    fontSize: 13,
+                    color: 'var(--color-text-hover)',
                     fontFamily: "'JetBrains Mono', monospace",
-                    padding: '10px 12px',
-                    outline: 'none',
-                    boxSizing: 'border-box',
+                    padding: '4px 0',
+                    cursor: 'pointer',
                   }}
-                />
-
-                {/* Integrations */}
-                <div style={{ marginTop: 16 }}>
-                  <div
-                    style={{
-                      fontSize: 12,
-                      color: 'var(--color-text-tertiary)',
-                      fontFamily: "'JetBrains Mono', monospace",
-                      marginBottom: 8,
-                    }}
-                  >
-                    what would you plug this into?
-                  </div>
-                  {INTEGRATIONS.map(name => (
-                    <label
-                      key={name}
-                      style={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: 8,
-                        fontSize: 13,
-                        color: 'var(--color-text-hover)',
-                        fontFamily: "'JetBrains Mono', monospace",
-                        padding: '4px 0',
-                        cursor: 'pointer',
-                      }}
-                    >
-                      <input
-                        type="checkbox"
-                        checked={integrations.has(name)}
-                        onChange={() => toggleIntegration(name)}
-                        style={{ accentColor: 'var(--color-danger)' }}
-                      />
-                      {name}
-                    </label>
-                  ))}
-                </div>
-
-                {/* Other */}
-                <div style={{ marginTop: 16 }}>
-                  <div
-                    style={{
-                      fontSize: 12,
-                      color: 'var(--color-text-tertiary)',
-                      fontFamily: "'JetBrains Mono', monospace",
-                      marginBottom: 6,
-                    }}
-                  >
-                    anything else?
-                  </div>
-                  <textarea
-                    placeholder="grafana, opsgenie, ..."
-                    value={other}
-                    onChange={e => setOther(e.target.value)}
-                    rows={2}
-                    className="waitlist-input"
-                    style={{
-                      width: '100%',
-                      background: 'var(--color-bg-surface)',
-                      border: '1px solid var(--color-border-medium)',
-                      borderRadius: 4,
-                      color: 'var(--color-text-primary)',
-                      fontSize: 13,
-                      fontFamily: "'JetBrains Mono', monospace",
-                      padding: '10px 12px',
-                      outline: 'none',
-                      resize: 'vertical',
-                      boxSizing: 'border-box',
-                    }}
+                >
+                  <input
+                    type="checkbox"
+                    checked={integrations.has(name)}
+                    onChange={() => toggleIntegration(name)}
+                    style={{ accentColor: 'var(--color-danger)' }}
                   />
-                </div>
+                  {name}
+                </label>
+              ))}
+            </div>
 
-                {/* Error */}
-                {error && (
-                  <div
-                    style={{
-                      fontSize: 12,
-                      color: 'var(--color-danger)',
-                      fontFamily: "'JetBrains Mono', monospace",
-                      marginTop: 12,
-                    }}
-                  >
-                    {error}
-                  </div>
-                )}
+            {/* Other */}
+            <div style={{ marginTop: 16 }}>
+              <div
+                style={{
+                  fontSize: 12,
+                  color: 'var(--color-text-tertiary)',
+                  fontFamily: "'JetBrains Mono', monospace",
+                  marginBottom: 6,
+                }}
+              >
+                anything else?
+              </div>
+              <textarea
+                placeholder="grafana, opsgenie, ..."
+                value={other}
+                onChange={e => setOther(e.target.value)}
+                rows={2}
+                className="waitlist-input"
+                style={{
+                  width: '100%',
+                  background: 'var(--color-bg-surface)',
+                  border: '1px solid var(--color-border-medium)',
+                  borderRadius: 4,
+                  color: 'var(--color-text-primary)',
+                  fontSize: 13,
+                  fontFamily: "'JetBrains Mono', monospace",
+                  padding: '10px 12px',
+                  outline: 'none',
+                  resize: 'vertical',
+                  boxSizing: 'border-box',
+                }}
+              />
+            </div>
 
-                {/* Submit */}
-                <button
-                  onClick={handleSubmit}
-                  disabled={submitting}
-                  style={{
-                    marginTop: 16,
-                    width: '100%',
-                    background: submitting
-                      ? 'var(--color-bg-surface)'
-                      : 'var(--color-separator)',
-                    border: '1px solid var(--color-border-strong)',
-                    borderRadius: 4,
-                    color: submitting
-                      ? 'var(--color-text-dim)'
-                      : 'var(--color-text-hover)',
-                    fontSize: 13,
-                    fontFamily: "'JetBrains Mono', monospace",
-                    padding: '10px 0',
-                    cursor: submitting ? 'not-allowed' : 'pointer',
-                  }}
-                >
-                  {submitting ? 'submitting...' : 'register interest'}
-                </button>
-              </>
+            {/* Error */}
+            {error && (
+              <div
+                style={{
+                  fontSize: 12,
+                  color: 'var(--color-danger)',
+                  fontFamily: "'JetBrains Mono', monospace",
+                  marginTop: 12,
+                }}
+              >
+                {error}
+              </div>
             )}
-          </div>
-        </div>
-      )}
-    </>
+
+            {/* Submit */}
+            <button
+              onClick={handleSubmit}
+              disabled={submitting}
+              style={{
+                marginTop: 16,
+                width: '100%',
+                background: submitting
+                  ? 'var(--color-bg-surface)'
+                  : 'var(--color-separator)',
+                border: '1px solid var(--color-border-strong)',
+                borderRadius: 4,
+                color: submitting
+                  ? 'var(--color-text-dim)'
+                  : 'var(--color-text-hover)',
+                fontSize: 13,
+                fontFamily: "'JetBrains Mono', monospace",
+                padding: '10px 0',
+                cursor: submitting ? 'not-allowed' : 'pointer',
+              }}
+            >
+              {submitting ? 'submitting...' : 'register interest'}
+            </button>
+          </>
+        )}
+      </div>
+    </div>
   );
 }
