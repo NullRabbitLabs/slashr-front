@@ -38,7 +38,6 @@ export function Layout({ children, stats }: LayoutProps) {
         display: 'flex',
         flexDirection: 'column',
         fontFamily: "'Inter', 'Helvetica Neue', -apple-system, sans-serif",
-        overflowX: 'hidden',
       }}
     >
       {/* Top bar */}
