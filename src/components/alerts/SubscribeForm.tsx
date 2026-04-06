@@ -215,13 +215,7 @@ export default function SubscribeForm({ initialAddress = '' }: Props) {
             lineHeight: 1.5,
           }}
         >
-          {success.status === 'already_verified' ? (
-            "You're already receiving alerts for this address."
-          ) : success.status === 'resent' ? (
-            `We resent the verification email to ${email.trim()}.`
-          ) : (
-            <>Check your email to verify. We sent a confirmation link to <strong>{email.trim()}</strong>.</>
-          )}
+          {success.message}
         </div>
       )}
 

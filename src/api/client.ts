@@ -17,7 +17,8 @@ import type {
   NetworkSlug,
   SubscribeAlertResponse,
   VerifyAlertResponse,
-  UnsubscribeAlertResponse,
+  UnsubscribeInfoResponse,
+  UnsubscribeConfirmResponse,
   ManageAlertsResponse,
 } from '@/types/api';
 import { getMockEvents, getMockNetworks, getMockStats, getMockValidator, getMockDelegations, getMockLeaderboard, getMockChainData, getMockHealthCheck } from './mock';
@@ -265,9 +266,9 @@ export async function verifyAlert(
   return res.json() as Promise<DataResponse<VerifyAlertResponse>>;
 }
 
-export async function unsubscribeAlert(
+export async function fetchUnsubscribeInfo(
   token: string,
-): Promise<DataResponse<UnsubscribeAlertResponse>> {
+): Promise<DataResponse<UnsubscribeInfoResponse>> {
   const res = await fetch(`${BASE_URL}/v1/alerts/unsubscribe?token=${encodeURIComponent(token)}`);
   if (!res.ok) {
     let message = `API error: ${res.status}`;
@@ -279,7 +280,28 @@ export async function unsubscribeAlert(
     }
     throw new Error(message);
   }
-  return res.json() as Promise<DataResponse<UnsubscribeAlertResponse>>;
+  return res.json() as Promise<DataResponse<UnsubscribeInfoResponse>>;
+}
+
+export async function confirmUnsubscribe(
+  token: string,
+): Promise<DataResponse<UnsubscribeConfirmResponse>> {
+  const res = await fetch(`${BASE_URL}/v1/alerts/unsubscribe`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ token }),
+  });
+  if (!res.ok) {
+    let message = `API error: ${res.status}`;
+    try {
+      const data = await res.json();
+      if (data?.error?.message) message = data.error.message;
+    } catch {
+      // keep generic message
+    }
+    throw new Error(message);
+  }
+  return res.json() as Promise<DataResponse<UnsubscribeConfirmResponse>>;
 }
 
 export async function fetchAlertSubscriptions(
