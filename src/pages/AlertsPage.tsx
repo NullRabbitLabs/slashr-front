@@ -12,7 +12,7 @@ export default function AlertsPage() {
   });
 
   return (
-    <div style={{ maxWidth: 480, margin: '0 auto', padding: '32px 0' }}>
+    <div style={{ padding: '32px 0' }}>
       <h2
         style={{
           fontSize: 11,

@@ -456,21 +456,24 @@ export interface SubscribeAlertRequest {
 
 export interface SubscribeAlertResponse {
   message: string;
-  status: 'created' | 'resent' | 'already_verified';
+  subscription_id: string;
 }
 
 export interface VerifyAlertResponse {
-  subscription: {
-    target_address: string;
-    chain: NetworkSlug;
-    validator_name: string | null;
-  };
-  management_token: string;
+  status: 'verified' | 'already_verified';
+  message: string;
 }
 
-export interface UnsubscribeAlertResponse {
+export interface UnsubscribeInfoResponse {
+  subscription_id: string;
   target_address: string;
   chain: NetworkSlug;
+  target_type: 'validator' | 'wallet';
+}
+
+export interface UnsubscribeConfirmResponse {
+  status: 'unsubscribed';
+  message: string;
 }
 
 export interface AlertSubscription {

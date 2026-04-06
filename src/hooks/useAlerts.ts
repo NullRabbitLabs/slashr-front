@@ -3,14 +3,16 @@ import type {
   NetworkSlug,
   SubscribeAlertResponse,
   VerifyAlertResponse,
-  UnsubscribeAlertResponse,
+  UnsubscribeInfoResponse,
+  UnsubscribeConfirmResponse,
   ManageAlertsResponse,
   AlertSubscription,
 } from '@/types/api';
 import {
   subscribeAlert,
   verifyAlert,
-  unsubscribeAlert,
+  fetchUnsubscribeInfo,
+  confirmUnsubscribe,
   fetchAlertSubscriptions,
 } from '@/api/client';
 
@@ -76,8 +78,10 @@ export function useVerify(token: string | null) {
 }
 
 export function useUnsubscribe(token: string | null) {
-  const [data, setData] = useState<UnsubscribeAlertResponse | null>(null);
+  const [info, setInfo] = useState<UnsubscribeInfoResponse | null>(null);
+  const [confirmed, setConfirmed] = useState<UnsubscribeConfirmResponse | null>(null);
   const [loading, setLoading] = useState(false);
+  const [confirming, setConfirming] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -90,9 +94,9 @@ export function useUnsubscribe(token: string | null) {
     setLoading(true);
     setError(null);
 
-    unsubscribeAlert(token)
+    fetchUnsubscribeInfo(token)
       .then(res => {
-        if (!cancelled) setData(res.data);
+        if (!cancelled) setInfo(res.data);
       })
       .catch(err => {
         if (!cancelled) setError((err as Error).message);
@@ -104,7 +108,22 @@ export function useUnsubscribe(token: string | null) {
     return () => { cancelled = true; };
   }, [token]);
 
-  return { data, loading, error };
+  const confirm = useCallback(async () => {
+    if (!token) return;
+    setConfirming(true);
+    setError(null);
+
+    try {
+      const res = await confirmUnsubscribe(token);
+      setConfirmed(res.data);
+    } catch (err) {
+      setError((err as Error).message);
+    } finally {
+      setConfirming(false);
+    }
+  }, [token]);
+
+  return { info, confirmed, loading, confirming, error, confirm };
 }
 
 export function useManageSubscriptions(token: string | null) {
@@ -140,10 +159,7 @@ export function useManageSubscriptions(token: string | null) {
   const remove = useCallback(async (subscription: AlertSubscription) => {
     setRemovingId(subscription.id);
     try {
-      // The unsubscribe endpoint uses the subscription's unsubscribe_token,
-      // but from the manage page we call a delete endpoint with the subscription ID
-      // and the management token for auth.
-      await unsubscribeAlert(subscription.id);
+      await confirmUnsubscribe(subscription.id);
       setData(prev => {
         if (!prev) return prev;
         return {
