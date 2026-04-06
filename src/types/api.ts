@@ -109,6 +109,8 @@ export interface ValidatorEventItem {
   resolved_at: string | null;
   penalty_amount: number | null;
   penalty_token: string | null;
+  loss_per_hour_usd: number | null;
+  estimated_loss_usd: number | null;
 }
 
 export interface StatsResponse {

@@ -218,6 +218,8 @@ function buildMockValidator(network: NetworkSlug, address: string): ValidatorPro
       resolved_at: e.resolved_at,
       penalty_amount: e.penalty_amount,
       penalty_token: e.penalty_token,
+      loss_per_hour_usd: e.loss_per_hour_usd,
+      estimated_loss_usd: e.estimated_loss_usd,
     })),
   };
 }
