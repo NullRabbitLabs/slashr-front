@@ -7,7 +7,7 @@ import { getEventLabel } from '@/lib/constants';
 import { useIsMobile } from '@/hooks/useIsMobile';
 import { usePageMeta } from '@/hooks/usePageMeta';
 import { formatUtcTime } from '@/lib/time';
-import { truncateMiddle, formatStakeCompact, formatCompact } from '@/lib/format';
+import { truncateMiddle, formatStakeCompact, formatCompact, formatUsd } from '@/lib/format';
 import { NETWORK_META, EVENT_TYPE_DESCRIPTIONS } from '@/lib/constants';
 import { NetworkTag } from './NetworkTag';
 import { SeverityMark } from './SeverityMark';
@@ -787,6 +787,21 @@ export function ValidatorProfile() {
                         }}
                       >
                         ongoing
+                      </span>
+                    )}
+
+                    {ev.loss_per_hour_usd != null && (
+                      <span
+                        style={{
+                          fontSize: 10,
+                          fontFamily: "'JetBrains Mono', monospace",
+                          color: ev.estimated_loss_usd != null ? '#e8a735' : 'var(--color-text-tertiary)',
+                          flexShrink: 0,
+                        }}
+                      >
+                        {ev.estimated_loss_usd != null
+                          ? `${formatUsd(ev.estimated_loss_usd)} lost`
+                          : `${formatUsd(ev.loss_per_hour_usd)}/hr`}
                       </span>
                     )}
 
