@@ -119,18 +119,20 @@ export default function ValidatorsPage() {
   return (
     <>
       <div style={{ marginTop: 8 }}>
-        <div
-          style={{
-            fontSize: 11,
-            fontFamily: "'JetBrains Mono', monospace",
-            textTransform: 'uppercase',
-            letterSpacing: '0.08em',
-            color: 'var(--color-text-dim)',
-            marginBottom: 4,
-          }}
-        >
-          Validators
-        </div>
+        {!isMobile && (
+          <div
+            style={{
+              fontSize: 11,
+              fontFamily: "'JetBrains Mono', monospace",
+              textTransform: 'uppercase',
+              letterSpacing: '0.08em',
+              color: 'var(--color-text-dim)',
+              marginBottom: 4,
+            }}
+          >
+            Validators
+          </div>
+        )}
 
         <FeedFilter
           activeNetworks={activeNetworks}
