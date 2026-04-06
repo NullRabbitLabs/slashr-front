@@ -450,20 +450,6 @@ export function ValidatorProfile() {
             flexWrap: 'wrap',
           }}
         >
-          {!isNamed && (
-            <span
-              style={{
-                fontSize: 11,
-                color: 'var(--color-text-ghost)',
-                fontFamily: "'JetBrains Mono', monospace",
-                textTransform: 'uppercase',
-                letterSpacing: '0.06em',
-                marginRight: 8,
-              }}
-            >
-              unnamed validator
-            </span>
-          )}
           {keybaseAvatar && (
             <img
               src={keybaseAvatar}
@@ -653,6 +639,16 @@ export function ValidatorProfile() {
               </a>
             </div>
           )}
+          {chainData?.network === 'solana' && (() => {
+            const sd = chainData.chain_data as Record<string, unknown>;
+            if (sd.epoch_vote_account == null) return null;
+            return (
+              <div>
+                <div style={metaLabelStyle}>Vote Account</div>
+                <div style={metaValueStyle}>{sd.epoch_vote_account ? 'Active' : 'Inactive'}</div>
+              </div>
+            );
+          })()}
           {validator.in_scan_db && (
             <div>
               <div style={metaLabelStyle}>&nbsp;</div>
@@ -695,9 +691,6 @@ export function ValidatorProfile() {
         );
       })()}
 
-      {/* Chain-specific data sections */}
-      {chainData && <ChainDataSections chainData={chainData} isMobile={isMobile} />}
-
       {/* Total loss */}
       {totalLoss > 0 && (
         <div style={{ marginBottom: 24, paddingBottom: 24, borderBottom: '1px solid var(--color-border)' }}>
@@ -725,6 +718,9 @@ export function ValidatorProfile() {
           </div>
         </div>
       )}
+
+      {/* Chain-specific data sections */}
+      {chainData && <ChainDataSections chainData={chainData} isMobile={isMobile} />}
 
       {/* Event history header */}
       <div style={sectionHeadingStyle}>
