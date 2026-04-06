@@ -1,4 +1,4 @@
-import { useState, useCallback, useMemo } from 'react';
+import { useState, useCallback, useMemo, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import type { NetworkSlug } from '@/types/api';
 import { NETWORK_ORDER } from '@/lib/constants';
@@ -14,15 +14,27 @@ export default function FeedPage() {
     title: 'slashr \u2014 live validator incident feed',
     description: 'Real-time slashing, delinquency, and missed vote tracking across Solana, Ethereum, Sui, and Cosmos.',
   });
-  const [searchParams] = useSearchParams();
+  const [searchParams, setSearchParams] = useSearchParams();
 
   const initialCursor = searchParams.get('cursor');
 
   const [activeNetworks, setActiveNetworks] = useState<Set<NetworkSlug>>(
     () => new Set(NETWORK_ORDER),
   );
-  const [searchQuery, setSearchQuery] = useState('');
+  const [searchQuery, setSearchQuery] = useState(() => searchParams.get('q') ?? '');
   const debouncedSearch = useDebouncedValue(searchQuery, 300);
+
+  useEffect(() => {
+    setSearchParams(prev => {
+      const next = new URLSearchParams(prev);
+      if (debouncedSearch.length >= 2) {
+        next.set('q', debouncedSearch);
+      } else {
+        next.delete('q');
+      }
+      return next;
+    }, { replace: true });
+  }, [debouncedSearch, setSearchParams]);
 
   const handleToggleNetwork = useCallback((slug: NetworkSlug) => {
     setActiveNetworks(prev => {
