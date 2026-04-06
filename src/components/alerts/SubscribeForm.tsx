@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { detectNetwork, looksLikePrivateKey, validateWalletAddress } from '@/lib/addressValidation';
 import { NETWORK_META } from '@/lib/constants';
@@ -27,6 +27,13 @@ export default function SubscribeForm({ initialAddress = '' }: Props) {
   }, [address]);
 
   const isPrivateKey = useMemo(() => looksLikePrivateKey(address.trim()), [address]);
+
+  useEffect(() => {
+    if (success) {
+      setEmail('');
+      setAddress('');
+    }
+  }, [success]);
 
   const handleSubmit = () => {
     setEmailError(null);
@@ -65,6 +72,53 @@ export default function SubscribeForm({ initialAddress = '' }: Props) {
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+      {/* Success */}
+      {success && (
+        <div
+          style={{
+            padding: '12px 14px',
+            background: 'rgba(20, 241, 149, 0.06)',
+            border: '1px solid rgba(20, 241, 149, 0.15)',
+            borderRadius: 4,
+            fontSize: 13,
+            fontFamily: "'Inter', sans-serif",
+            color: 'var(--color-text-primary)',
+            lineHeight: 1.5,
+          }}
+        >
+          {success.message}
+        </div>
+      )}
+
+      {/* Error */}
+      {error && (
+        <div
+          style={{
+            padding: '12px 14px',
+            background: 'rgba(255, 69, 69, 0.06)',
+            border: '1px solid rgba(255, 69, 69, 0.15)',
+            borderRadius: 4,
+            fontSize: 13,
+            fontFamily: "'Inter', sans-serif",
+            color: 'var(--color-danger)',
+            lineHeight: 1.5,
+          }}
+        >
+          {error}
+          {error.toLowerCase().includes('maximum') && (
+            <>
+              {' '}
+              <Link
+                to="/alerts/manage"
+                style={{ color: 'var(--color-danger)', textDecoration: 'underline' }}
+              >
+                Manage your alerts
+              </Link>
+            </>
+          )}
+        </div>
+      )}
+
       {/* Email */}
       <div>
         <label
@@ -200,53 +254,6 @@ export default function SubscribeForm({ initialAddress = '' }: Props) {
       >
         {loading ? 'Subscribing...' : 'Get alerts'}
       </button>
-
-      {/* Success */}
-      {success && (
-        <div
-          style={{
-            padding: '12px 14px',
-            background: 'rgba(20, 241, 149, 0.06)',
-            border: '1px solid rgba(20, 241, 149, 0.15)',
-            borderRadius: 4,
-            fontSize: 13,
-            fontFamily: "'Inter', sans-serif",
-            color: 'var(--color-text-primary)',
-            lineHeight: 1.5,
-          }}
-        >
-          {success.message}
-        </div>
-      )}
-
-      {/* Error */}
-      {error && (
-        <div
-          style={{
-            padding: '12px 14px',
-            background: 'rgba(255, 69, 69, 0.06)',
-            border: '1px solid rgba(255, 69, 69, 0.15)',
-            borderRadius: 4,
-            fontSize: 13,
-            fontFamily: "'Inter', sans-serif",
-            color: 'var(--color-danger)',
-            lineHeight: 1.5,
-          }}
-        >
-          {error}
-          {error.toLowerCase().includes('maximum') && (
-            <>
-              {' '}
-              <Link
-                to="/alerts/manage"
-                style={{ color: 'var(--color-danger)', textDecoration: 'underline' }}
-              >
-                Manage your alerts
-              </Link>
-            </>
-          )}
-        </div>
-      )}
     </div>
   );
 }
