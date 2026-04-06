@@ -192,6 +192,19 @@ export function ValidatorProfile() {
     [enrichedEvents],
   );
 
+  const totalLoss = useMemo(() => {
+    let sum = 0;
+    for (const e of enrichedEvents) {
+      if (e.estimated_loss_usd != null) {
+        sum += e.estimated_loss_usd;
+      } else if (e.loss_per_hour_usd != null && e.resolved_at == null) {
+        const hours = (Date.now() - new Date(e.started_at).getTime()) / 3_600_000;
+        sum += e.loss_per_hour_usd * hours;
+      }
+    }
+    return sum;
+  }, [enrichedEvents]);
+
   useEffect(() => {
     if (!validator) return;
 
@@ -684,6 +697,34 @@ export function ValidatorProfile() {
 
       {/* Chain-specific data sections */}
       {chainData && <ChainDataSections chainData={chainData} isMobile={isMobile} />}
+
+      {/* Total loss */}
+      {totalLoss > 0 && (
+        <div style={{ marginBottom: 24, paddingBottom: 24, borderBottom: '1px solid var(--color-border)' }}>
+          <div style={sectionHeadingStyle}>estimated losses</div>
+          <div
+            style={{
+              fontSize: 22,
+              fontWeight: 600,
+              fontFamily: "'JetBrains Mono', monospace",
+              color: '#e8a735',
+              marginTop: 8,
+            }}
+          >
+            {formatUsd(totalLoss)}
+          </div>
+          <div
+            style={{
+              fontSize: 11,
+              color: 'var(--color-text-tertiary)',
+              fontFamily: "'JetBrains Mono', monospace",
+              marginTop: 4,
+            }}
+          >
+            across {enrichedEvents.filter(e => e.estimated_loss_usd != null || e.loss_per_hour_usd != null).length} incidents
+          </div>
+        </div>
+      )}
 
       {/* Event history header */}
       <div style={sectionHeadingStyle}>
