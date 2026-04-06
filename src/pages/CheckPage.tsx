@@ -13,6 +13,7 @@ import { LoadingSequence } from '@/components/health/LoadingSequence';
 import { MethodologyNote } from '@/components/health/MethodologyNote';
 import { HealthCardPng } from '@/components/health/HealthCardPng';
 import { CheckCleanCTA } from '@/components/CheckCleanCTA';
+import AlertsCTA from '@/components/alerts/AlertsCTA';
 
 const EXAMPLE_ADDRESSES = [
   'e.g. 9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM',
@@ -326,6 +327,8 @@ export default function CheckPage() {
               </div>
 
               <MethodologyNote />
+
+              <AlertsCTA address={data.address} text="Want to know when your validators go down?" />
             </>
           )}
 
