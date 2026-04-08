@@ -204,6 +204,8 @@ function buildMockValidator(network: NetworkSlug, address: string): ValidatorPro
     has_contact: true,
     in_scan_db: false,
     skip_rate: network === 'solana' ? 0.023 : null,
+    previous_node_ip: null,
+    node_ip_changed_at: null,
     delinquency_frequency: network === 'solana' ? {
       count: 3,
       period_days: 10,

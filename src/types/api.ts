@@ -92,6 +92,8 @@ export interface ValidatorProfile {
   has_contact: boolean;
   in_scan_db: boolean;
   skip_rate: number | null;
+  previous_node_ip: string | null;
+  node_ip_changed_at: string | null;
   delinquency_frequency: {
     count: number;
     period_days: number;

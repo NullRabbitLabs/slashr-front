@@ -953,6 +953,32 @@ export function ValidatorProfile() {
                 <div style={metaValueStyle}>{validator.node_ip}</div>
               </div>
             )}
+            {validator.node_ip_changed_at && validator.previous_node_ip && (() => {
+              const changedAt = new Date(validator.node_ip_changed_at);
+              const daysAgo = Math.floor((Date.now() - changedAt.getTime()) / 86400000);
+              const isRecent = daysAgo <= 7;
+              return (
+                <div style={{ gridColumn: isMobile ? 'span 2' : undefined }}>
+                  <div style={metaLabelStyle}>
+                    IP changed
+                    {isRecent && (
+                      <span style={{
+                        marginLeft: 6,
+                        fontSize: 10,
+                        fontFamily: 'var(--font-mono)',
+                        color: '#e8a735',
+                        textTransform: 'uppercase',
+                      }}>
+                        recent
+                      </span>
+                    )}
+                  </div>
+                  <div style={{ ...metaValueStyle, color: isRecent ? '#e8a735' : 'var(--color-text-dim)' }}>
+                    from {validator.previous_node_ip} · {daysAgo === 0 ? 'today' : `${daysAgo}d ago`}
+                  </div>
+                </div>
+              );
+            })()}
             {validator.hosting_provider && (
               <div>
                 <div style={metaLabelStyle}>Hosting</div>
