@@ -48,10 +48,14 @@ async function fetchAllValidators(env: Env): Promise<Validator[]> {
   const headers = apiHeaders(env);
 
   for (let i = 0; i < 100; i++) {
-    const params = new URLSearchParams({ per_page: '500' });
+    const params = new URLSearchParams();
     if (cursor) params.set('cursor', cursor);
-    const res = await fetch(`${env.API_ORIGIN}/v1/validators?${params}`, { headers });
-    if (!res.ok) break;
+    const url = `${env.API_ORIGIN}/v1/validators?${params}`;
+    const res = await fetch(url, { headers });
+    if (!res.ok) {
+      console.error(`sitemap: validators fetch failed: ${res.status} ${res.statusText} (${url})`);
+      break;
+    }
     const json = (await res.json()) as {
       data: Validator[];
       pagination?: { has_more: boolean; next_cursor: string | null };
@@ -69,8 +73,12 @@ async function fetchAllReports(env: Env): Promise<ReportProvider[]> {
 
   for (let page = 1; page <= 50; page++) {
     const params = new URLSearchParams({ per_page: '200', page: String(page) });
-    const res = await fetch(`${env.API_ORIGIN}/v1/reports?${params}`, { headers });
-    if (!res.ok) break;
+    const url = `${env.API_ORIGIN}/v1/reports?${params}`;
+    const res = await fetch(url, { headers });
+    if (!res.ok) {
+      console.error(`sitemap: reports fetch failed: ${res.status} ${res.statusText} (${url})`);
+      break;
+    }
     const json = (await res.json()) as { data: ReportProvider[]; total?: number };
     all.push(...json.data);
     if (!json.total || all.length >= json.total) break;
@@ -135,9 +143,10 @@ export const onRequest: PagesFunction<Env> = async (context) => {
       fetchAllValidators(env),
       fetchAllReports(env),
     ]);
+    console.log(`sitemap: ${validators.length} validators, ${reports.length} reports`);
     xml = buildSitemap(validators, reports);
   } catch (err) {
-    console.error('sitemap generation failed, serving static-only:', err);
+    console.error('sitemap generation failed, serving static-only:', String(err));
     xml = staticOnlySitemap();
   }
 
