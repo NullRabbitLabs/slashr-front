@@ -134,6 +134,50 @@ export interface StatsCounts {
 }
 
 
+// --- Insights ---
+
+export interface HourBucket {
+  hour: number;
+  event_count: number;
+}
+
+export interface DowBucket {
+  dow: number;
+  event_count: number;
+}
+
+export interface InsightsResponse {
+  period_days: number;
+  total_events: number;
+  total_loss_usd: number;
+  unique_validators: number;
+  daily: DailyInsight[];
+  by_hour: HourBucket[];
+  by_dow: DowBucket[];
+  top_offenders: InsightOffender[];
+}
+
+export interface DailyInsight {
+  date: string;
+  event_count: number;
+  loss_usd: number;
+  by_network: NetworkDailyCount[];
+}
+
+export interface NetworkDailyCount {
+  slug: NetworkSlug;
+  event_count: number;
+  loss_usd: number;
+}
+
+export interface InsightOffender {
+  network: NetworkSlug;
+  address: string;
+  moniker: string | null;
+  event_count: number;
+  total_loss_usd: number;
+}
+
 export interface EventGroup {
   event: EventListItem;
   count: number;

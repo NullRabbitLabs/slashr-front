@@ -2,6 +2,7 @@ import type {
   EventListItem,
   NetworkInfo,
   StatsResponse,
+  InsightsResponse,
   ValidatorProfile,
   LeaderboardResponse,
   LeaderboardPeriod,
@@ -61,6 +62,12 @@ export async function fetchStats(): Promise<DataResponse<StatsResponse>> {
   return res.json() as Promise<DataResponse<StatsResponse>>;
 }
 
+
+export async function fetchInsights(): Promise<DataResponse<InsightsResponse>> {
+  const res = await fetch(`${BASE_URL}/v1/insights`);
+  if (!res.ok) throw new Error(`API error: ${res.status}`);
+  return res.json() as Promise<DataResponse<InsightsResponse>>;
+}
 
 export async function fetchValidator(
   network: string,

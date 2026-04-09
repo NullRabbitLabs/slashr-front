@@ -96,8 +96,16 @@ export function Footer({ onOpenWaitlist }: FooterProps) {
             onMouseEnter={hoverIn}
             onMouseLeave={hoverOut}
           >
-            Stay in the loop
+            Contact
           </button>
+          <Link
+            to="/insights"
+            style={linkStyle}
+            onMouseEnter={hoverIn}
+            onMouseLeave={hoverOut}
+          >
+            Insights
+          </Link>
           <Link
             to="/developers"
             style={linkStyle}
