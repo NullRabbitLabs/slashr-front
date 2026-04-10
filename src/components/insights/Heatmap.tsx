@@ -95,23 +95,39 @@ export function Heatmap({ daily }: HeatmapProps) {
     return <div ref={containerRef} style={{ width: '100%', minHeight: 40 }} />;
   }
 
-  // Compute cell size from container width
+  // Compute cell size — min 10px so labels stay readable, scroll if needed
   const availW = containerW - LABEL_W;
-  const step = Math.floor(availW / WEEKS);
-  const cell = Math.max(6, step - Math.max(1, Math.round(step * 0.15)));
+  const rawStep = Math.floor(availW / WEEKS);
+  const step = Math.max(12, rawStep); // min 12px step ensures readable cells
+  const cell = Math.max(8, step - Math.max(1, Math.round(step * 0.15)));
+  const needsScroll = step > rawStep; // true when cells don't fit
 
   const svgW = LABEL_W + WEEKS * step;
   const svgH = MONTH_LABEL_H + 7 * step;
 
+  // Filter month labels to avoid overlap — need at least 4 weeks between labels
+  const minWeekGap = Math.max(4, Math.ceil(40 / step));
+  const filteredMonths = months.filter((m, i) => {
+    if (i === 0) return true;
+    return m.week - months[i - 1]!.week >= minWeekGap;
+  });
+
   return (
     <div ref={containerRef} style={{ position: 'relative', width: '100%' }}>
+      <div
+        style={{
+          overflowX: needsScroll ? 'auto' : 'hidden',
+          scrollbarWidth: 'none',
+          WebkitOverflowScrolling: 'touch',
+        }}
+      >
       <svg
         width={svgW}
         height={svgH}
         style={{ display: 'block' }}
       >
         {/* Month labels */}
-        {months.map((m, i) => (
+        {filteredMonths.map((m, i) => (
           <text
             key={i}
             x={LABEL_W + m.week * step}
@@ -182,6 +198,7 @@ export function Heatmap({ daily }: HeatmapProps) {
           );
         })}
       </svg>
+      </div>
 
       {/* Footer: disclaimer left, legend right */}
       <div

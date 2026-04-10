@@ -26,7 +26,7 @@ const SECTION_HEADING: React.CSSProperties = {
 
 const STAT_BOX: React.CSSProperties = {
   border: '1px solid rgba(255,255,255,0.06)',
-  padding: '14px 16px',
+  padding: '10px 12px',
   fontFamily: "'JetBrains Mono', monospace",
 };
 
@@ -87,7 +87,7 @@ export default function InsightsPage() {
   return (
     <div style={{ maxWidth: 860, margin: '0 auto', padding: isMobile ? '0 12px' : '0' }}>
       {/* Title */}
-      <div style={{ marginBottom: 28 }}>
+      <div style={{ marginBottom: isMobile ? 16 : 28 }}>
         <h1 style={{
           fontFamily: "'Space Grotesk', sans-serif",
           fontWeight: 700,
@@ -115,8 +115,8 @@ export default function InsightsPage() {
         style={{
           display: 'grid',
           gridTemplateColumns: isMobile ? 'repeat(2, 1fr)' : 'repeat(4, 1fr)',
-          gap: isMobile ? 8 : 12,
-          marginBottom: 36,
+          gap: isMobile ? 6 : 12,
+          marginBottom: isMobile ? 20 : 36,
         }}
       >
         <div style={STAT_BOX}>
@@ -154,7 +154,7 @@ export default function InsightsPage() {
       </div>
 
       {/* Activity section — heatmap full width */}
-      <div style={{ marginBottom: 32 }}>
+      <div style={{ marginBottom: isMobile ? 20 : 32 }}>
         <div style={SECTION_HEADING}>
           <span style={{ color: '#FF4545', fontSize: 6 }}>{'\u25A0'}</span>
           Penalty Activity
@@ -167,8 +167,8 @@ export default function InsightsPage() {
         style={{
           display: 'grid',
           gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr',
-          gap: isMobile ? 24 : 24,
-          marginBottom: 40,
+          gap: isMobile ? 16 : 24,
+          marginBottom: isMobile ? 20 : 40,
         }}
       >
         <div>
@@ -189,7 +189,7 @@ export default function InsightsPage() {
       </div>
 
       {/* Loss chart */}
-      <div style={{ marginBottom: 40 }}>
+      <div style={{ marginBottom: isMobile ? 20 : 40 }}>
         <div style={{ ...SECTION_HEADING, justifyContent: 'space-between' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
             <span style={{ color: '#FF4545', fontSize: 6 }}>{'\u25A0'}</span>
@@ -208,7 +208,7 @@ export default function InsightsPage() {
       </div>
 
       {/* Network breakdown */}
-      <div style={{ marginBottom: 40 }}>
+      <div style={{ marginBottom: isMobile ? 20 : 40 }}>
         <div style={SECTION_HEADING}>
           <span style={{ color: '#FF4545', fontSize: 6 }}>{'\u25A0'}</span>
           By Network
@@ -217,7 +217,7 @@ export default function InsightsPage() {
       </div>
 
       {/* Top offenders */}
-      <div style={{ marginBottom: 60 }}>
+      <div style={{ marginBottom: isMobile ? 24 : 60 }}>
         <div style={SECTION_HEADING}>
           <span style={{ color: '#FF4545', fontSize: 6 }}>{'\u25A0'}</span>
           Worst Offenders
