@@ -112,9 +112,19 @@ export function Heatmap({ daily }: HeatmapProps) {
     return m.week - months[i - 1]!.week >= minWeekGap;
   });
 
+  const scrollRef = useRef<HTMLDivElement>(null);
+
+  // Auto-scroll to the right (most recent data) on mount
+  useEffect(() => {
+    if (needsScroll && scrollRef.current) {
+      scrollRef.current.scrollLeft = scrollRef.current.scrollWidth;
+    }
+  }, [needsScroll, svgW]);
+
   return (
     <div ref={containerRef} style={{ position: 'relative', width: '100%' }}>
       <div
+        ref={scrollRef}
         style={{
           overflowX: needsScroll ? 'auto' : 'hidden',
           scrollbarWidth: 'none',
