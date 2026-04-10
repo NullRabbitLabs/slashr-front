@@ -28,6 +28,7 @@ function getMonday(d: Date): Date {
 
 export function Heatmap({ daily }: HeatmapProps) {
   const containerRef = useRef<HTMLDivElement>(null);
+  const scrollRef = useRef<HTMLDivElement>(null);
   const [containerW, setContainerW] = useState(0);
   const [hovered, setHovered] = useState<{ date: string; count: number; loss: number; x: number; y: number } | null>(null);
 
@@ -91,35 +92,34 @@ export function Heatmap({ daily }: HeatmapProps) {
     return { grid: cells, months: monthLabels, max: maxCount, dataStartDate: firstDataDate };
   }, [daily]);
 
-  if (grid.length === 0 || containerW === 0) {
-    return <div ref={containerRef} style={{ width: '100%', minHeight: 40 }} />;
-  }
-
-  // Compute cell size — min 10px so labels stay readable, scroll if needed
-  const availW = containerW - LABEL_W;
-  const rawStep = Math.floor(availW / WEEKS);
-  const step = Math.max(12, rawStep); // min 12px step ensures readable cells
+  // Compute cell size — min 12px step so labels stay readable, scroll if needed
+  const availW = containerW > 0 ? containerW - LABEL_W : 0;
+  const rawStep = availW > 0 ? Math.floor(availW / WEEKS) : 0;
+  const step = Math.max(12, rawStep);
   const cell = Math.max(8, step - Math.max(1, Math.round(step * 0.15)));
-  const needsScroll = step > rawStep; // true when cells don't fit
+  const needsScroll = rawStep > 0 && step > rawStep;
 
   const svgW = LABEL_W + WEEKS * step;
   const svgH = MONTH_LABEL_H + 7 * step;
 
-  // Filter month labels to avoid overlap — need at least 4 weeks between labels
-  const minWeekGap = Math.max(4, Math.ceil(40 / step));
+  // Filter month labels to avoid overlap
+  const minWeekGap = step > 0 ? Math.max(4, Math.ceil(40 / step)) : 4;
   const filteredMonths = months.filter((m, i) => {
     if (i === 0) return true;
     return m.week - months[i - 1]!.week >= minWeekGap;
   });
 
-  const scrollRef = useRef<HTMLDivElement>(null);
-
-  // Auto-scroll to the right (most recent data) on mount
+  // Auto-scroll to the right (most recent data) when first rendered
   useEffect(() => {
     if (needsScroll && scrollRef.current) {
       scrollRef.current.scrollLeft = scrollRef.current.scrollWidth;
     }
-  }, [needsScroll, svgW]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [needsScroll]);
+
+  if (grid.length === 0 || containerW === 0) {
+    return <div ref={containerRef} style={{ width: '100%', minHeight: 40 }} />;
+  }
 
   return (
     <div ref={containerRef} style={{ position: 'relative', width: '100%' }}>
