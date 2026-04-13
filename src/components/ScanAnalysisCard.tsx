@@ -27,6 +27,8 @@ export default function ScanAnalysisCard({ scan }: ScanAnalysisCardProps) {
   const statusColor = STATUS_COLORS[healthStatus] || 'rgba(255,255,255,0.4)';
 
   const ports = (health?.ports as ScanHealthPort[]) || [];
+  const scanData = analysis.scan as { open_ports?: Array<{ port: number; state: string; service: string; version: string }> } | undefined;
+  const openPorts = (scanData?.open_ports ?? []).filter(p => p.state === 'open_confirmed' && p.service);
   const pattern = analysis.pattern as { total_events?: number; span_days?: number; events_per_day?: number } | undefined;
   const cves = analysis.cves as { total?: number; critical?: number } | undefined;
 
@@ -147,6 +149,34 @@ export default function ScanAnalysisCard({ scan }: ScanAnalysisCardProps) {
                     ? port.latency_ms ? `${port.latency_ms}ms` : 'open'
                     : 'down'}
                 </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Discovered services */}
+      {openPorts.length > 0 && (
+        <div style={{ marginBottom: 12 }}>
+          <div style={{
+            fontFamily: 'Inter, sans-serif',
+            fontSize: 11,
+            color: 'var(--color-text-secondary)',
+            marginBottom: 6,
+          }}>
+            Open services
+          </div>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+            {openPorts.map((p) => (
+              <div key={`${p.port}-${p.service}`} style={{
+                fontFamily: 'JetBrains Mono, monospace',
+                fontSize: 11,
+                color: 'var(--color-text-secondary)',
+                display: 'flex',
+                gap: 8,
+              }}>
+                <span style={{ color: '#FF4545', minWidth: 42 }}>:{p.port}</span>
+                <span>{p.service}{p.version ? ` ${p.version}` : ''}</span>
               </div>
             ))}
           </div>
