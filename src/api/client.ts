@@ -80,6 +80,15 @@ export async function fetchValidator(
   return res.json() as Promise<DataResponse<ValidatorProfile>>;
 }
 
+export async function resolveShortCode(
+  code: string,
+): Promise<{ network: string; address: string } | null> {
+  const res = await fetch(`${BASE_URL}/v1/validators/short/${encodeURIComponent(code)}`);
+  if (!res.ok) return null;
+  const json = (await res.json()) as DataResponse<{ network: string; address: string }>;
+  return json.data;
+}
+
 export async function fetchChainData(
   network: string,
   address: string,

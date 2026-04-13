@@ -252,6 +252,31 @@ export const onRequest: PagesFunction<Env> = async (context) => {
 
   // Fetch data for dynamic pages
   let validator: ValidatorData | null = null;
+  let resolvedPathname = pathname;
+
+  // Resolve short validator URLs (/v/:code) via the API
+  const shortMatch = pathname.match(/^\/v\/([a-zA-Z0-9]{3,6})\/?$/);
+  if (shortMatch) {
+    try {
+      const shortUrl = `${context.env.API_ORIGIN}/v1/validators/short/${shortMatch[1]}`;
+      const shortRes = await fetch(shortUrl, {
+        headers: {
+          'CF-Access-Client-Id': context.env.CF_ACCESS_CLIENT_ID,
+          'CF-Access-Client-Secret': context.env.CF_ACCESS_CLIENT_SECRET,
+          Accept: 'application/json',
+        },
+      });
+      if (shortRes.ok) {
+        const shortJson = (await shortRes.json()) as { data: { network: string; address: string } };
+        const { network, address } = shortJson.data;
+        resolvedPathname = `/validator/${network}/${address}`;
+        validator = await fetchValidatorData(context.env, network, address);
+      }
+    } catch {
+      // fall through — bot gets generic meta
+    }
+  }
+
   const validatorMatch = pathname.match(/^\/validator\/([^/]+)\/([^/]+)\/?$/);
   if (validatorMatch) {
     validator = await fetchValidatorData(
@@ -267,8 +292,8 @@ export const onRequest: PagesFunction<Env> = async (context) => {
     report = await fetchReportData(context.env, reportMatch[1]!);
   }
 
-  // Generate and inject meta tags
-  const meta = getHeadMeta(pathname, validator, report);
+  // Generate and inject meta tags (use resolved pathname for short URLs)
+  const meta = getHeadMeta(resolvedPathname, validator, report);
   const enrichedHtml = injectMeta(html, meta);
 
   return new Response(enrichedHtml, {

@@ -14,6 +14,7 @@ import AlertsVerifyPage from '@/pages/AlertsVerifyPage';
 import AlertsUnsubscribePage from '@/pages/AlertsUnsubscribePage';
 import AlertsManagePage from '@/pages/AlertsManagePage';
 import InsightsPage from '@/pages/InsightsPage';
+import ShortRedirect from '@/pages/ShortRedirect';
 
 function AppRoutes() {
   const { stats } = useStats();
@@ -27,6 +28,7 @@ function AppRoutes() {
         <Route path="/leaderboard" element={<Navigate to="/rankings" replace />} />
         <Route path="/check" element={<CheckPage />} />
         <Route path="/developers" element={<DevelopersPage />} />
+        <Route path="/v/:code" element={<ShortRedirect />} />
         <Route path="/validator/:network/:address" element={<ValidatorPage />} />
         <Route path="/reports" element={<ReportsPage />} />
         <Route path="/reports/:providerSlug" element={<ReportDetailPage />} />
