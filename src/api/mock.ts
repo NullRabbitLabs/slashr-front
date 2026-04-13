@@ -188,6 +188,7 @@ function buildMockValidator(network: NetworkSlug, address: string): ValidatorPro
   const first = events[events.length - 1];
   const last = events[0];
   return {
+    short_code: '00000',
     address,
     moniker: first?.validator_moniker ?? null,
     network,

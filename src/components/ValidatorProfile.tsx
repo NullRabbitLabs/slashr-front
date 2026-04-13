@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useMemo } from 'react';
+import React, { useState, useEffect, useRef, useMemo, useCallback } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import type { EventListItem, ValidatorEventItem, NetworkSlug } from '@/types/api';
 import { useValidator } from '@/hooks/useValidator';
@@ -91,6 +91,35 @@ const metaValueStyle: React.CSSProperties = {
   color: 'var(--color-text-value)',
   fontFamily: "'JetBrains Mono', monospace",
 };
+
+function ShareButton({ shortCode }: { shortCode: string }) {
+  const [copied, setCopied] = useState(false);
+
+  const handleClick = useCallback(() => {
+    const url = `https://slashr.dev/v/${shortCode}`;
+    navigator.clipboard.writeText(url).then(() => {
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    });
+  }, [shortCode]);
+
+  return (
+    <button
+      onClick={handleClick}
+      style={{
+        fontSize: 12,
+        fontFamily: "'JetBrains Mono', monospace",
+        color: copied ? 'var(--color-text-primary)' : 'var(--color-text-tertiary)',
+        background: 'none',
+        border: 'none',
+        cursor: 'pointer',
+        padding: 0,
+      }}
+    >
+      {copied ? 'copied!' : 'share'}
+    </button>
+  );
+}
 
 // --- Title group types ---
 
@@ -510,6 +539,7 @@ export function ValidatorProfile() {
           >
             Get alerts →
           </Link>
+          <ShareButton shortCode={validator.short_code} />
           {(() => {
             const net = NETWORK_META[validator.network]?.name ?? network;
             const total = validator.events.length;

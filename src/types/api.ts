@@ -76,6 +76,7 @@ export interface EventDetail extends EventListItem {
 }
 
 export interface ValidatorProfile {
+  short_code: string;
   address: string;
   moniker: string | null;
   network: NetworkSlug;
