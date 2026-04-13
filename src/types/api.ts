@@ -70,6 +70,7 @@ export interface EventListItem {
   loss_per_hour_usd: number | null;
   estimated_loss_usd: number | null;
   has_scan?: boolean;
+  scan?: InlineScanAnalysis | null;
 }
 
 export interface EventDetail extends EventListItem {
@@ -116,6 +117,18 @@ export interface ValidatorEventItem {
   loss_per_hour_usd: number | null;
   estimated_loss_usd: number | null;
   has_scan?: boolean;
+  scan?: InlineScanAnalysis | null;
+}
+
+export interface InlineScanAnalysis {
+  analysis: Record<string, unknown>;
+  reply: {
+    status: string;
+    tweet_id: string | null;
+    text: string | null;
+    replied_at: string | null;
+  };
+  received_at: string;
 }
 
 export interface StatsResponse {

@@ -12,7 +12,6 @@ import type {
   ChainDataResponse,
   DelegationResponse,
   HealthCheckResponse,
-  ScanAnalysisDetail,
   PaginatedResponse,
   DataResponse,
   NetworkSlug,
@@ -188,17 +187,6 @@ export async function fetchHealthCheck(
     throw new Error(message);
   }
   return res.json() as Promise<DataResponse<HealthCheckResponse>>;
-}
-
-export async function fetchScanAnalysis(eventUuid: string): Promise<ScanAnalysisDetail | null> {
-  if (USE_MOCK) return null;
-
-  const res = await fetch(`${BASE_URL}/v1/events/${encodeURIComponent(eventUuid)}/scan-analysis`);
-  if (res.status === 404) return null;
-  if (!res.ok) return null;
-
-  const json = await res.json() as DataResponse<ScanAnalysisDetail>;
-  return json.data;
 }
 
 // --- Self-serve API key generation (MCP server) ---
