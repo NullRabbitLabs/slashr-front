@@ -10,11 +10,12 @@ const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 interface Props {
   initialAddress?: string;
+  initialEmail?: string;
 }
 
-export default function SubscribeForm({ initialAddress = '' }: Props) {
+export default function SubscribeForm({ initialAddress = '', initialEmail = '' }: Props) {
   const isMobile = useIsMobile();
-  const [email, setEmail] = useState('');
+  const [email, setEmail] = useState(initialEmail);
   const [address, setAddress] = useState(initialAddress);
   const [emailError, setEmailError] = useState<string | null>(null);
   const [addressError, setAddressError] = useState<string | null>(null);
