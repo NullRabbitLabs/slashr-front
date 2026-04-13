@@ -107,16 +107,19 @@ function ShareButton({ shortCode }: { shortCode: string }) {
     <button
       onClick={handleClick}
       style={{
-        fontSize: 12,
+        fontSize: 11,
         fontFamily: "'JetBrains Mono', monospace",
-        color: copied ? 'var(--color-text-primary)' : 'var(--color-text-tertiary)',
-        background: 'none',
-        border: 'none',
+        color: copied ? '#14f195' : 'var(--color-text-tertiary)',
+        background: copied ? 'rgba(20, 241, 149, 0.08)' : 'transparent',
+        border: `1px solid ${copied ? 'rgba(20, 241, 149, 0.3)' : 'var(--color-border)'}`,
+        borderRadius: 4,
         cursor: 'pointer',
-        padding: 0,
+        padding: '3px 8px',
+        transition: 'all 0.15s ease',
+        letterSpacing: '0.04em',
       }}
     >
-      {copied ? 'copied!' : 'share'}
+      {copied ? 'copied!' : 'share link'}
     </button>
   );
 }
