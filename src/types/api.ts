@@ -69,6 +69,7 @@ export interface EventListItem {
   in_scan_db: boolean;
   loss_per_hour_usd: number | null;
   estimated_loss_usd: number | null;
+  has_scan?: boolean;
 }
 
 export interface EventDetail extends EventListItem {
@@ -114,6 +115,7 @@ export interface ValidatorEventItem {
   penalty_token: string | null;
   loss_per_hour_usd: number | null;
   estimated_loss_usd: number | null;
+  has_scan?: boolean;
 }
 
 export interface StatsResponse {

@@ -886,7 +886,7 @@ export function ValidatorProfile() {
                       {tg.title}
                     </span>
                   </div>
-                  {tgi === 0 && ev === visibleEvents[0] && (
+                  {ev.has_scan && (
                     <ScanAnalysisCard eventUuid={String(ev.id)} />
                   )}
                   </React.Fragment>
