@@ -232,11 +232,18 @@ function injectMeta(html: string, meta: HeadMeta): string {
   // Inject dynamic OG image for validator pages
   if (meta.image) {
     const img = escapeHtml(meta.image);
-    // Add og:image after og:url
-    result = result.replace(
-      /(<meta\s+property="og:url"\s+content="[^"]*"\s*\/?>)/,
-      `$1\n    <meta property="og:image" content="${img}" />`,
-    );
+    // Replace existing og:image if present, otherwise add after og:url
+    if (/<meta\s+property="og:image"/.test(result)) {
+      result = result.replace(
+        /<meta\s+property="og:image"\s+content="[^"]*"\s*\/?>/,
+        `<meta property="og:image" content="${img}" />`,
+      );
+    } else {
+      result = result.replace(
+        /(<meta\s+property="og:url"\s+content="[^"]*"\s*\/?>)/,
+        `$1\n    <meta property="og:image" content="${img}" />`,
+      );
+    }
     // Add twitter:image after twitter:description
     result = result.replace(
       /(<meta\s+name="twitter:description"\s+content="[^"]*"\s*\/?>)/,
