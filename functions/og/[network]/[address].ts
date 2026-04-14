@@ -1,7 +1,6 @@
 // @ts-nocheck — satori virtual DOM types don't match React.ReactNode; CF Pages types not in tsconfig
 import satori from 'satori';
 import { Resvg, initWasm } from '@resvg/resvg-wasm';
-import resvgWasm from '@resvg/resvg-wasm/index_bg.wasm';
 
 interface Env {
   API_ORIGIN: string;
@@ -292,7 +291,8 @@ export const onRequest: PagesFunction<Env> = async (context) => {
 
   // Convert SVG to PNG
   if (!wasmInitialized) {
-    await initWasm(resvgWasm);
+    const wasmBuf = await fetch(`${origin}/fonts/resvg.wasm`).then(r => r.arrayBuffer());
+    await initWasm(wasmBuf);
     wasmInitialized = true;
   }
   const resvg = new Resvg(svg, {
