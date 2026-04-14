@@ -46,7 +46,6 @@ export const onRequest: PagesFunction<Env> = async (context) => {
   let stake: number | null = null;
   let stakeToken: string | null = null;
 
-  let apiDebug = '';
   try {
     const url = `${context.env.API_ORIGIN}/v1/validators/${encodeURIComponent(network)}/${encodeURIComponent(address)}`;
     const res = await fetch(url, {
@@ -56,7 +55,6 @@ export const onRequest: PagesFunction<Env> = async (context) => {
         Accept: 'application/json',
       },
     });
-    apiDebug = `status=${res.status} origin=${context.env.API_ORIGIN ? 'set' : 'UNSET'}`;
     if (res.ok) {
       const json = (await res.json()) as {
         data: {
@@ -75,19 +73,6 @@ export const onRequest: PagesFunction<Env> = async (context) => {
     apiDebug = `error=${String(e)}`;
   }
 
-  // Temporary: return debug info if ?debug=1
-  if (new URL(context.request.url).searchParams.has('debug')) {
-    return new Response(JSON.stringify({
-      apiDebug,
-      moniker,
-      eventCount,
-      stake,
-      stakeToken,
-      envKeys: Object.keys(context.env),
-    }), {
-      headers: { 'Content-Type': 'application/json' },
-    });
-  }
 
   const displayName = moniker || truncateAddress(address);
   const stakeStr = formatStake(stake, stakeToken);
