@@ -97,6 +97,7 @@ interface HeadMeta {
   title: string;
   description: string;
   url: string;
+  image?: string;
 }
 
 function getHeadMeta(
@@ -118,6 +119,7 @@ function getHeadMeta(
       title: `${name} \u00b7 ${networkName} \u00b7 slashr`,
       description: `${count} incident${count === 1 ? '' : 's'} recorded on slashr.`,
       url: `${base}${pathname}`,
+      image: `${base}/og/${network}/${validatorMatch[2]!}.png`,
     };
   }
 
@@ -192,7 +194,7 @@ function injectMeta(html: string, meta: HeadMeta): string {
   const d = escapeHtml(meta.description);
   const u = escapeHtml(meta.url);
 
-  return html
+  let result = html
     .replace(/<title>[^<]*<\/title>/, `<title>${t}</title>`)
     .replace(
       /<meta\s+name="description"\s+content="[^"]*"\s*\/?>/,
@@ -226,6 +228,28 @@ function injectMeta(html: string, meta: HeadMeta): string {
       /"url":\s*"[^"]*"/,
       `"url": "${meta.url}"`,
     );
+
+  // Inject dynamic OG image for validator pages
+  if (meta.image) {
+    const img = escapeHtml(meta.image);
+    // Add og:image after og:url
+    result = result.replace(
+      /(<meta\s+property="og:url"\s+content="[^"]*"\s*\/?>)/,
+      `$1\n    <meta property="og:image" content="${img}" />`,
+    );
+    // Add twitter:image after twitter:description
+    result = result.replace(
+      /(<meta\s+name="twitter:description"\s+content="[^"]*"\s*\/?>)/,
+      `$1\n    <meta name="twitter:image" content="${img}" />`,
+    );
+    // Upgrade to summary_large_image for cards with images
+    result = result.replace(
+      /<meta\s+name="twitter:card"\s+content="[^"]*"\s*\/?>/,
+      `<meta name="twitter:card" content="summary_large_image" />`,
+    );
+  }
+
+  return result;
 }
 
 // --- Middleware entry ---
