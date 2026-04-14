@@ -77,7 +77,14 @@ export const onRequest: PagesFunction<Env> = async (context) => {
 
   // Temporary: return debug info if ?debug=1
   if (new URL(context.request.url).searchParams.has('debug')) {
-    return new Response(JSON.stringify({ apiDebug, moniker, eventCount, stake, stakeToken }), {
+    return new Response(JSON.stringify({
+      apiDebug,
+      moniker,
+      eventCount,
+      stake,
+      stakeToken,
+      envKeys: Object.keys(context.env),
+    }), {
       headers: { 'Content-Type': 'application/json' },
     });
   }
