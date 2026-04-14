@@ -299,7 +299,7 @@ export const onRequest: PagesFunction<Env> = async (context) => {
   return new Response(png, {
     headers: {
       'Content-Type': 'image/png',
-      'Cache-Control': 'public, max-age=86400, s-maxage=86400',
+      'Cache-Control': 'public, max-age=3600, s-maxage=3600',
     },
   });
   } catch (err) {
