@@ -227,9 +227,17 @@ export default function DevelopersPage() {
             maxWidth: 640,
           }}
         >
-          Validator incident data for AI agents. Query delinquency, slashing, scan results, and
-          delegation health across Solana, Ethereum, Sui, and Cosmos — directly from your agent
-          via MCP.
+          Connect your AI agent to live validator incident data via the{' '}
+          <a
+            href="https://modelcontextprotocol.io"
+            target="_blank"
+            rel="noopener noreferrer"
+            style={{ color: 'var(--color-text-primary)', textDecoration: 'none', borderBottom: '1px solid var(--color-border-medium)' }}
+          >
+            Model Context Protocol
+          </a>
+          . Query delinquency, slashing, scan results, and
+          delegation health across Solana, Ethereum, Sui, and Cosmos.
         </p>
       </div>
 
@@ -522,6 +530,70 @@ curl -X POST https://mcp.slashr.dev/mcp \\
             @SlashrDev
           </a>{' '}
           on X
+        </p>
+      </div>
+
+      {/* REST API */}
+      <div style={{ marginBottom: 48 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 12 }}>
+          <h2 style={{ ...heading, fontSize: isMobile ? 18 : 20 }}>REST API</h2>
+          <span
+            style={{
+              fontFamily: "'JetBrains Mono', monospace",
+              fontSize: 11,
+              fontWeight: 600,
+              textTransform: 'uppercase',
+              letterSpacing: '0.05em',
+              color: 'var(--color-text-dim)',
+              background: 'rgba(255, 255, 255, 0.06)',
+              border: '1px solid var(--color-border-medium)',
+              borderRadius: 4,
+              padding: '2px 8px',
+            }}
+          >
+            Coming soon
+          </span>
+        </div>
+        <p
+          style={{
+            fontFamily: "'Inter', sans-serif",
+            fontSize: 14,
+            color: 'var(--color-text-secondary)',
+            lineHeight: 1.6,
+            margin: 0,
+            maxWidth: 640,
+          }}
+        >
+          Slashr also has a REST API for direct integration. It's not open for public access yet,
+          but if you have a use case — monitoring, dashboards, research — reach out and we'll
+          get you set up.
+        </p>
+        <p
+          style={{
+            fontFamily: "'Inter', sans-serif",
+            fontSize: 14,
+            color: 'var(--color-text-secondary)',
+            lineHeight: 1.6,
+            marginTop: 12,
+            maxWidth: 640,
+          }}
+        >
+          DM{' '}
+          <a
+            href="https://x.com/SlashrDev"
+            target="_blank"
+            rel="noopener noreferrer"
+            style={{ color: 'var(--color-text-primary)', textDecoration: 'none', borderBottom: '1px solid var(--color-border-medium)' }}
+          >
+            @SlashrDev
+          </a>{' '}
+          on X or email{' '}
+          <a
+            href="mailto:hello@nullrabbit.ai"
+            style={{ color: 'var(--color-text-primary)', textDecoration: 'none', borderBottom: '1px solid var(--color-border-medium)' }}
+          >
+            hello@nullrabbit.ai
+          </a>
         </p>
       </div>
 
