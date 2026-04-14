@@ -6,6 +6,7 @@ interface Env {
   API_ORIGIN: string;
   CF_ACCESS_CLIENT_ID: string;
   CF_ACCESS_CLIENT_SECRET: string;
+  API_JWT_TOKEN: string;
 }
 
 const NETWORK_META: Record<string, { ticker: string; color: string; name: string }> = {
@@ -61,6 +62,7 @@ export const onRequest: PagesFunction<Env> = async (context) => {
           'CF-Access-Client-Id': context.env.CF_ACCESS_CLIENT_ID,
           'CF-Access-Client-Secret': context.env.CF_ACCESS_CLIENT_SECRET,
           Accept: 'application/json',
+          ...(context.env.API_JWT_TOKEN && { Authorization: `Bearer ${context.env.API_JWT_TOKEN}` }),
         },
       });
       if (res.ok) {
