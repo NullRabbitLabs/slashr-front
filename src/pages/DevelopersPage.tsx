@@ -561,7 +561,6 @@ curl -X POST https://mcp.slashr.dev/mcp \\
             color: 'var(--color-text-secondary)',
             lineHeight: 1.6,
             margin: 0,
-            maxWidth: 640,
           }}
         >
           Slashr also has a REST API for direct integration. It's not open for public access yet,
@@ -575,7 +574,6 @@ curl -X POST https://mcp.slashr.dev/mcp \\
             color: 'var(--color-text-secondary)',
             lineHeight: 1.6,
             marginTop: 12,
-            maxWidth: 640,
           }}
         >
           DM{' '}
