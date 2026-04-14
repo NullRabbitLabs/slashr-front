@@ -57,12 +57,14 @@ export const onRequest: PagesFunction<Env> = async (context) => {
 
     try {
       const url = `${context.env.API_ORIGIN}/v1/validators/${encodeURIComponent(network)}/${encodeURIComponent(address)}`;
+      const clientIp = context.request.headers.get('CF-Connecting-IP');
       const res = await fetch(url, {
         headers: {
           'CF-Access-Client-Id': context.env.CF_ACCESS_CLIENT_ID,
           'CF-Access-Client-Secret': context.env.CF_ACCESS_CLIENT_SECRET,
           Accept: 'application/json',
           ...(context.env.API_JWT_TOKEN && { Authorization: `Bearer ${context.env.API_JWT_TOKEN}` }),
+          ...(clientIp && { 'X-Real-Client-IP': clientIp }),
         },
       });
       if (res.ok) {

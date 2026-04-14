@@ -53,6 +53,7 @@ async function fetchValidatorData(
   env: Env,
   network: string,
   address: string,
+  clientIp?: string | null,
 ): Promise<ValidatorData | null> {
   try {
     const url = `${env.API_ORIGIN}/v1/validators/${encodeURIComponent(network)}/${encodeURIComponent(address)}`;
@@ -62,6 +63,7 @@ async function fetchValidatorData(
         'CF-Access-Client-Secret': env.CF_ACCESS_CLIENT_SECRET,
         Accept: 'application/json',
         ...(env.API_JWT_TOKEN && { Authorization: `Bearer ${env.API_JWT_TOKEN}` }),
+        ...(clientIp && { 'X-Real-Client-IP': clientIp }),
       },
     });
     if (!res.ok) return null;
@@ -75,6 +77,7 @@ async function fetchValidatorData(
 async function fetchReportData(
   env: Env,
   providerSlug: string,
+  clientIp?: string | null,
 ): Promise<ReportData | null> {
   try {
     const url = `${env.API_ORIGIN}/v1/reports/${encodeURIComponent(providerSlug)}`;
@@ -84,6 +87,7 @@ async function fetchReportData(
         'CF-Access-Client-Secret': env.CF_ACCESS_CLIENT_SECRET,
         Accept: 'application/json',
         ...(env.API_JWT_TOKEN && { Authorization: `Bearer ${env.API_JWT_TOKEN}` }),
+        ...(clientIp && { 'X-Real-Client-IP': clientIp }),
       },
     });
     if (!res.ok) return null;
@@ -285,6 +289,7 @@ export const onRequest: PagesFunction<Env> = async (context) => {
   const html = await response.text();
 
   // Fetch data for dynamic pages
+  const clientIp = request.headers.get('CF-Connecting-IP');
   let validator: ValidatorData | null = null;
   let resolvedPathname = pathname;
 
@@ -299,13 +304,14 @@ export const onRequest: PagesFunction<Env> = async (context) => {
           'CF-Access-Client-Secret': context.env.CF_ACCESS_CLIENT_SECRET,
           Accept: 'application/json',
           ...(context.env.API_JWT_TOKEN && { Authorization: `Bearer ${context.env.API_JWT_TOKEN}` }),
+          ...(clientIp && { 'X-Real-Client-IP': clientIp }),
         },
       });
       if (shortRes.ok) {
         const shortJson = (await shortRes.json()) as { data: { network: string; address: string } };
         const { network, address } = shortJson.data;
         resolvedPathname = `/validator/${network}/${address}`;
-        validator = await fetchValidatorData(context.env, network, address);
+        validator = await fetchValidatorData(context.env, network, address, clientIp);
       }
     } catch {
       // fall through — bot gets generic meta
@@ -318,13 +324,14 @@ export const onRequest: PagesFunction<Env> = async (context) => {
       context.env,
       validatorMatch[1]!,
       validatorMatch[2]!,
+      clientIp,
     );
   }
 
   let report: ReportData | null = null;
   const reportMatch = pathname.match(/^\/reports\/([^/]+)\/?$/);
   if (reportMatch) {
-    report = await fetchReportData(context.env, reportMatch[1]!);
+    report = await fetchReportData(context.env, reportMatch[1]!, clientIp);
   }
 
   // Generate and inject meta tags (use resolved pathname for short URLs)
