@@ -587,13 +587,7 @@ curl -X POST https://mcp.slashr.dev/mcp \\
           >
             @SlashrDev
           </a>{' '}
-          on X or email{' '}
-          <a
-            href="mailto:hello@nullrabbit.ai"
-            style={{ color: 'var(--color-text-primary)', textDecoration: 'none', borderBottom: '1px solid var(--color-border-medium)' }}
-          >
-            hello@nullrabbit.ai
-          </a>
+          on X
         </p>
       </div>
 
