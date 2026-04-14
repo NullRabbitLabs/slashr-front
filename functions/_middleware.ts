@@ -6,6 +6,7 @@ interface Env {
   API_ORIGIN: string;
   CF_ACCESS_CLIENT_ID: string;
   CF_ACCESS_CLIENT_SECRET: string;
+  API_JWT_TOKEN: string;
 }
 
 const BOT_UA = /Twitterbot|facebookexternalhit|Googlebot|Discordbot|Slackbot|LinkedInBot|Bingbot|Applebot|bot|crawl|spider/i;
@@ -60,6 +61,7 @@ async function fetchValidatorData(
         'CF-Access-Client-Id': env.CF_ACCESS_CLIENT_ID,
         'CF-Access-Client-Secret': env.CF_ACCESS_CLIENT_SECRET,
         Accept: 'application/json',
+        ...(env.API_JWT_TOKEN && { Authorization: `Bearer ${env.API_JWT_TOKEN}` }),
       },
     });
     if (!res.ok) return null;
@@ -81,6 +83,7 @@ async function fetchReportData(
         'CF-Access-Client-Id': env.CF_ACCESS_CLIENT_ID,
         'CF-Access-Client-Secret': env.CF_ACCESS_CLIENT_SECRET,
         Accept: 'application/json',
+        ...(env.API_JWT_TOKEN && { Authorization: `Bearer ${env.API_JWT_TOKEN}` }),
       },
     });
     if (!res.ok) return null;
@@ -295,6 +298,7 @@ export const onRequest: PagesFunction<Env> = async (context) => {
           'CF-Access-Client-Id': context.env.CF_ACCESS_CLIENT_ID,
           'CF-Access-Client-Secret': context.env.CF_ACCESS_CLIENT_SECRET,
           Accept: 'application/json',
+          ...(context.env.API_JWT_TOKEN && { Authorization: `Bearer ${context.env.API_JWT_TOKEN}` }),
         },
       });
       if (shortRes.ok) {
