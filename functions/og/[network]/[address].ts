@@ -31,6 +31,7 @@ function formatStake(stake: number | null, token: string | null): string {
 }
 
 export const onRequest: PagesFunction<Env> = async (context) => {
+  try {
   const network = context.params.network as string;
   const rawAddress = context.params.address as string;
   const address = rawAddress.replace(/\.png$/, '');
@@ -306,4 +307,10 @@ export const onRequest: PagesFunction<Env> = async (context) => {
       'Cache-Control': 'public, max-age=86400, s-maxage=86400',
     },
   });
+  } catch (err) {
+    return new Response(JSON.stringify({ error: String(err), stack: err?.stack }), {
+      status: 500,
+      headers: { 'Content-Type': 'application/json' },
+    });
+  }
 };
