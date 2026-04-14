@@ -11,14 +11,14 @@
   },
   "dependencies": {
     "@cf-wasm/resvg": "^0.3.3",
+    "@cf-wasm/satori": "^0.3.5",
     "@fontsource/inter": "^5.0.0",
     "@fontsource/jetbrains-mono": "^5.0.0",
     "@fontsource/space-grotesk": "^5.0.0",
     "html2canvas": "^1.4.1",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
-    "react-router-dom": "^7.1.0",
-    "satori": "^0.26.0"
+    "react-router-dom": "^7.1.0"
   },
   "devDependencies": {
     "@testing-library/jest-dom": "^6.9.1",

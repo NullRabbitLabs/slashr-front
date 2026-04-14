@@ -1,5 +1,5 @@
-// @ts-nocheck — satori virtual DOM types don't match React.ReactNode; CF Pages types not in tsconfig
-import satori from 'satori';
+// @ts-nocheck — cf-wasm types use workerd bindings; satori virtual DOM ≠ React.ReactNode
+import satori from '@cf-wasm/satori';
 import { Resvg } from '@cf-wasm/resvg';
 
 interface Env {
