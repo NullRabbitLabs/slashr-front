@@ -22,8 +22,10 @@ function truncateAddress(addr: string): string {
   return addr.slice(0, 8) + '...' + addr.slice(-4);
 }
 
-function formatStake(stake: number | null, token: string | null): string {
-  if (stake == null || token == null) return '';
+function formatStake(rawStake: number | string | null, token: string | null): string {
+  if (rawStake == null || token == null) return '';
+  const stake = typeof rawStake === 'string' ? parseFloat(rawStake) : rawStake;
+  if (isNaN(stake)) return '';
   if (stake >= 1_000_000) return `${(stake / 1_000_000).toFixed(1)}M ${token}`;
   if (stake >= 1_000) return `${(stake / 1_000).toFixed(0)}K ${token}`;
   return `${stake.toFixed(0)} ${token}`;
