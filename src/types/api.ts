@@ -71,6 +71,7 @@ export interface EventListItem {
   estimated_loss_usd: number | null;
   has_scan?: boolean;
   scan?: InlineScanAnalysis | null;
+  is_test_software?: boolean;
 }
 
 export interface EventDetail extends EventListItem {
