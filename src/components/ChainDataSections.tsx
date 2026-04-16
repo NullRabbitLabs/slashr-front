@@ -340,6 +340,24 @@ function SolanaChainSections({
             />
           );
         })()}
+        {data.software_version && (() => {
+          const isTest = /alpha|beta|test/i.test(data.software_version);
+          return (
+            <Field
+              label="Software"
+              value={
+                <span style={{ color: isTest ? 'var(--color-danger)' : 'var(--color-text-primary)' }}>
+                  {data.software_version}
+                  {isTest && (
+                    <span style={{ fontSize: 10, marginLeft: 8, color: 'var(--color-danger)', fontFamily: "'JetBrains Mono', monospace", textTransform: 'uppercase', letterSpacing: '0.08em' }}>
+                      pre-release
+                    </span>
+                  )}
+                </span>
+              }
+            />
+          );
+        })()}
       </Section>
 
     </>

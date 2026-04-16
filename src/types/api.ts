@@ -411,6 +411,7 @@ export interface SolanaChainData {
   credits_previous_epoch: number;
   credit_delta: number;
   skip_rate: number | null;
+  software_version?: string | null;
 }
 
 export interface SuiChainData {
