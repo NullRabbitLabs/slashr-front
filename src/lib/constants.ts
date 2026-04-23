@@ -28,6 +28,8 @@ export const EVENT_TYPE_LABELS: Record<EventType, string> = {
   dot_not_elected:     'Dropped from active validator set.',
   commission_increase: 'Raised commission. Delegators earn less.',
   vanilla_solana:      'Running vanilla Solana. MEV tips forfeited.',
+  jito_opted_out:      'Stopped running Jito-Solana — delegators no longer earn MEV tips.',
+  jito_opted_in:       'Opted back into Jito-Solana — delegators earn MEV tips again.',
 };
 
 export const EVENT_TYPE_DESCRIPTIONS: Record<EventType, string> = {
@@ -42,6 +44,8 @@ export const EVENT_TYPE_DESCRIPTIONS: Record<EventType, string> = {
   dot_not_elected:     'Validator was not elected to the active set for this era. No rewards will be earned until re-election.',
   commission_increase: 'Validator raised their commission rate. Every percentage-point increase reduces the share of rewards flowing to delegators. Changes near epoch boundaries are worth extra scrutiny — a pattern some operators use to capture rewards right before delegators can react.',
   vanilla_solana:      'Validator is running the stock Agave client rather than jito-solana, which means they are forfeiting MEV tip revenue that could otherwise flow to their delegators. For validators with meaningful stake this is a direct cost to delegators that does not show up in the advertised commission.',
+  jito_opted_out:      'Validator just switched from jito-solana to the stock Agave client, meaning MEV tip revenue that would have flowed to delegators is now being forfeited. A deliberate change, not a technical issue — worth understanding why.',
+  jito_opted_in:       'Validator resumed running jito-solana after a prior opt-out. MEV tip revenue flows to delegators again.',
 };
 
 export function getEventLabel(eventType: string, penaltyAmount: number | null, penaltyToken: string | null): string {

@@ -13,7 +13,9 @@ export type EventType =
   | 'dot_slashed'
   | 'dot_not_elected'
   | 'commission_increase'
-  | 'vanilla_solana';
+  | 'vanilla_solana'
+  | 'jito_opted_out'
+  | 'jito_opted_in';
 
 export type Severity = 'info' | 'warning' | 'critical';
 
