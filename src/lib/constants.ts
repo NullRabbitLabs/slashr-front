@@ -26,6 +26,8 @@ export const EVENT_TYPE_LABELS: Record<EventType, string> = {
   duplicate_block:     'Produced duplicate blocks in the same slot.',
   dot_slashed:         'Slashed on-chain. Stake reduced.',
   dot_not_elected:     'Dropped from active validator set.',
+  commission_increase: 'Raised commission. Delegators earn less.',
+  vanilla_solana:      'Running vanilla Solana. MEV tips forfeited.',
 };
 
 export const EVENT_TYPE_DESCRIPTIONS: Record<EventType, string> = {
@@ -38,6 +40,8 @@ export const EVENT_TYPE_DESCRIPTIONS: Record<EventType, string> = {
   tallying_penalty:    'Over two-thirds of validators voted this validator non-performant. All staking rewards for the affected epoch are forfeited - both the validator\'s commission and delegators\' returns. The penalty persists each epoch until enough validators reverse their score. Principal stake is not affected.',
   dot_slashed:         'Validator committed a slashable offense. For equivocation (double signing), the slash starts at 0.01% of bonded stake and scales toward 100% based on how many validators equivocated in the same period. For unresponsiveness, slashing only triggers when more than 10% of validators are simultaneously offline. Nominators share the penalty proportionally.',
   dot_not_elected:     'Validator was not elected to the active set for this era. No rewards will be earned until re-election.',
+  commission_increase: 'Validator raised their commission rate. Every percentage-point increase reduces the share of rewards flowing to delegators. Changes near epoch boundaries are worth extra scrutiny — a pattern some operators use to capture rewards right before delegators can react.',
+  vanilla_solana:      'Validator is running the stock Agave client rather than jito-solana, which means they are forfeiting MEV tip revenue that could otherwise flow to their delegators. For validators with meaningful stake this is a direct cost to delegators that does not show up in the advertised commission.',
 };
 
 export function getEventLabel(eventType: string, penaltyAmount: number | null, penaltyToken: string | null): string {

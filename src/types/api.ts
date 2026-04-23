@@ -11,7 +11,9 @@ export type EventType =
   | 'tallying_penalty'
   | 'duplicate_block'
   | 'dot_slashed'
-  | 'dot_not_elected';
+  | 'dot_not_elected'
+  | 'commission_increase'
+  | 'vanilla_solana';
 
 export type Severity = 'info' | 'warning' | 'critical';
 
