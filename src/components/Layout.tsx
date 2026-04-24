@@ -117,8 +117,8 @@ export function Layout({ children, stats }: LayoutProps) {
                 }}
               >
                 {totalEvents != null
-                  ? `tracking ${totalEvents.toLocaleString()} events across 4 networks`
-                  : 'monitoring validators across 4 networks'}
+                  ? `tracking ${totalEvents.toLocaleString()} events across ${networks.length} networks`
+                  : `monitoring validators across ${networks.length} networks`}
               </span>
             )}
             <div

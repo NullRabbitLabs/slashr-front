@@ -1,6 +1,6 @@
-export type NetworkSlug = 'solana' | 'ethereum' | 'cosmos' | 'sui' | 'polkadot';
+export type NetworkSlug = 'solana' | 'ethereum' | 'cosmos' | 'sui' | 'polkadot' | 'celestia';
 
-export type NetworkTicker = 'SOL' | 'ETH' | 'ATOM' | 'SUI' | 'DOT';
+export type NetworkTicker = 'SOL' | 'ETH' | 'ATOM' | 'SUI' | 'DOT' | 'TIA';
 
 export type EventType =
   | 'delinquent'
@@ -15,7 +15,9 @@ export type EventType =
   | 'commission_increase'
   | 'vanilla_solana'
   | 'jito_opted_out'
-  | 'jito_opted_in';
+  | 'jito_opted_in'
+  | 'tia_slashed_downtime'
+  | 'tia_slashed_double_sign';
 
 export type Severity = 'info' | 'warning' | 'critical';
 

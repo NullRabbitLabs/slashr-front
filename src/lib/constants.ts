@@ -12,9 +12,10 @@ export const NETWORK_META: Record<NetworkSlug, NetworkMeta> = {
   cosmos:   { ticker: 'ATOM', color: '#A5A7C4', name: 'Cosmos Hub' },
   sui:      { ticker: 'SUI',  color: '#4DA2FF', name: 'Sui' },
   polkadot: { ticker: 'DOT',  color: '#E6007A', name: 'Polkadot' },
+  celestia: { ticker: 'TIA',  color: '#7B2BF9', name: 'Celestia' },
 };
 
-export const NETWORK_ORDER: readonly NetworkSlug[] = ['solana', 'ethereum', 'cosmos', 'sui', 'polkadot'];
+export const NETWORK_ORDER: readonly NetworkSlug[] = ['solana', 'ethereum', 'cosmos', 'sui', 'polkadot', 'celestia'];
 
 export const EVENT_TYPE_LABELS: Record<EventType, string> = {
   delinquent:          'Went dark. Missed votes.',
@@ -30,6 +31,8 @@ export const EVENT_TYPE_LABELS: Record<EventType, string> = {
   vanilla_solana:      'Running vanilla Solana. MEV tips forfeited.',
   jito_opted_out:      'Stopped running Jito-Solana — delegators no longer earn MEV tips.',
   jito_opted_in:       'Opted back into Jito-Solana — delegators earn MEV tips again.',
+  tia_slashed_downtime:    'Offline too long on Celestia. Jailed.',
+  tia_slashed_double_sign: 'Signed conflicting blocks at the same height on Celestia. Tombstoned.',
 };
 
 export const EVENT_TYPE_DESCRIPTIONS: Record<EventType, string> = {
@@ -46,6 +49,8 @@ export const EVENT_TYPE_DESCRIPTIONS: Record<EventType, string> = {
   vanilla_solana:      'Validator is running the stock Agave client rather than jito-solana, which means they are forfeiting MEV tip revenue that could otherwise flow to their delegators. For validators with meaningful stake this is a direct cost to delegators that does not show up in the advertised commission.',
   jito_opted_out:      'Validator just switched from jito-solana to the stock Agave client, meaning MEV tip revenue that would have flowed to delegators is now being forfeited. A deliberate change, not a technical issue — worth understanding why.',
   jito_opted_in:       'Validator resumed running jito-solana after a prior opt-out. MEV tip revenue flows to delegators again.',
+  tia_slashed_downtime:    'Validator missed too many blocks on Celestia and was jailed. Stake receives a minor slash; validator must manually unjail before they can rejoin consensus. Delegators earn no rewards while jailed.',
+  tia_slashed_double_sign: 'Validator signed two different blocks at the same height on Celestia. A slashing penalty is applied to all bonded stake — the validator\'s and all delegators\' proportionally. The validator is permanently tombstoned and cannot rejoin the active set.',
 };
 
 export function getEventLabel(eventType: string, penaltyAmount: number | null, penaltyToken: string | null): string {
