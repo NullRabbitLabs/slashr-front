@@ -26,6 +26,22 @@ import { getMockEvents, getMockNetworks, getMockStats, getMockValidator, getMock
 const BASE_URL = import.meta.env.VITE_API_URL || '';
 const USE_MOCK = import.meta.env.VITE_USE_MOCK === 'true';
 
+/**
+ * Preview-bypass for gated networks (api side: migration 052).
+ * Returns 'all' iff the current URL has ?preview=all, else null.
+ *
+ * Live-reads window.location each call so SPA navigation to/from the
+ * preview URL flips the behaviour immediately. Not cached.
+ *
+ * SSR-safe fallback (typeof window check) for future build-time
+ * prerendering.
+ */
+function previewParam(): string | null {
+  if (typeof window === 'undefined') return null;
+  const p = new URLSearchParams(window.location.search).get('preview');
+  return p === 'all' ? 'all' : null;
+}
+
 export async function fetchEvents(params?: {
   network?: string;
   search?: string;
@@ -39,6 +55,8 @@ export async function fetchEvents(params?: {
   if (params?.search) qs.set('search', params.search);
   if (params?.cursor) qs.set('cursor', params.cursor);
   if (params?.limit) qs.set('limit', String(params.limit));
+  const pv = previewParam();
+  if (pv) qs.set('preview', pv);
   const query = qs.toString();
   const res = await fetch(`${BASE_URL}/v1/events${query ? `?${query}` : ''}`);
   if (!res.ok) throw new Error(`API error: ${res.status}`);
@@ -48,7 +66,9 @@ export async function fetchEvents(params?: {
 export async function fetchNetworks(): Promise<DataResponse<NetworkInfo[]>> {
   if (USE_MOCK) return getMockNetworks();
 
-  const res = await fetch(`${BASE_URL}/v1/networks`);
+  const pv = previewParam();
+  const suffix = pv ? `?preview=${pv}` : '';
+  const res = await fetch(`${BASE_URL}/v1/networks${suffix}`);
   if (!res.ok) throw new Error(`API error: ${res.status}`);
   return res.json() as Promise<DataResponse<NetworkInfo[]>>;
 }
@@ -56,7 +76,9 @@ export async function fetchNetworks(): Promise<DataResponse<NetworkInfo[]>> {
 export async function fetchStats(): Promise<DataResponse<StatsResponse>> {
   if (USE_MOCK) return getMockStats();
 
-  const res = await fetch(`${BASE_URL}/v1/stats`);
+  const pv = previewParam();
+  const suffix = pv ? `?preview=${pv}` : '';
+  const res = await fetch(`${BASE_URL}/v1/stats${suffix}`);
   if (!res.ok) throw new Error(`API error: ${res.status}`);
   return res.json() as Promise<DataResponse<StatsResponse>>;
 }
