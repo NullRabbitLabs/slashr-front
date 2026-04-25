@@ -1,6 +1,7 @@
 import type { NetworkSlug } from '@/types/api';
-import { NETWORK_META, NETWORK_ORDER } from '@/lib/constants';
+import { NETWORK_META } from '@/lib/constants';
 import { useIsMobile } from '@/hooks/useIsMobile';
+import { useVisibleNetworkOrder } from '@/hooks/useVisibleNetworks';
 
 interface FeedFilterProps {
   activeNetworks: Set<NetworkSlug>;
@@ -11,12 +12,13 @@ interface FeedFilterProps {
 
 export function FeedFilter({ activeNetworks, onToggleNetwork, searchQuery, onSearchChange }: FeedFilterProps) {
   const isMobile = useIsMobile();
+  const visibleNetworks = useVisibleNetworkOrder();
 
   return (
     <div style={{ marginBottom: 16 }}>
       {/* Network toggle pills */}
       <div style={{ display: 'flex', flexWrap: 'wrap', gap: isMobile ? 4 : 6, marginBottom: 10 }}>
-        {NETWORK_ORDER.map(slug => {
+        {visibleNetworks.map(slug => {
           const meta = NETWORK_META[slug];
           const active = activeNetworks.has(slug);
           return (
