@@ -343,6 +343,14 @@ function SolanaChainSections({
         })()}
         {data.software_version && (() => {
           const isTest = /alpha|beta|test/i.test(data.software_version);
+          // Mirror of slasher-solana's classify_jito_version: any version
+          // containing "jito" (case-insensitive) is Jito-Solana; anything
+          // else is vanilla Agave. Vanilla validators forfeit MEV tip
+          // revenue that would otherwise flow to delegators — that's the
+          // chip's product story. We deliberately do not chip "Jito" as
+          // green because being on Jito is the expected state, not an
+          // achievement; we only call out the deviation.
+          const isJito = /jito/i.test(data.software_version);
           return (
             <Field
               label="Software"
@@ -352,6 +360,26 @@ function SolanaChainSections({
                   {isTest && (
                     <span style={{ fontSize: 10, marginLeft: 8, color: 'var(--color-danger)', fontFamily: "'JetBrains Mono', monospace", textTransform: 'uppercase', letterSpacing: '0.08em' }}>
                       pre-release
+                    </span>
+                  )}
+                  {!isJito && !isTest && (
+                    <span
+                      title="Running stock Agave (vanilla Solana) instead of Jito-Solana — MEV tip revenue that could flow to delegators is forfeited."
+                      style={{
+                        fontSize: 10,
+                        marginLeft: 8,
+                        padding: '2px 6px',
+                        background: 'rgba(232, 167, 53, 0.15)',
+                        border: '1px solid rgba(232, 167, 53, 0.30)',
+                        borderRadius: 3,
+                        color: '#e8a735',
+                        fontFamily: "'JetBrains Mono', monospace",
+                        textTransform: 'uppercase',
+                        letterSpacing: '0.08em',
+                        cursor: 'help',
+                      }}
+                    >
+                      vanilla
                     </span>
                   )}
                 </span>
