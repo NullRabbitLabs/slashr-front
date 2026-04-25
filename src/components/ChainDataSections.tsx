@@ -707,10 +707,14 @@ function PolkadotChainSections({
   data: PolkadotChainData;
   isMobile: boolean;
 }) {
-  // Replaces the demoted dot_not_elected feed event. The "(historical)"
-  // label is intentional — the badge below describes the live state,
-  // and any past dot_not_elected rows the validator may still have on
-  // their history are condition-classified and excluded from the feed.
+  // Replaces the demoted dot_not_elected feed event. Badge renders
+  // only when the worker has populated chain_data.is_elected — during
+  // the deploy gap window where worker is_elected hasn't reached prod
+  // yet, undefined would render falsy and incorrectly show "No". Better
+  // to render nothing than to show wrong data.
+  if (typeof data.is_elected !== 'boolean') {
+    return null;
+  }
   return (
     <Section title="Active Set" isMobile={isMobile}>
       <Field
