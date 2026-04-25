@@ -31,6 +31,7 @@ export const EVENT_TYPE_LABELS: Record<EventType, string> = {
   vanilla_solana:      'Running vanilla Solana. MEV tips forfeited.',
   jito_opted_out:      'Stopped running Jito-Solana — delegators no longer earn MEV tips.',
   jito_opted_in:       'Opted back into Jito-Solana — delegators earn MEV tips again.',
+  mev_tip_skim:        'Withheld MEV tips from delegators. Skim detected.',
   tia_slashed_downtime:    'Offline too long on Celestia. Jailed.',
   tia_slashed_double_sign: 'Signed conflicting blocks at the same height on Celestia. Tombstoned.',
 };
@@ -49,6 +50,7 @@ export const EVENT_TYPE_DESCRIPTIONS: Record<EventType, string> = {
   vanilla_solana:      'Validator is running the stock Agave client rather than jito-solana, which means they are forfeiting MEV tip revenue that could otherwise flow to their delegators. For validators with meaningful stake this is a direct cost to delegators that does not show up in the advertised commission.',
   jito_opted_out:      'Validator just switched from jito-solana to the stock Agave client, meaning MEV tip revenue that would have flowed to delegators is now being forfeited. A deliberate change, not a technical issue — worth understanding why.',
   jito_opted_in:       'Validator resumed running jito-solana after a prior opt-out. MEV tip revenue flows to delegators again.',
+  mev_tip_skim:        'For a closed Solana epoch, the MEV tips actually distributed to this validator\'s delegators fell materially short of the expected staker share — computed as Jito MEV revenue minus the validator\'s stated commission. The Kobe data says one number; the on-chain merkle distribution says a smaller one. Both the percentage shortfall and absolute SOL gap exceeded conservative thresholds before this event was raised.',
   tia_slashed_downtime:    'Validator missed too many blocks on Celestia and was jailed. Stake receives a minor slash; validator must manually unjail before they can rejoin consensus. Delegators earn no rewards while jailed.',
   tia_slashed_double_sign: 'Validator signed two different blocks at the same height on Celestia. A slashing penalty is applied to all bonded stake — the validator\'s and all delegators\' proportionally. The validator is permanently tombstoned and cannot rejoin the active set.',
 };

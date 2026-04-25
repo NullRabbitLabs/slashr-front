@@ -16,6 +16,7 @@ export type EventType =
   | 'vanilla_solana'
   | 'jito_opted_out'
   | 'jito_opted_in'
+  | 'mev_tip_skim'
   | 'tia_slashed_downtime'
   | 'tia_slashed_double_sign';
 
