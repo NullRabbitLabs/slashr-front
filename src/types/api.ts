@@ -483,9 +483,29 @@ export interface EthereumChainData {
   slashed: boolean;
 }
 
+export interface PolkadotValidatorPrefs {
+  /// Commission expressed in basis points (0..=10000) — converted from
+  /// the chain's Perbill so the wire format matches Solana's commission
+  /// field. Frontend formats as `bps / 100` to display percent.
+  commission_bps: number;
+  blocked: boolean;
+}
+
+export interface PolkadotEraExposure {
+  era_index: number;
+  /// Planck values are emitted as strings — JS Number can't represent
+  /// u128 losslessly. Frontend converts to DOT via BigInt division by
+  /// 10^10.
+  total_planck: string;
+  own_planck: string;
+  nominator_count: number;
+}
+
 export interface PolkadotChainData {
   is_elected: boolean;
   observed_at_block: number;
+  validator_prefs: PolkadotValidatorPrefs | null;
+  era_exposure: PolkadotEraExposure | null;
 }
 
 // --- Scan Analysis ---
