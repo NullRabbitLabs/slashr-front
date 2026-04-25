@@ -78,6 +78,11 @@ export interface EventListItem {
   has_scan?: boolean;
   scan?: InlineScanAnalysis | null;
   is_test_software?: boolean;
+  /// Publish state from the worker pipeline (migration 047). Absent
+  /// for 'live' events (the steady-state default — API skips the
+  /// field for payload size). Present as 'timed_out' when the event
+  /// went public without full validator-level enrichment.
+  feed_state?: 'live' | 'timed_out';
 }
 
 export interface EventDetail extends EventListItem {

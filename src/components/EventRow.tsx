@@ -169,6 +169,23 @@ export function EventRow({
                 pre-release
               </span>
             )}
+            {event.feed_state === 'timed_out' && (
+              <span
+                title="Published with incomplete enrichment — validator stake/identity/hostname may be missing or stale because the enrichment pipeline didn't complete within the publish window."
+                style={{
+                  fontSize: 9,
+                  fontFamily: "'JetBrains Mono', monospace",
+                  color: 'var(--color-text-dim)',
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.08em',
+                  marginRight: 4,
+                  cursor: 'help',
+                  borderBottom: '1px dotted var(--color-text-dim)',
+                }}
+              >
+                unenriched
+              </span>
+            )}
           </>
         )}
         <span
