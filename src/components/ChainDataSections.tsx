@@ -5,6 +5,7 @@ import type {
   SuiChainData,
   CosmosChainData,
   EthereumChainData,
+  PolkadotChainData,
 } from '@/types/api';
 
 // --- Styles (matching ValidatorProfile patterns) ---
@@ -699,6 +700,34 @@ function EthereumChainSections({
   );
 }
 
+function PolkadotChainSections({
+  data,
+  isMobile,
+}: {
+  data: PolkadotChainData;
+  isMobile: boolean;
+}) {
+  // Replaces the demoted dot_not_elected feed event. The "(historical)"
+  // label is intentional — the badge below describes the live state,
+  // and any past dot_not_elected rows the validator may still have on
+  // their history are condition-classified and excluded from the feed.
+  return (
+    <Section title="Active Set" isMobile={isMobile}>
+      <Field
+        label="Currently Elected"
+        value={
+          <span style={{ color: data.is_elected ? 'var(--color-accent)' : 'var(--color-danger)' }}>
+            {data.is_elected ? 'Yes' : 'No'}
+          </span>
+        }
+      />
+      {data.observed_at_block != null && (
+        <Field label="Observed at Block" value={formatNumber(data.observed_at_block)} />
+      )}
+    </Section>
+  );
+}
+
 // --- Main export ---
 
 interface ChainDataSectionsProps {
@@ -721,6 +750,8 @@ export function ChainDataSections({ chainData, isMobile }: ChainDataSectionsProp
       return (
         <EthereumChainSections data={cd as unknown as EthereumChainData} computed={computed} isMobile={isMobile} />
       );
+    case 'polkadot':
+      return <PolkadotChainSections data={cd as unknown as PolkadotChainData} isMobile={isMobile} />;
     default:
       return null;
   }

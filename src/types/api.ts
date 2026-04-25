@@ -478,6 +478,11 @@ export interface EthereumChainData {
   slashed: boolean;
 }
 
+export interface PolkadotChainData {
+  is_elected: boolean;
+  observed_at_block: number;
+}
+
 // --- Scan Analysis ---
 
 export interface ScanAnalysisSummary {
