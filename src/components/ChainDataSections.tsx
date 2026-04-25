@@ -728,6 +728,23 @@ function EthereumChainSections({
   );
 }
 
+/// Convert planck (u128 wire-string) to a human-readable DOT figure.
+/// Uses BigInt to avoid Number's 53-bit precision ceiling — top
+/// validators have stake well above 2^53 planck.
+function planckToDot(planckStr: string): string {
+  try {
+    const planck = BigInt(planckStr);
+    const denom = 10_000_000_000n; // 10^10
+    const whole = planck / denom;
+    const frac = planck % denom;
+    // Show 4 fractional digits — beyond that the value is noise for UI.
+    const fracStr = (frac / 1_000_000n).toString().padStart(4, '0');
+    return `${whole.toLocaleString()}.${fracStr}`;
+  } catch {
+    return planckStr;
+  }
+}
+
 function PolkadotChainSections({
   data,
   isMobile,
@@ -735,28 +752,63 @@ function PolkadotChainSections({
   data: PolkadotChainData;
   isMobile: boolean;
 }) {
-  // Replaces the demoted dot_not_elected feed event. Badge renders
-  // only when the worker has populated chain_data.is_elected — during
-  // the deploy gap window where worker is_elected hasn't reached prod
-  // yet, undefined would render falsy and incorrectly show "No". Better
-  // to render nothing than to show wrong data.
+  // Replaces the demoted dot_not_elected feed event. Render only when
+  // the worker has populated chain_data.is_elected — during the deploy
+  // gap window where worker is_elected hasn't reached prod yet,
+  // undefined would render falsy and incorrectly show "No". Better to
+  // render nothing than to show wrong data.
   if (typeof data.is_elected !== 'boolean') {
     return null;
   }
   return (
-    <Section title="Active Set" isMobile={isMobile}>
-      <Field
-        label="Currently Elected"
-        value={
-          <span style={{ color: data.is_elected ? 'var(--color-accent)' : 'var(--color-danger)' }}>
-            {data.is_elected ? 'Yes' : 'No'}
-          </span>
-        }
-      />
-      {data.observed_at_block != null && (
-        <Field label="Observed at Block" value={formatNumber(data.observed_at_block)} />
+    <>
+      <Section title="Active Set" isMobile={isMobile}>
+        <Field
+          label="Currently Elected"
+          value={
+            <span style={{ color: data.is_elected ? 'var(--color-accent)' : 'var(--color-danger)' }}>
+              {data.is_elected ? 'Yes' : 'No'}
+            </span>
+          }
+        />
+        {data.observed_at_block != null && (
+          <Field label="Observed at Block" value={formatNumber(data.observed_at_block)} />
+        )}
+      </Section>
+
+      {data.validator_prefs && (
+        <Section title="Validator Preferences" isMobile={isMobile}>
+          <Field
+            label="Commission"
+            value={`${(data.validator_prefs.commission_bps / 100).toFixed(2)}%`}
+          />
+          <Field
+            label="Accepting Nominations"
+            value={
+              <span
+                style={{
+                  color: data.validator_prefs.blocked ? 'var(--color-danger)' : 'var(--color-accent)',
+                }}
+              >
+                {data.validator_prefs.blocked ? 'No (blocked)' : 'Yes'}
+              </span>
+            }
+          />
+        </Section>
       )}
-    </Section>
+
+      {data.era_exposure && (
+        <Section title="Era Exposure" isMobile={isMobile}>
+          <Field label="Era" value={formatNumber(data.era_exposure.era_index)} />
+          <Field label="Total Stake" value={`${planckToDot(data.era_exposure.total_planck)} DOT`} />
+          <Field
+            label="Validator Own Stake"
+            value={`${planckToDot(data.era_exposure.own_planck)} DOT`}
+          />
+          <Field label="Nominators" value={formatNumber(data.era_exposure.nominator_count)} />
+        </Section>
+      )}
+    </>
   );
 }
 
