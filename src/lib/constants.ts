@@ -14,9 +14,10 @@ export const NETWORK_META: Record<NetworkSlug, NetworkMeta> = {
   polkadot:  { ticker: 'DOT',  color: '#E6007A', name: 'Polkadot' },
   celestia:  { ticker: 'TIA',  color: '#7B2BF9', name: 'Celestia' },
   avalanche: { ticker: 'AVAX', color: '#E84142', name: 'Avalanche' },
+  near:      { ticker: 'NEAR', color: '#00C08B', name: 'Near' },
 };
 
-export const NETWORK_ORDER: readonly NetworkSlug[] = ['solana', 'ethereum', 'cosmos', 'sui', 'polkadot', 'celestia', 'avalanche'];
+export const NETWORK_ORDER: readonly NetworkSlug[] = ['solana', 'ethereum', 'cosmos', 'sui', 'polkadot', 'celestia', 'avalanche', 'near'];
 
 export const EVENT_TYPE_LABELS: Record<EventType, string> = {
   delinquent:          'Went dark. Missed votes.',
@@ -35,6 +36,7 @@ export const EVENT_TYPE_LABELS: Record<EventType, string> = {
   tia_slashed_downtime:    'Offline too long on Celestia. Jailed.',
   tia_slashed_double_sign: 'Signed conflicting blocks at the same height on Celestia. Tombstoned.',
   avax_uptime_below_threshold: 'Uptime fell below the Avalanche reward threshold. Stakers earn nothing this period.',
+  near_kicked_out:             'Kicked from the Near validator set. Delegators earn nothing this epoch.',
 };
 
 export const EVENT_TYPE_DESCRIPTIONS: Record<EventType, string> = {
@@ -54,6 +56,7 @@ export const EVENT_TYPE_DESCRIPTIONS: Record<EventType, string> = {
   tia_slashed_downtime:    'Validator missed too many blocks on Celestia and was jailed. Stake receives a minor slash; validator must manually unjail before they can rejoin consensus. Delegators earn no rewards while jailed.',
   tia_slashed_double_sign: 'Validator signed two different blocks at the same height on Celestia. A slashing penalty is applied to all bonded stake — the validator\'s and all delegators\' proportionally. The validator is permanently tombstoned and cannot rejoin the active set.',
   avax_uptime_below_threshold: 'Validator\'s uptime over its current validation period dropped below the threshold (Avalanche convention is 80%). Validators below the threshold at the end of the period forfeit ALL rewards — for themselves and their delegators — even if their stake remains untouched. Recovers if uptime climbs back above the threshold before the period ends.',
+  near_kicked_out:             'Validator was kicked out of the Near active set at the last epoch boundary. Reasons include not producing enough blocks, not validating enough chunks, unstaking, or losing the seat auction. Stake is not slashed, but the validator earns nothing for the kicked epoch and must be re-elected to resume rewards.',
 };
 
 export function getEventLabel(eventType: string, penaltyAmount: number | null, penaltyToken: string | null): string {
