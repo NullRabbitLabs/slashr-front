@@ -7,15 +7,16 @@ export interface NetworkMeta {
 }
 
 export const NETWORK_META: Record<NetworkSlug, NetworkMeta> = {
-  solana:   { ticker: 'SOL',  color: '#14F195', name: 'Solana' },
-  ethereum: { ticker: 'ETH',  color: '#849DFF', name: 'Ethereum' },
-  cosmos:   { ticker: 'ATOM', color: '#A5A7C4', name: 'Cosmos Hub' },
-  sui:      { ticker: 'SUI',  color: '#4DA2FF', name: 'Sui' },
-  polkadot: { ticker: 'DOT',  color: '#E6007A', name: 'Polkadot' },
-  celestia: { ticker: 'TIA',  color: '#7B2BF9', name: 'Celestia' },
+  solana:    { ticker: 'SOL',  color: '#14F195', name: 'Solana' },
+  ethereum:  { ticker: 'ETH',  color: '#849DFF', name: 'Ethereum' },
+  cosmos:    { ticker: 'ATOM', color: '#A5A7C4', name: 'Cosmos Hub' },
+  sui:       { ticker: 'SUI',  color: '#4DA2FF', name: 'Sui' },
+  polkadot:  { ticker: 'DOT',  color: '#E6007A', name: 'Polkadot' },
+  celestia:  { ticker: 'TIA',  color: '#7B2BF9', name: 'Celestia' },
+  avalanche: { ticker: 'AVAX', color: '#E84142', name: 'Avalanche' },
 };
 
-export const NETWORK_ORDER: readonly NetworkSlug[] = ['solana', 'ethereum', 'cosmos', 'sui', 'polkadot', 'celestia'];
+export const NETWORK_ORDER: readonly NetworkSlug[] = ['solana', 'ethereum', 'cosmos', 'sui', 'polkadot', 'celestia', 'avalanche'];
 
 export const EVENT_TYPE_LABELS: Record<EventType, string> = {
   delinquent:          'Went dark. Missed votes.',
@@ -33,6 +34,7 @@ export const EVENT_TYPE_LABELS: Record<EventType, string> = {
   jito_opted_in:       'Opted back into Jito-Solana — delegators earn MEV tips again.',
   tia_slashed_downtime:    'Offline too long on Celestia. Jailed.',
   tia_slashed_double_sign: 'Signed conflicting blocks at the same height on Celestia. Tombstoned.',
+  avax_uptime_below_threshold: 'Uptime fell below the Avalanche reward threshold. Stakers earn nothing this period.',
 };
 
 export const EVENT_TYPE_DESCRIPTIONS: Record<EventType, string> = {
@@ -51,6 +53,7 @@ export const EVENT_TYPE_DESCRIPTIONS: Record<EventType, string> = {
   jito_opted_in:       'Validator resumed running jito-solana after a prior opt-out. MEV tip revenue flows to delegators again.',
   tia_slashed_downtime:    'Validator missed too many blocks on Celestia and was jailed. Stake receives a minor slash; validator must manually unjail before they can rejoin consensus. Delegators earn no rewards while jailed.',
   tia_slashed_double_sign: 'Validator signed two different blocks at the same height on Celestia. A slashing penalty is applied to all bonded stake — the validator\'s and all delegators\' proportionally. The validator is permanently tombstoned and cannot rejoin the active set.',
+  avax_uptime_below_threshold: 'Validator\'s uptime over its current validation period dropped below the threshold (Avalanche convention is 80%). Validators below the threshold at the end of the period forfeit ALL rewards — for themselves and their delegators — even if their stake remains untouched. Recovers if uptime climbs back above the threshold before the period ends.',
 };
 
 export function getEventLabel(eventType: string, penaltyAmount: number | null, penaltyToken: string | null): string {
