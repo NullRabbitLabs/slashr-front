@@ -1,6 +1,6 @@
-export type NetworkSlug = 'solana' | 'ethereum' | 'cosmos' | 'sui' | 'polkadot' | 'celestia' | 'avalanche';
+export type NetworkSlug = 'solana' | 'ethereum' | 'cosmos' | 'sui' | 'polkadot' | 'celestia' | 'avalanche' | 'near';
 
-export type NetworkTicker = 'SOL' | 'ETH' | 'ATOM' | 'SUI' | 'DOT' | 'TIA' | 'AVAX';
+export type NetworkTicker = 'SOL' | 'ETH' | 'ATOM' | 'SUI' | 'DOT' | 'TIA' | 'AVAX' | 'NEAR';
 
 export type EventType =
   | 'delinquent'
@@ -18,7 +18,8 @@ export type EventType =
   | 'jito_opted_in'
   | 'tia_slashed_downtime'
   | 'tia_slashed_double_sign'
-  | 'avax_uptime_below_threshold';
+  | 'avax_uptime_below_threshold'
+  | 'near_kicked_out';
 
 export type Severity = 'info' | 'warning' | 'critical';
 
