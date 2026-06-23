@@ -9,6 +9,7 @@ import type {
   LeaderboardSort,
   ReportProviderItem,
   ReportResponse,
+  RiskListResponse,
   ChainDataResponse,
   DelegationResponse,
   HealthCheckResponse,
@@ -83,6 +84,21 @@ export async function fetchStats(): Promise<DataResponse<StatsResponse>> {
   return res.json() as Promise<DataResponse<StatsResponse>>;
 }
 
+
+export async function fetchRiskValidators(params?: {
+  network?: string;
+  limit?: number;
+}): Promise<DataResponse<RiskListResponse>> {
+  const qs = new URLSearchParams();
+  if (params?.network) qs.set('network', params.network);
+  if (params?.limit) qs.set('limit', String(params.limit));
+  const pv = previewParam();
+  if (pv) qs.set('preview', pv);
+  const query = qs.toString();
+  const res = await fetch(`${BASE_URL}/v1/risk/validators${query ? `?${query}` : ''}`);
+  if (!res.ok) throw new Error(`API error: ${res.status}`);
+  return res.json() as Promise<DataResponse<RiskListResponse>>;
+}
 
 export async function fetchInsights(): Promise<DataResponse<InsightsResponse>> {
   const res = await fetch(`${BASE_URL}/v1/insights`);

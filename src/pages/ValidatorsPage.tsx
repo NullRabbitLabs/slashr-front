@@ -1,225 +1,87 @@
-import { useState, useEffect, useRef, useCallback, useMemo } from 'react';
-import { Link } from 'react-router-dom';
-import type { NetworkSlug } from '@/types/api';
-import { NETWORK_ORDER } from '@/lib/constants';
-import { NetworkTag } from '@/components/NetworkTag';
-import { FeedFilter } from '@/components/FeedFilter';
-import { useIsMobile } from '@/hooks/useIsMobile';
-import { usePageMeta } from '@/hooks/usePageMeta';
+import { useMemo, useState } from 'react';
+import { useRiskValidators } from '@/hooks/useRiskValidators';
+import { useRiskDrawer } from '@/components/risk/RiskDrawer';
+import { NetPills } from '@/components/risk/NetPills';
+import { formatUsd } from '@/lib/format';
+import { netColor, netTicker, statusMeta, tierColor, tierLabel, tierSoft } from '@/lib/risk';
 
-const BASE_URL = import.meta.env.VITE_API_URL || '';
-
-interface ValidatorSummary {
-  network: NetworkSlug;
-  address: string;
-  moniker: string | null;
-  event_count: number;
-  ongoing_count: number;
-  last_event_at: string;
-}
-
-interface PaginationInfo {
-  limit: number;
-  has_more: boolean;
-  next_cursor: string | null;
-}
+const GRID = 'minmax(220px,2fr) 90px 140px 110px 110px 120px';
 
 export default function ValidatorsPage() {
-  usePageMeta({
-    title: 'Tracked Validators \u00b7 slashr',
-    description: 'All validators with recorded incidents across Solana, Ethereum, Sui, and Cosmos.',
-  });
-  const isMobile = useIsMobile();
-  const [validators, setValidators] = useState<ValidatorSummary[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [hasMore, setHasMore] = useState(false);
-  const [cursor, setCursor] = useState<string | null>(null);
-  const sentinelRef = useRef<HTMLDivElement>(null);
+  const [net, setNet] = useState('all');
+  const [query, setQuery] = useState('');
+  const { open } = useRiskDrawer();
+  const { validators, loading, error } = useRiskValidators(net);
 
-  // Filter state
-  const [activeNetworks, setActiveNetworks] = useState<Set<NetworkSlug>>(
-    () => new Set(NETWORK_ORDER),
-  );
-  const [searchQuery, setSearchQuery] = useState('');
-
-  const networkParam = useMemo(() => {
-    if (activeNetworks.size === NETWORK_ORDER.length) return null;
-    return Array.from(activeNetworks).join(',');
-  }, [activeNetworks]);
-
-  const handleToggleNetwork = useCallback((slug: NetworkSlug) => {
-    setActiveNetworks(prev => {
-      const next = new Set(prev);
-      if (next.has(slug)) {
-        if (next.size <= 1) return prev;
-        next.delete(slug);
-      } else {
-        next.add(slug);
-      }
-      return next;
-    });
-  }, []);
-
-  const fetchPage = useCallback(async (cur?: string, network?: string | null) => {
-    const qs = new URLSearchParams({ limit: '25' });
-    if (cur) qs.set('cursor', cur);
-    if (network) qs.set('network', network);
-    const res = await fetch(`${BASE_URL}/v1/validators?${qs}`);
-    return await res.json() as { data: ValidatorSummary[]; pagination: PaginationInfo };
-  }, []);
-
-  // Reset and fetch on filter change
-  useEffect(() => {
-    setLoading(true);
-    setValidators([]);
-    setCursor(null);
-    setHasMore(false);
-
-    fetchPage(undefined, networkParam)
-      .then(json => {
-        setValidators(json.data);
-        setHasMore(json.pagination.has_more);
-        setCursor(json.pagination.next_cursor);
-      })
-      .catch(() => {})
-      .finally(() => setLoading(false));
-  }, [fetchPage, networkParam]);
-
-  const loadMore = useCallback(() => {
-    if (!cursor || !hasMore) return;
-    fetchPage(cursor, networkParam)
-      .then(json => {
-        setValidators(prev => [...prev, ...json.data]);
-        setHasMore(json.pagination.has_more);
-        setCursor(json.pagination.next_cursor);
-      })
-      .catch(() => {});
-  }, [cursor, hasMore, fetchPage, networkParam]);
-
-  // Infinite scroll
-  useEffect(() => {
-    const el = sentinelRef.current;
-    if (!el) return;
-    const observer = new IntersectionObserver(
-      (entries) => { if (entries[0]?.isIntersecting) loadMore(); },
-      { rootMargin: '200px' },
-    );
-    observer.observe(el);
-    return () => observer.disconnect();
-  }, [loadMore]);
-
-  // Client-side search filter (API doesn't support search on this endpoint)
-  const filtered = searchQuery.length >= 2
-    ? validators.filter(v =>
-        (v.moniker?.toLowerCase().includes(searchQuery.toLowerCase())) ||
-        v.address.toLowerCase().includes(searchQuery.toLowerCase())
-      )
-    : validators;
+  const rows = useMemo(() => {
+    const q = query.trim().toLowerCase();
+    return validators
+      .filter(v => !q || (v.moniker ?? '').toLowerCase().includes(q) || v.address.toLowerCase().includes(q))
+      .slice()
+      .sort((a, b) => (b.stake_usd ?? 0) - (a.stake_usd ?? 0));
+  }, [validators, query]);
 
   return (
-    <>
-      <div style={{ marginTop: 8 }}>
-        {!isMobile && (
-          <div
-            style={{
-              fontSize: 11,
-              fontFamily: "'JetBrains Mono', monospace",
-              textTransform: 'uppercase',
-              letterSpacing: '0.08em',
-              color: 'var(--color-text-dim)',
-              marginBottom: 4,
-            }}
-          >
-            Validators
-          </div>
-        )}
+    <div>
+      <div style={{ marginBottom: 20 }}>
+        <h1 style={{ fontSize: 23, fontWeight: 700, letterSpacing: '-.02em', color: 'var(--text)', margin: '0 0 4px' }}>Validator directory</h1>
+        <p style={{ fontSize: 14, color: 'var(--text-2)', margin: 0 }}>
+          All tracked validators with stake, performance, and current risk status. Click any row for the full risk profile.
+        </p>
+      </div>
 
-        <FeedFilter
-          activeNetworks={activeNetworks}
-          onToggleNetwork={handleToggleNetwork}
-          searchQuery={searchQuery}
-          onSearchChange={setSearchQuery}
-        />
-
-        {loading && (
-          <div style={{ color: 'var(--color-text-dim)', fontFamily: "'JetBrains Mono', monospace", fontSize: 13 }}>
-            loading...
-          </div>
-        )}
-
-        {!loading && (
-          <table
-            style={{
-              width: '100%',
-              borderCollapse: 'collapse',
-              fontFamily: "'JetBrains Mono', monospace",
-              fontSize: 13,
-            }}
-          >
-            <thead>
-              <tr
-                style={{
-                  borderBottom: '1px solid var(--color-border-medium)',
-                  textAlign: 'left',
-                }}
-              >
-                <th style={{ padding: '8px 0', color: 'var(--color-text-dim)', fontWeight: 400, fontSize: 11 }}>Validator</th>
-                <th style={{ padding: '8px 0', color: 'var(--color-text-dim)', fontWeight: 400, fontSize: 11, width: 80, textAlign: 'right' }}>Events</th>
-                <th style={{ padding: '8px 0', color: 'var(--color-text-dim)', fontWeight: 400, fontSize: 11, width: 80, textAlign: 'right' }}>Ongoing</th>
-              </tr>
-            </thead>
-            <tbody>
-              {filtered.map(v => (
-                <tr
-                  key={`${v.network}:${v.address}`}
-                  style={{ borderBottom: '1px solid var(--color-border)' }}
-                >
-                  <td style={{ padding: '10px 0' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                      <NetworkTag network={v.network} />
-                      <Link
-                        to={`/validator/${v.network}/${v.address}`}
-                        style={{
-                          color: 'var(--color-text-primary)',
-                          fontWeight: 600,
-                          ...(isMobile ? {
-                            overflow: 'hidden',
-                            textOverflow: 'ellipsis',
-                            whiteSpace: 'nowrap' as const,
-                            maxWidth: 140,
-                            display: 'block',
-                          } : {}),
-                        }}
-                      >
-                        {v.moniker || v.address.slice(0, 8) + '...' + v.address.slice(-4)}
-                      </Link>
-                    </div>
-                  </td>
-                  <td style={{ padding: '10px 0', textAlign: 'right', color: 'var(--color-text-secondary)' }}>
-                    {v.event_count}
-                  </td>
-                  <td
-                    style={{
-                      padding: '10px 0',
-                      textAlign: 'right',
-                      color: v.ongoing_count > 0 ? '#e8a735' : 'var(--color-text-dim)',
-                      fontWeight: v.ongoing_count > 0 ? 600 : 400,
-                    }}
-                  >
-                    {v.ongoing_count}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        )}
-
-        {hasMore && <div ref={sentinelRef} style={{ height: 1 }} />}
-
-        <div style={{ marginTop: 24, color: 'var(--color-text-dim)', fontSize: 12, fontFamily: "'JetBrains Mono', monospace" }}>
-          {!loading && `${filtered.length} validators`}
+      <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 14, flexWrap: 'wrap' }}>
+        <NetPills value={net} onChange={setNet} />
+        <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 6, background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 9, padding: '0 11px', height: 36, width: 240 }}>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--text-3)" strokeWidth="2"><circle cx="11" cy="11" r="7" /><path d="M21 21l-4-4" /></svg>
+          <input value={query} onChange={e => setQuery(e.target.value)} placeholder="Search validator or address" style={{ border: 'none', outline: 'none', background: 'none', font: 'inherit', fontSize: 13, color: 'var(--text)', width: '100%' }} />
         </div>
       </div>
-    </>
+
+      <div style={{ background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 16, boxShadow: 'var(--shadow)', overflow: 'hidden' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: GRID, gap: 16, padding: '14px 22px', borderBottom: '1px solid var(--border)', background: 'var(--surface-2)', fontSize: 11, fontWeight: 600, letterSpacing: '.05em', textTransform: 'uppercase', color: 'var(--text-3)' }}>
+          <span>Validator</span>
+          <span>Network</span>
+          <span style={{ textAlign: 'right' }}>Total staked</span>
+          <span style={{ textAlign: 'right' }}>Uptime 30d</span>
+          <span style={{ textAlign: 'right' }}>Risk</span>
+          <span style={{ textAlign: 'right' }}>Status</span>
+        </div>
+
+        {loading && <div style={{ padding: 40, textAlign: 'center', color: 'var(--text-3)', fontSize: 13 }}>Loading validators…</div>}
+        {error && <div style={{ padding: 40, textAlign: 'center', color: 'var(--crit)', fontSize: 13 }}>Couldn’t load validators — retrying.</div>}
+        {!loading && !error && rows.length === 0 && <div style={{ padding: 40, textAlign: 'center', color: 'var(--text-3)', fontSize: 13 }}>No validators match.</div>}
+
+        <div>
+          {rows.map(v => {
+            const sm = statusMeta(v.status);
+            return (
+              <div
+                key={`${v.network}-${v.address}`}
+                className="risk-row"
+                onClick={() => open(v)}
+                style={{ display: 'grid', gridTemplateColumns: GRID, alignItems: 'center', gap: 16, padding: '16px 22px', borderBottom: '1px solid var(--border)', boxShadow: `inset 3px 0 0 ${tierColor(v.tier)}` }}
+              >
+                <div style={{ minWidth: 0 }}>
+                  <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--text)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{v.moniker || v.address}</div>
+                  <div style={{ fontFamily: "'Geist Mono', monospace", fontSize: 11, color: 'var(--text-3)' }}>{v.address}</div>
+                </div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                  <span style={{ width: 7, height: 7, borderRadius: '50%', background: netColor(v.network) }} />
+                  <span style={{ fontSize: 12.5, color: 'var(--text-2)' }}>{netTicker(v.network)}</span>
+                </div>
+                <span style={{ textAlign: 'right', fontSize: 13.5, fontWeight: 600, color: 'var(--text)', fontVariantNumeric: 'tabular-nums' }}>{formatUsd(v.stake_usd)}</span>
+                <span style={{ textAlign: 'right', fontSize: 13, color: 'var(--text-2)', fontVariantNumeric: 'tabular-nums' }}>{v.uptime_30d != null ? `${v.uptime_30d.toFixed(1)}%` : '—'}</span>
+                <span style={{ textAlign: 'right', fontSize: 11, fontWeight: 600, justifySelf: 'end', padding: '3px 9px', borderRadius: 20, color: tierColor(v.tier), background: tierSoft(v.tier) }}>{v.risk_score} · {tierLabel(v.tier)}</span>
+                <div style={{ textAlign: 'right', display: 'flex', alignItems: 'center', gap: 6, justifyContent: 'flex-end' }}>
+                  <span style={{ width: 7, height: 7, borderRadius: '50%', background: sm.color }} />
+                  <span style={{ fontSize: 12.5, color: 'var(--text-2)' }}>{sm.label}</span>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+    </div>
   );
 }

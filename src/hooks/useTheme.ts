@@ -5,10 +5,12 @@ type Theme = 'dark' | 'light';
 const STORAGE_KEY = 'slashr-theme';
 
 function getInitialTheme(): Theme {
-  if (typeof window === 'undefined') return 'dark';
+  if (typeof window === 'undefined') return 'light';
   const stored = localStorage.getItem(STORAGE_KEY) as Theme | null;
   if (stored === 'dark' || stored === 'light') return stored;
-  return window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark';
+  // Light is the default surface for the redesign; honour an explicit
+  // OS dark preference only when the user hasn't chosen.
+  return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
 }
 
 export function useTheme() {
@@ -16,8 +18,8 @@ export function useTheme() {
 
   useEffect(() => {
     const root = document.documentElement;
-    if (theme === 'light') {
-      root.setAttribute('data-theme', 'light');
+    if (theme === 'dark') {
+      root.setAttribute('data-theme', 'dark');
     } else {
       root.removeAttribute('data-theme');
     }
@@ -26,10 +28,10 @@ export function useTheme() {
 
   // Listen for system preference changes (only if user hasn't explicitly chosen)
   useEffect(() => {
-    const mq = window.matchMedia('(prefers-color-scheme: light)');
+    const mq = window.matchMedia('(prefers-color-scheme: dark)');
     const handler = (e: MediaQueryListEvent) => {
       if (!localStorage.getItem(STORAGE_KEY)) {
-        setTheme(e.matches ? 'light' : 'dark');
+        setTheme(e.matches ? 'dark' : 'light');
       }
     };
     mq.addEventListener('change', handler);

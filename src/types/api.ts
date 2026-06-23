@@ -598,3 +598,39 @@ export interface ManageAlertsResponse {
   subscriptions: AlertSubscription[];
   max_subscriptions: number;
 }
+
+// --- Risk Index (GET /v1/risk/validators) ---
+
+export type RiskTier = 'critical' | 'elevated' | 'moderate' | 'low';
+export type RiskStatus = 'incident' | 'watch' | 'healthy';
+
+export interface RiskValidatorItem {
+  rank: number;
+  network: NetworkSlug;
+  address: string;
+  short_code: string;
+  moniker: string | null;
+  /** 0-100, high = risky. */
+  risk_score: number;
+  tier: RiskTier;
+  stake: number | null;
+  stake_token: string | null;
+  stake_usd: number | null;
+  value_at_risk_usd: number | null;
+  incident_count_30d: number;
+  slashing_count: number;
+  commission_pct: number | null;
+  /** 30-day uptime %. null while the metric is deferred. */
+  uptime_30d: number | null;
+  status: RiskStatus;
+  /** 30 daily incident counts, oldest first. */
+  spark: number[];
+  last_event_at: string | null;
+}
+
+export interface RiskListResponse {
+  generated_at: string;
+  network: string | null;
+  total: number;
+  validators: RiskValidatorItem[];
+}
