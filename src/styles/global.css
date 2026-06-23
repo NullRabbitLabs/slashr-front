@@ -144,6 +144,10 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
+h1, h2, h3 {
+  text-wrap: balance;
+}
+
 a {
   color: inherit;
   text-decoration: none;

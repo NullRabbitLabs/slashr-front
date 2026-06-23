@@ -23,14 +23,14 @@ export default function OverviewPage() {
     <div>
       {/* hero */}
       <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', gap: 24, marginBottom: 26 }}>
-        <div style={{ maxWidth: 860 }}>
+        <div style={{ flex: 1 }}>
           <div style={{ fontSize: 12, fontWeight: 600, letterSpacing: '.08em', textTransform: 'uppercase', color: 'var(--accent)', marginBottom: 10 }}>
             Validator risk intelligence
           </div>
-          <h1 style={{ fontSize: 32, lineHeight: 1.12, fontWeight: 700, letterSpacing: '-.025em', color: 'var(--text)', margin: '0 0 12px', textWrap: 'balance' }}>
+          <h1 style={{ fontSize: 32, lineHeight: 1.12, fontWeight: 700, letterSpacing: '-.025em', color: 'var(--text)', margin: '0 0 12px', whiteSpace: 'nowrap' }}>
             Know which validators put stake at risk — before they do.
           </h1>
-          <p style={{ fontSize: 15, lineHeight: 1.55, color: 'var(--text-2)', margin: 0, textWrap: 'pretty' }}>
+          <p style={{ fontSize: 15, lineHeight: 1.55, color: 'var(--text-2)', margin: 0, maxWidth: 720, textWrap: 'pretty' }}>
             Continuous slashing, downtime, and commission monitoring across every network we track — for staking
             operators, risk teams, and treasury desks who want the data behind the feed.
           </p>
