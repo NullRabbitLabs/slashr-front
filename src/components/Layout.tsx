@@ -59,6 +59,7 @@ export function Layout({ children, stats }: LayoutProps) {
           }}
         >
           <div
+            className="rd-header-inner"
             style={{
               maxWidth: 1320,
               margin: '0 auto',
@@ -104,7 +105,7 @@ export function Layout({ children, stats }: LayoutProps) {
             </a>
 
             {/* nav */}
-            <nav style={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+            <nav className="rd-nav" style={{ display: 'flex', alignItems: 'center', gap: 2 }}>
               {NAV.map(item => {
                 const active = isActive(item.path);
                 return (
@@ -130,7 +131,7 @@ export function Layout({ children, stats }: LayoutProps) {
 
             {/* right */}
             <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 14 }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 7, fontSize: 12.5, color: 'var(--text-2)' }} className="header-status">
+              <div style={{ display: 'flex', alignItems: 'center', gap: 7, fontSize: 12.5, color: 'var(--text-2)' }} className="rd-status">
                 <span
                   style={{
                     width: 7,
@@ -167,6 +168,7 @@ export function Layout({ children, stats }: LayoutProps) {
               </button>
               <button
                 onClick={() => navigate('/developers')}
+                className="rd-cta-hide"
                 style={{
                   fontSize: 13,
                   fontWeight: 600,
@@ -186,7 +188,7 @@ export function Layout({ children, stats }: LayoutProps) {
         </header>
 
         {/* Main */}
-        <main style={{ flex: 1, maxWidth: 1320, width: '100%', margin: '0 auto', padding: '32px 28px 80px' }}>
+        <main className="rd-main" style={{ flex: 1, maxWidth: 1320, width: '100%', margin: '0 auto', padding: '32px 28px 80px' }}>
           {children}
         </main>
 

@@ -27,7 +27,7 @@ export default function OverviewPage() {
           <div style={{ fontSize: 12, fontWeight: 600, letterSpacing: '.08em', textTransform: 'uppercase', color: 'var(--accent)', marginBottom: 10 }}>
             Validator risk intelligence
           </div>
-          <h1 style={{ fontSize: 32, lineHeight: 1.12, fontWeight: 700, letterSpacing: '-.025em', color: 'var(--text)', margin: '0 0 12px', whiteSpace: 'nowrap' }}>
+          <h1 className="rd-hero-headline" style={{ fontSize: 32, lineHeight: 1.12, fontWeight: 700, letterSpacing: '-.025em', color: 'var(--text)', margin: '0 0 12px', whiteSpace: 'nowrap' }}>
             Know which validators put stake at risk — before they do.
           </h1>
           <p style={{ fontSize: 15, lineHeight: 1.55, color: 'var(--text-2)', margin: 0, maxWidth: 720, textWrap: 'pretty' }}>
@@ -38,7 +38,7 @@ export default function OverviewPage() {
       </div>
 
       {/* network strip */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(8,1fr)', gap: 10, marginBottom: 28 }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(96px, 1fr))', gap: 10, marginBottom: 28 }}>
         {NETWORK_ORDER.map(slug => (
           <div key={slug} style={{ background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 11, padding: '13px 14px', boxShadow: 'var(--shadow)' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 7, marginBottom: 9 }}>
@@ -53,7 +53,7 @@ export default function OverviewPage() {
         ))}
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '1.5fr 1fr', gap: 18 }}>
+      <div className="rd-2col" style={{ display: 'grid', gridTemplateColumns: '1.5fr 1fr', gap: 18 }}>
         {/* top risk preview */}
         <div style={{ background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 14, boxShadow: 'var(--shadow)', overflow: 'hidden' }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '16px 18px', borderBottom: '1px solid var(--border)' }}>

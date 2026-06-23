@@ -38,7 +38,8 @@ export default function ValidatorsPage() {
         </div>
       </div>
 
-      <div style={{ background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 16, boxShadow: 'var(--shadow)', overflow: 'hidden' }}>
+      <div className="rd-table-scroll">
+      <div style={{ background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 16, boxShadow: 'var(--shadow)', overflow: 'hidden', minWidth: 820 }}>
         <div style={{ display: 'grid', gridTemplateColumns: GRID, gap: 16, padding: '14px 22px', borderBottom: '1px solid var(--border)', background: 'var(--surface-2)', fontSize: 11, fontWeight: 600, letterSpacing: '.05em', textTransform: 'uppercase', color: 'var(--text-3)' }}>
           <span>Validator</span>
           <span>Network</span>
@@ -81,6 +82,7 @@ export default function ValidatorsPage() {
             );
           })}
         </div>
+      </div>
       </div>
     </div>
   );

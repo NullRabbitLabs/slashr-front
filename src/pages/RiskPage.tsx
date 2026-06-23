@@ -149,7 +149,7 @@ export default function RiskPage() {
       </div>
 
       {/* metrics */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 16, marginBottom: 26 }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: 16, marginBottom: 26 }}>
         {metrics.map(m => (
           <div key={m.label} style={{ background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 16, padding: '20px 22px', boxShadow: 'var(--shadow)' }}>
             <div style={{ fontSize: 11, fontWeight: 600, letterSpacing: '.06em', textTransform: 'uppercase', color: 'var(--text-3)', marginBottom: 16 }}>{m.label}</div>
@@ -181,7 +181,8 @@ export default function RiskPage() {
       </div>
 
       {/* table */}
-      <div style={{ background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 16, boxShadow: 'var(--shadow)', overflow: 'hidden' }}>
+      <div className="rd-table-scroll">
+      <div style={{ background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 16, boxShadow: 'var(--shadow)', overflow: 'hidden', minWidth: 900 }}>
         <div style={{ display: 'grid', gridTemplateColumns: GRID, alignItems: 'center', gap: 18, padding: '14px 24px', borderBottom: '1px solid var(--border)', background: 'var(--surface-2)' }}>
           {COLUMNS.map(c => {
             const active = c.sortable && sortKey === c.key;
@@ -261,6 +262,7 @@ export default function RiskPage() {
             </div>
           ))}
         </div>
+      </div>
       </div>
 
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 16, marginTop: 16, flexWrap: 'wrap' }}>

@@ -54,7 +54,7 @@ export default function ReportsApiPage() {
       </div>
 
       {/* trust strip */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 16, boxShadow: 'var(--shadow)', marginBottom: 20, overflow: 'hidden' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 16, boxShadow: 'var(--shadow)', marginBottom: 20, overflow: 'hidden' }}>
         {API_STATS.map((s, i) => (
           <div key={s.label} style={{ padding: '18px 22px', borderRight: i < API_STATS.length - 1 ? '1px solid var(--border)' : 'none' }}>
             <div style={{ fontSize: 23, fontWeight: 700, letterSpacing: '-.02em', color: 'var(--text)', fontVariantNumeric: 'tabular-nums', lineHeight: 1 }}>{s.value}</div>
@@ -63,7 +63,7 @@ export default function ReportsApiPage() {
         ))}
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '1.45fr 1fr', gap: 20, marginBottom: 20 }}>
+      <div className="rd-2col" style={{ display: 'grid', gridTemplateColumns: '1.45fr 1fr', gap: 20, marginBottom: 20 }}>
         {/* endpoints + code */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
           <div style={{ background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 16, boxShadow: 'var(--shadow)', overflow: 'hidden' }}>
@@ -132,7 +132,7 @@ export default function ReportsApiPage() {
           <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--text)' }}>Scheduled reports</div>
           <button onClick={() => navigate('/reports/providers')} style={{ fontSize: 12.5, fontWeight: 600, color: 'var(--accent)', background: 'none', border: 'none', cursor: 'pointer' }}>Provider reports →</button>
         </div>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 14 }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 14 }}>
           {REPORTS.map(r => (
             <div key={r.title} style={{ border: '1px solid var(--border)', borderRadius: 12, padding: 16 }}>
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 11 }}>
