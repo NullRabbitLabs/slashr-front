@@ -21,18 +21,33 @@ const NAV: Array<{ label: string; path: string }> = [
   { label: 'Reports', path: '/reports' },
 ];
 
+// Secondary destinations, surfaced in the mobile menu (off the desktop nav).
+const SECONDARY: Array<{ label: string; path: string }> = [
+  { label: 'Insights', path: '/insights' },
+  { label: 'Rankings', path: '/rankings' },
+  { label: 'Check a wallet', path: '/check' },
+  { label: 'Alerts', path: '/alerts' },
+  { label: 'Developers / API', path: '/developers' },
+];
+
 export function Layout({ children, stats }: LayoutProps) {
   const { theme, toggle: toggleTheme } = useTheme();
   const { networks } = useNetworks();
   const { pathname } = useLocation();
   const navigate = useNavigate();
   const [waitlistOpen, setWaitlistOpen] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
 
   const totalEvents = stats?.totals.all_time;
   const netCount = networks.length || 8;
 
   const isActive = (path: string) =>
     path === '/' ? pathname === '/' : pathname.startsWith(path);
+
+  const go = (path: string) => {
+    navigate(path);
+    setMenuOpen(false);
+  };
 
   return (
     <RiskDrawerProvider>
@@ -183,8 +198,103 @@ export function Layout({ children, stats }: LayoutProps) {
               >
                 Request API access
               </button>
+              <button
+                className="rd-hamburger"
+                onClick={() => setMenuOpen(o => !o)}
+                aria-label="Menu"
+                aria-expanded={menuOpen}
+                style={{
+                  display: 'none',
+                  width: 36,
+                  height: 36,
+                  borderRadius: 9,
+                  border: '1px solid var(--border)',
+                  background: 'var(--surface)',
+                  color: 'var(--text)',
+                  cursor: 'pointer',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  fontSize: 17,
+                  lineHeight: 1,
+                }}
+              >
+                {menuOpen ? '✕' : '☰'}
+              </button>
             </div>
           </div>
+
+          {/* Mobile dropdown menu */}
+          {menuOpen && (
+            <div
+              style={{
+                borderTop: '1px solid var(--border)',
+                background: 'var(--surface)',
+                padding: '8px 14px 14px',
+                display: 'flex',
+                flexDirection: 'column',
+                gap: 2,
+              }}
+            >
+              {NAV.map(item => {
+                const active = isActive(item.path);
+                return (
+                  <button
+                    key={item.path}
+                    onClick={() => go(item.path)}
+                    style={{
+                      textAlign: 'left',
+                      fontSize: 15,
+                      fontWeight: active ? 600 : 500,
+                      cursor: 'pointer',
+                      border: 'none',
+                      padding: '11px 12px',
+                      borderRadius: 9,
+                      background: active ? 'var(--surface-2)' : 'transparent',
+                      color: active ? 'var(--text)' : 'var(--text-2)',
+                    }}
+                  >
+                    {item.label}
+                  </button>
+                );
+              })}
+              <div style={{ height: 1, background: 'var(--border)', margin: '8px 0' }} />
+              {SECONDARY.map(item => (
+                <button
+                  key={item.path}
+                  onClick={() => go(item.path)}
+                  style={{
+                    textAlign: 'left',
+                    fontSize: 13.5,
+                    fontWeight: 500,
+                    cursor: 'pointer',
+                    border: 'none',
+                    padding: '10px 12px',
+                    borderRadius: 9,
+                    background: 'transparent',
+                    color: 'var(--text-3)',
+                  }}
+                >
+                  {item.label}
+                </button>
+              ))}
+              <button
+                onClick={() => go('/developers')}
+                style={{
+                  marginTop: 8,
+                  fontSize: 14,
+                  fontWeight: 600,
+                  color: '#fff',
+                  background: 'var(--accent)',
+                  border: 'none',
+                  padding: '11px 12px',
+                  borderRadius: 9,
+                  cursor: 'pointer',
+                }}
+              >
+                Request API access
+              </button>
+            </div>
+          )}
         </header>
 
         {/* Main */}

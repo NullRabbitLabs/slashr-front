@@ -216,13 +216,8 @@ details > summary::-webkit-details-marker {
 @media (max-width: 820px) {
   .rd-main { padding: 18px 14px 64px !important; }
   .rd-header-inner { padding: 0 14px !important; gap: 12px !important; }
-  .rd-nav {
-    flex: 1 1 auto !important;
-    min-width: 0 !important;
-    overflow-x: auto !important;
-    scrollbar-width: none;
-  }
-  .rd-nav::-webkit-scrollbar { display: none; }
+  .rd-nav { display: none !important; }
+  .rd-hamburger { display: flex !important; }
   .rd-status { display: none !important; }
   .rd-cta-hide { display: none !important; }
   .rd-hero-headline { white-space: normal !important; font-size: 25px !important; }
