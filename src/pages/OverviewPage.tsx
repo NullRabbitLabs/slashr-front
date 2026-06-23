@@ -31,8 +31,8 @@ export default function OverviewPage() {
             Know which validators put stake at risk — before they do.
           </h1>
           <p style={{ fontSize: 15, lineHeight: 1.55, color: 'var(--text-2)', margin: 0, textWrap: 'pretty' }}>
-            Continuous slashing, downtime, and commission monitoring across every network we track. Built for staking
-            operators, risk teams, and treasury desks that need underwriting-grade data, not a feed.
+            Continuous slashing, downtime, and commission monitoring across every network we track — for staking
+            operators, risk teams, and treasury desks who want the data behind the feed.
           </p>
         </div>
       </div>

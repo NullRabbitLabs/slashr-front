@@ -44,8 +44,7 @@ export default function ReportsApiPage() {
           <div style={{ fontSize: 11, fontWeight: 600, letterSpacing: '.1em', textTransform: 'uppercase', color: 'var(--accent)', marginBottom: 11 }}>Developers &amp; data</div>
           <h1 style={{ fontSize: 28, fontWeight: 700, letterSpacing: '-.03em', color: 'var(--text)', margin: '0 0 10px' }}>Reports &amp; API</h1>
           <p style={{ fontSize: 15, lineHeight: 1.6, color: 'var(--text-2)', margin: 0 }}>
-            Pull Slashr risk data into your own monitoring, underwriting, and treasury systems — REST, webhooks, and
-            scheduled exports.
+            Pull Slashr risk data into your own monitoring and treasury systems — REST, webhooks, and scheduled exports.
           </p>
         </div>
         <div style={{ display: 'flex', gap: 10, flex: 'none' }}>
@@ -74,7 +73,7 @@ export default function ReportsApiPage() {
                 <div style={{ fontFamily: "'Geist Mono', monospace", fontSize: 11.5, color: 'var(--text-3)', marginTop: 4 }}>https://api.slashr.dev</div>
               </div>
               <span style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 11, fontWeight: 600, color: 'var(--ok)', background: 'var(--ok-soft)', padding: '4px 11px', borderRadius: 20 }}>
-                <span style={{ width: 6, height: 6, borderRadius: '50%', background: 'var(--ok)' }} />v1 · stable
+                <span style={{ width: 6, height: 6, borderRadius: '50%', background: 'var(--ok)' }} />v1
               </span>
             </div>
             {ENDPOINTS.map(ep => (
@@ -115,13 +114,13 @@ export default function ReportsApiPage() {
             </div>
           </div>
           <div style={{ background: 'var(--accent)', borderRadius: 16, padding: 22, color: '#fff', boxShadow: '0 8px 24px rgba(47,107,255,.32)' }}>
-            <div style={{ fontSize: 16, fontWeight: 700, letterSpacing: '-.01em', marginBottom: 8 }}>Underwriting-grade data feed</div>
+            <div style={{ fontSize: 16, fontWeight: 700, letterSpacing: '-.01em', marginBottom: 8 }}>Risk data, programmatically</div>
             <p style={{ fontSize: 13, lineHeight: 1.55, margin: '0 0 18px', opacity: 0.92 }}>
-              Full historical risk scores, slashing events, and SLA-backed uptime data for risk and treasury teams.
+              Historical risk scores, slashing events, and incident data for risk and treasury teams.
             </p>
             <div style={{ display: 'flex', alignItems: 'center', gap: 14, flexWrap: 'wrap' }}>
-              <button onClick={() => navigate('/developers')} style={{ fontSize: 13, fontWeight: 600, color: 'var(--accent)', background: '#fff', border: 'none', padding: '10px 17px', borderRadius: 10, cursor: 'pointer' }}>Talk to our team</button>
-              <span style={{ fontSize: 11.5, fontWeight: 500, opacity: 0.85 }}>SLA-backed · self-serve keys</span>
+              <button onClick={() => navigate('/developers')} style={{ fontSize: 13, fontWeight: 600, color: 'var(--accent)', background: '#fff', border: 'none', padding: '10px 17px', borderRadius: 10, cursor: 'pointer' }}>Get in touch</button>
+              <span style={{ fontSize: 11.5, fontWeight: 500, opacity: 0.85 }}>Self-serve API keys</span>
             </div>
           </div>
         </div>

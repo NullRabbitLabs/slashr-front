@@ -120,7 +120,7 @@ export default function RiskPage() {
           </h1>
           <p style={{ fontSize: 15, lineHeight: 1.6, color: 'var(--text-2)', margin: 0 }}>
             An independent risk score for every validator we track — a transparent composite of downtime, slashing history,
-            commission behavior, and infrastructure health, built for delegation, monitoring, and underwriting decisions.
+            commission behavior, and infrastructure health, to help with delegation and monitoring decisions.
           </p>
         </div>
         <div style={{ width: 320, maxWidth: '100%', background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 14, padding: '16px 18px', boxShadow: 'var(--shadow)' }}>
