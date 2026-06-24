@@ -1,3 +1,4 @@
+import { useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import type { EventType } from '@/types/api';
 import { useStats } from '@/hooks/useStats';
@@ -13,11 +14,29 @@ export default function OverviewPage() {
   const navigate = useNavigate();
   const { open } = useRiskDrawer();
   const { stats } = useStats();
-  const { validators } = useRiskValidators('all', 6);
+  const { validators } = useRiskValidators('all', 200);
   const { events } = useEvents({ network: null, search: '' });
 
   const countByNet = new Map(stats?.networks.map(n => [n.slug, n.counts.last_30d]) ?? []);
-  const recent = events.slice(0, 5);
+  const topRisk = validators.slice(0, 8);
+  const recent = events.slice(0, 8);
+
+  const metrics = useMemo(() => {
+    const crit = validators.filter(v => v.tier === 'critical').length;
+    const varTotal = validators.reduce((s, v) => s + (v.value_at_risk_usd ?? 0), 0);
+    return [
+      { label: 'Incidents · 30d', value: (stats?.totals.last_30d ?? 0).toLocaleString(), color: 'var(--text)' },
+      { label: 'Critical-risk validators', value: String(crit), color: crit > 0 ? 'var(--crit)' : 'var(--text)' },
+      { label: 'Stake value at risk', value: formatUsd(varTotal), color: 'var(--text)' },
+      { label: 'Networks monitored', value: String(stats?.networks.length || NETWORK_ORDER.length), color: 'var(--text)' },
+    ];
+  }, [validators, stats]);
+
+  const explore = [
+    { title: 'Slashr Risk Index', desc: 'Every tracked validator ranked 0–100 by risk, with stake at risk and incident trend.', cta: 'Open Risk index', path: '/risk' },
+    { title: 'Live incident feed', desc: 'Downtime, slashing, and commission events across every network as they happen.', cta: 'Open Live feed', path: '/feed' },
+    { title: 'Reports & API', desc: 'Pull risk scores and incidents into your own monitoring and treasury systems.', cta: 'View the API', path: '/reports' },
+  ];
 
   return (
     <div>
@@ -37,8 +56,18 @@ export default function OverviewPage() {
         </div>
       </div>
 
+      {/* summary metrics */}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: 16, marginBottom: 18 }}>
+        {metrics.map(m => (
+          <div key={m.label} style={{ background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 16, padding: '18px 20px', boxShadow: 'var(--shadow)' }}>
+            <div style={{ fontSize: 11, fontWeight: 600, letterSpacing: '.06em', textTransform: 'uppercase', color: 'var(--text-3)', marginBottom: 12 }}>{m.label}</div>
+            <span style={{ fontSize: 28, fontWeight: 700, letterSpacing: '-.025em', color: m.color, fontVariantNumeric: 'tabular-nums', lineHeight: 1 }}>{m.value}</span>
+          </div>
+        ))}
+      </div>
+
       {/* network strip */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(96px, 1fr))', gap: 10, marginBottom: 28 }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(96px, 1fr))', gap: 10, marginBottom: 18 }}>
         {NETWORK_ORDER.map(slug => (
           <div key={slug} style={{ background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 11, padding: '13px 14px', boxShadow: 'var(--shadow)' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 7, marginBottom: 9 }}>
@@ -53,7 +82,7 @@ export default function OverviewPage() {
         ))}
       </div>
 
-      <div className="rd-2col" style={{ display: 'grid', gridTemplateColumns: '1.5fr 1fr', gap: 18 }}>
+      <div className="rd-2col" style={{ display: 'grid', gridTemplateColumns: '1.5fr 1fr', gap: 18, marginBottom: 18 }}>
         {/* top risk preview */}
         <div style={{ background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 14, boxShadow: 'var(--shadow)', overflow: 'hidden' }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '16px 18px', borderBottom: '1px solid var(--border)' }}>
@@ -66,7 +95,7 @@ export default function OverviewPage() {
             </button>
           </div>
           <div>
-            {validators.map(v => (
+            {topRisk.map(v => (
               <div
                 key={`${v.network}-${v.address}`}
                 className="risk-row"
@@ -90,7 +119,7 @@ export default function OverviewPage() {
                 </div>
               </div>
             ))}
-            {validators.length === 0 && <div style={{ padding: 24, fontSize: 13, color: 'var(--text-3)' }}>No ranked validators yet.</div>}
+            {topRisk.length === 0 && <div style={{ padding: 24, fontSize: 13, color: 'var(--text-3)' }}>No ranked validators yet.</div>}
           </div>
         </div>
 
@@ -122,6 +151,22 @@ export default function OverviewPage() {
             {recent.length === 0 && <div style={{ padding: 24, fontSize: 13, color: 'var(--text-3)' }}>No recent incidents.</div>}
           </div>
         </div>
+      </div>
+
+      {/* explore band */}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: 16 }}>
+        {explore.map(c => (
+          <button
+            key={c.path}
+            onClick={() => navigate(c.path)}
+            className="risk-row"
+            style={{ textAlign: 'left', background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 14, boxShadow: 'var(--shadow)', padding: '18px 20px', cursor: 'pointer' }}
+          >
+            <div style={{ fontSize: 14.5, fontWeight: 600, color: 'var(--text)', marginBottom: 8 }}>{c.title}</div>
+            <div style={{ fontSize: 12.5, lineHeight: 1.5, color: 'var(--text-2)', marginBottom: 14 }}>{c.desc}</div>
+            <span style={{ fontSize: 12.5, fontWeight: 600, color: 'var(--accent)' }}>{c.cta} →</span>
+          </button>
+        ))}
       </div>
     </div>
   );
