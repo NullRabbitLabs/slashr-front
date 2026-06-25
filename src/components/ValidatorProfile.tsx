@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useMemo } from 'react';
+import React, { useState, useEffect, useRef, useMemo, useCallback } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import type { EventListItem, ValidatorEventItem, NetworkSlug } from '@/types/api';
 import { useValidator } from '@/hooks/useValidator';
@@ -7,7 +7,7 @@ import { getEventLabel } from '@/lib/constants';
 import { useIsMobile } from '@/hooks/useIsMobile';
 import { usePageMeta } from '@/hooks/usePageMeta';
 import { formatUtcTime } from '@/lib/time';
-import { truncateMiddle, formatStakeCompact, formatCompact } from '@/lib/format';
+import { truncateMiddle, formatStakeCompact, formatCompact, formatUsd } from '@/lib/format';
 import { NETWORK_META, EVENT_TYPE_DESCRIPTIONS } from '@/lib/constants';
 import { NetworkTag } from './NetworkTag';
 import { SeverityMark } from './SeverityMark';
@@ -91,6 +91,38 @@ const metaValueStyle: React.CSSProperties = {
   color: 'var(--color-text-value)',
   fontFamily: "'JetBrains Mono', monospace",
 };
+
+function ShareButton({ shortCode }: { shortCode: string }) {
+  const [copied, setCopied] = useState(false);
+
+  const handleClick = useCallback(() => {
+    const url = `https://slashr.dev/v/${shortCode}`;
+    navigator.clipboard.writeText(url).then(() => {
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    });
+  }, [shortCode]);
+
+  return (
+    <button
+      onClick={handleClick}
+      style={{
+        fontSize: 11,
+        fontFamily: "'JetBrains Mono', monospace",
+        color: copied ? '#14f195' : 'var(--color-text-tertiary)',
+        background: copied ? 'rgba(20, 241, 149, 0.08)' : 'transparent',
+        border: `1px solid ${copied ? 'rgba(20, 241, 149, 0.3)' : 'var(--color-border)'}`,
+        borderRadius: 4,
+        cursor: 'pointer',
+        padding: '3px 8px',
+        transition: 'all 0.15s ease',
+        letterSpacing: '0.04em',
+      }}
+    >
+      {copied ? 'copied!' : 'share link'}
+    </button>
+  );
+}
 
 // --- Title group types ---
 
@@ -182,8 +214,8 @@ export function ValidatorProfile() {
       validator_website: validator.website,
       has_contact: validator.has_contact,
       in_scan_db: validator.in_scan_db,
-      loss_per_hour_usd: null,
-      estimated_loss_usd: null,
+      loss_per_hour_usd: e.loss_per_hour_usd ?? null,
+      estimated_loss_usd: e.estimated_loss_usd ?? null,
     }));
   }, [validator]);
 
@@ -191,6 +223,19 @@ export function ValidatorProfile() {
     () => buildTitleGroups(enrichedEvents),
     [enrichedEvents],
   );
+
+  const totalLoss = useMemo(() => {
+    let sum = 0;
+    for (const e of enrichedEvents) {
+      if (e.estimated_loss_usd != null) {
+        sum += e.estimated_loss_usd;
+      } else if (e.loss_per_hour_usd != null && e.resolved_at == null) {
+        const hours = (Date.now() - new Date(e.started_at).getTime()) / 3_600_000;
+        sum += e.loss_per_hour_usd * hours;
+      }
+    }
+    return sum;
+  }, [enrichedEvents]);
 
   useEffect(() => {
     if (!validator) return;
@@ -437,20 +482,6 @@ export function ValidatorProfile() {
             flexWrap: 'wrap',
           }}
         >
-          {!isNamed && (
-            <span
-              style={{
-                fontSize: 11,
-                color: 'var(--color-text-ghost)',
-                fontFamily: "'JetBrains Mono', monospace",
-                textTransform: 'uppercase',
-                letterSpacing: '0.06em',
-                marginRight: 8,
-              }}
-            >
-              unnamed validator
-            </span>
-          )}
           {keybaseAvatar && (
             <img
               src={keybaseAvatar}
@@ -511,6 +542,7 @@ export function ValidatorProfile() {
           >
             Get alerts →
           </Link>
+          <ShareButton shortCode={validator.short_code} />
           {(() => {
             const net = NETWORK_META[validator.network]?.name ?? network;
             const total = validator.events.length;
@@ -640,6 +672,16 @@ export function ValidatorProfile() {
               </a>
             </div>
           )}
+          {chainData?.network === 'solana' && (() => {
+            const sd = chainData.chain_data as Record<string, unknown>;
+            if (sd.epoch_vote_account == null) return null;
+            return (
+              <div>
+                <div style={metaLabelStyle}>Vote Account</div>
+                <div style={metaValueStyle}>{sd.epoch_vote_account ? 'Active' : 'Inactive'}</div>
+              </div>
+            );
+          })()}
           {validator.in_scan_db && (
             <div>
               <div style={metaLabelStyle}>&nbsp;</div>
@@ -681,6 +723,34 @@ export function ValidatorProfile() {
           </div>
         );
       })()}
+
+      {/* Total loss */}
+      {totalLoss > 0 && (
+        <div style={{ marginBottom: 24, paddingBottom: 24, borderBottom: '1px solid var(--color-border)' }}>
+          <div style={sectionHeadingStyle}>estimated losses</div>
+          <div
+            style={{
+              fontSize: 22,
+              fontWeight: 600,
+              fontFamily: "'JetBrains Mono', monospace",
+              color: '#e8a735',
+              marginTop: 8,
+            }}
+          >
+            {formatUsd(totalLoss)}
+          </div>
+          <div
+            style={{
+              fontSize: 11,
+              color: 'var(--color-text-tertiary)',
+              fontFamily: "'JetBrains Mono', monospace",
+              marginTop: 4,
+            }}
+          >
+            across {enrichedEvents.filter(e => e.estimated_loss_usd != null || e.loss_per_hour_usd != null).length} incidents
+          </div>
+        </div>
+      )}
 
       {/* Chain-specific data sections */}
       {chainData && <ChainDataSections chainData={chainData} isMobile={isMobile} />}
@@ -790,6 +860,21 @@ export function ValidatorProfile() {
                       </span>
                     )}
 
+                    {ev.loss_per_hour_usd != null && (
+                      <span
+                        style={{
+                          fontSize: 10,
+                          fontFamily: "'JetBrains Mono', monospace",
+                          color: ev.estimated_loss_usd != null ? '#e8a735' : 'var(--color-text-tertiary)',
+                          flexShrink: 0,
+                        }}
+                      >
+                        {ev.estimated_loss_usd != null
+                          ? `${formatUsd(ev.estimated_loss_usd)} lost`
+                          : `${formatUsd(ev.loss_per_hour_usd)}/hr`}
+                      </span>
+                    )}
+
                     <span
                       style={{
                         fontSize: 12,
@@ -804,8 +889,8 @@ export function ValidatorProfile() {
                       {tg.title}
                     </span>
                   </div>
-                  {tgi === 0 && ev === visibleEvents[0] && (
-                    <ScanAnalysisCard eventUuid={String(ev.id)} />
+                  {ev.has_scan && ev.scan && (
+                    <ScanAnalysisCard scan={ev.scan} />
                   )}
                   </React.Fragment>
                 );
@@ -901,6 +986,32 @@ export function ValidatorProfile() {
                 <div style={metaValueStyle}>{validator.node_ip}</div>
               </div>
             )}
+            {validator.node_ip_changed_at && validator.previous_node_ip && (() => {
+              const changedAt = new Date(validator.node_ip_changed_at);
+              const daysAgo = Math.floor((Date.now() - changedAt.getTime()) / 86400000);
+              const isRecent = daysAgo <= 7;
+              return (
+                <div style={{ gridColumn: isMobile ? 'span 2' : undefined }}>
+                  <div style={metaLabelStyle}>
+                    IP changed
+                    {isRecent && (
+                      <span style={{
+                        marginLeft: 6,
+                        fontSize: 10,
+                        fontFamily: 'var(--font-mono)',
+                        color: '#e8a735',
+                        textTransform: 'uppercase',
+                      }}>
+                        recent
+                      </span>
+                    )}
+                  </div>
+                  <div style={{ ...metaValueStyle, color: isRecent ? '#e8a735' : 'var(--color-text-dim)' }}>
+                    from {validator.previous_node_ip} · {daysAgo === 0 ? 'today' : `${daysAgo}d ago`}
+                  </div>
+                </div>
+              );
+            })()}
             {validator.hosting_provider && (
               <div>
                 <div style={metaLabelStyle}>Hosting</div>

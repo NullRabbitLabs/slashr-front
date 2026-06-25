@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { usePageMeta } from '@/hooks/usePageMeta';
 import { useIsMobile } from '@/hooks/useIsMobile';
+import { useNetworks } from '@/hooks/useNetworks';
 import { copyToClipboard } from '@/lib/clipboard';
 import { generateMcpKey } from '@/api/client';
 import type { GenerateKeyError } from '@/api/client';
@@ -85,6 +86,7 @@ const heading: React.CSSProperties = {
 
 export default function DevelopersPage() {
   const isMobile = useIsMobile();
+  const { networks } = useNetworks();
   const [copied, setCopied] = useState(false);
   const [apiKey, setApiKey] = useState<string | null>(null);
   const [keyCopied, setKeyCopied] = useState(false);
@@ -227,9 +229,17 @@ export default function DevelopersPage() {
             maxWidth: 640,
           }}
         >
-          Validator incident data for AI agents. Query delinquency, slashing, scan results, and
-          delegation health across Solana, Ethereum, Sui, and Cosmos — directly from your agent
-          via MCP.
+          Connect your AI agent to live validator incident data via the{' '}
+          <a
+            href="https://modelcontextprotocol.io"
+            target="_blank"
+            rel="noopener noreferrer"
+            style={{ color: 'var(--color-text-primary)', textDecoration: 'none', borderBottom: '1px solid var(--color-border-medium)' }}
+          >
+            Model Context Protocol
+          </a>
+          . Query delinquency, slashing, scan results, and
+          delegation health across Solana, Ethereum, Sui, and Cosmos.
         </p>
       </div>
 
@@ -525,6 +535,47 @@ curl -X POST https://mcp.slashr.dev/mcp \\
         </p>
       </div>
 
+      {/* REST API */}
+      <div style={{ marginBottom: 48 }}>
+        <h2 style={{ ...heading, fontSize: isMobile ? 18 : 20, marginBottom: 12 }}>REST API</h2>
+        <p
+          style={{
+            fontFamily: "'Inter', sans-serif",
+            fontSize: 14,
+            color: 'var(--color-text-secondary)',
+            lineHeight: 1.6,
+            margin: 0,
+            maxWidth: 640,
+          }}
+        >
+          Slashr also has a JSON REST API for direct integration — events, validators, rankings,
+          delegation health checks, and more. Your API key works for both MCP and REST.
+        </p>
+        <a
+          href="https://docs.slashr.dev"
+          target="_blank"
+          rel="noopener noreferrer"
+          style={{
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: 6,
+            marginTop: 16,
+            padding: '8px 18px',
+            background: 'var(--color-bg-surface)',
+            border: '1px solid var(--color-border-medium)',
+            borderRadius: 6,
+            fontFamily: "'Inter', sans-serif",
+            fontSize: 14,
+            fontWeight: 600,
+            color: 'var(--color-text-primary)',
+            textDecoration: 'none',
+            transition: 'border-color 0.15s ease',
+          }}
+        >
+          View full documentation →
+        </a>
+      </div>
+
       {/* Footer */}
       <div
         style={{
@@ -536,7 +587,7 @@ curl -X POST https://mcp.slashr.dev/mcp \\
           color: 'var(--color-text-dim)',
         }}
       >
-        Slashr tracks validator incidents across 4 networks. Built by{' '}
+        Slashr tracks validator incidents across {networks.length} networks. Built by{' '}
         <a
           href="https://nullrabbit.ai"
           target="_blank"

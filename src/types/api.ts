@@ -1,6 +1,6 @@
-export type NetworkSlug = 'solana' | 'ethereum' | 'cosmos' | 'sui' | 'polkadot';
+export type NetworkSlug = 'solana' | 'ethereum' | 'cosmos' | 'sui' | 'polkadot' | 'celestia' | 'avalanche' | 'near';
 
-export type NetworkTicker = 'SOL' | 'ETH' | 'ATOM' | 'SUI' | 'DOT';
+export type NetworkTicker = 'SOL' | 'ETH' | 'ATOM' | 'SUI' | 'DOT' | 'TIA' | 'AVAX' | 'NEAR';
 
 export type EventType =
   | 'delinquent'
@@ -11,7 +11,15 @@ export type EventType =
   | 'tallying_penalty'
   | 'duplicate_block'
   | 'dot_slashed'
-  | 'dot_not_elected';
+  | 'dot_not_elected'
+  | 'commission_increase'
+  | 'vanilla_solana'
+  | 'jito_opted_out'
+  | 'jito_opted_in'
+  | 'tia_slashed_downtime'
+  | 'tia_slashed_double_sign'
+  | 'avax_uptime_below_threshold'
+  | 'near_kicked_out';
 
 export type Severity = 'info' | 'warning' | 'critical';
 
@@ -69,6 +77,14 @@ export interface EventListItem {
   in_scan_db: boolean;
   loss_per_hour_usd: number | null;
   estimated_loss_usd: number | null;
+  has_scan?: boolean;
+  scan?: InlineScanAnalysis | null;
+  is_test_software?: boolean;
+  /// Publish state from the worker pipeline (migration 047). Absent
+  /// for 'live' events (the steady-state default — API skips the
+  /// field for payload size). Present as 'timed_out' when the event
+  /// went public without full validator-level enrichment.
+  feed_state?: 'live' | 'timed_out';
 }
 
 export interface EventDetail extends EventListItem {
@@ -76,6 +92,7 @@ export interface EventDetail extends EventListItem {
 }
 
 export interface ValidatorProfile {
+  short_code: string;
   address: string;
   moniker: string | null;
   network: NetworkSlug;
@@ -92,6 +109,8 @@ export interface ValidatorProfile {
   has_contact: boolean;
   in_scan_db: boolean;
   skip_rate: number | null;
+  previous_node_ip: string | null;
+  node_ip_changed_at: string | null;
   delinquency_frequency: {
     count: number;
     period_days: number;
@@ -109,6 +128,21 @@ export interface ValidatorEventItem {
   resolved_at: string | null;
   penalty_amount: number | null;
   penalty_token: string | null;
+  loss_per_hour_usd: number | null;
+  estimated_loss_usd: number | null;
+  has_scan?: boolean;
+  scan?: InlineScanAnalysis | null;
+}
+
+export interface InlineScanAnalysis {
+  analysis: Record<string, unknown>;
+  reply: {
+    status: string;
+    tweet_id: string | null;
+    text: string | null;
+    replied_at: string | null;
+  };
+  received_at: string;
 }
 
 export interface StatsResponse {
@@ -129,6 +163,50 @@ export interface StatsCounts {
   all_time: number;
 }
 
+
+// --- Insights ---
+
+export interface HourBucket {
+  hour: number;
+  event_count: number;
+}
+
+export interface DowBucket {
+  dow: number;
+  event_count: number;
+}
+
+export interface InsightsResponse {
+  period_days: number;
+  total_events: number;
+  total_loss_usd: number;
+  unique_validators: number;
+  daily: DailyInsight[];
+  by_hour: HourBucket[];
+  by_dow: DowBucket[];
+  top_offenders: InsightOffender[];
+}
+
+export interface DailyInsight {
+  date: string;
+  event_count: number;
+  loss_usd: number;
+  by_network: NetworkDailyCount[];
+}
+
+export interface NetworkDailyCount {
+  slug: NetworkSlug;
+  event_count: number;
+  loss_usd: number;
+}
+
+export interface InsightOffender {
+  network: NetworkSlug;
+  address: string;
+  moniker: string | null;
+  event_count: number;
+  total_loss_usd: number;
+}
 
 export interface EventGroup {
   event: EventListItem;
@@ -347,6 +425,7 @@ export interface SolanaChainData {
   credits_previous_epoch: number;
   credit_delta: number;
   skip_rate: number | null;
+  software_version?: string | null;
 }
 
 export interface SuiChainData {
@@ -404,6 +483,31 @@ export interface EthereumChainData {
   exit_epoch: number | null;
   withdrawable_epoch: number | null;
   slashed: boolean;
+}
+
+export interface PolkadotValidatorPrefs {
+  /// Commission expressed in basis points (0..=10000) — converted from
+  /// the chain's Perbill so the wire format matches Solana's commission
+  /// field. Frontend formats as `bps / 100` to display percent.
+  commission_bps: number;
+  blocked: boolean;
+}
+
+export interface PolkadotEraExposure {
+  era_index: number;
+  /// Planck values are emitted as strings — JS Number can't represent
+  /// u128 losslessly. Frontend converts to DOT via BigInt division by
+  /// 10^10.
+  total_planck: string;
+  own_planck: string;
+  nominator_count: number;
+}
+
+export interface PolkadotChainData {
+  is_elected: boolean;
+  observed_at_block: number;
+  validator_prefs: PolkadotValidatorPrefs | null;
+  era_exposure: PolkadotEraExposure | null;
 }
 
 // --- Scan Analysis ---
@@ -493,4 +597,40 @@ export interface ManageAlertsResponse {
   email_masked: string;
   subscriptions: AlertSubscription[];
   max_subscriptions: number;
+}
+
+// --- Risk Index (GET /v1/risk/validators) ---
+
+export type RiskTier = 'critical' | 'elevated' | 'moderate' | 'low';
+export type RiskStatus = 'incident' | 'watch' | 'healthy';
+
+export interface RiskValidatorItem {
+  rank: number;
+  network: NetworkSlug;
+  address: string;
+  short_code: string;
+  moniker: string | null;
+  /** 0-100, high = risky. */
+  risk_score: number;
+  tier: RiskTier;
+  stake: number | null;
+  stake_token: string | null;
+  stake_usd: number | null;
+  value_at_risk_usd: number | null;
+  incident_count_30d: number;
+  slashing_count: number;
+  commission_pct: number | null;
+  /** 30-day uptime %. null while the metric is deferred. */
+  uptime_30d: number | null;
+  status: RiskStatus;
+  /** 30 daily incident counts, oldest first. */
+  spark: number[];
+  last_event_at: string | null;
+}
+
+export interface RiskListResponse {
+  generated_at: string;
+  network: string | null;
+  total: number;
+  validators: RiskValidatorItem[];
 }

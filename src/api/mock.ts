@@ -188,6 +188,7 @@ function buildMockValidator(network: NetworkSlug, address: string): ValidatorPro
   const first = events[events.length - 1];
   const last = events[0];
   return {
+    short_code: '00000',
     address,
     moniker: first?.validator_moniker ?? null,
     network,
@@ -204,6 +205,8 @@ function buildMockValidator(network: NetworkSlug, address: string): ValidatorPro
     has_contact: true,
     in_scan_db: false,
     skip_rate: network === 'solana' ? 0.023 : null,
+    previous_node_ip: null,
+    node_ip_changed_at: null,
     delinquency_frequency: network === 'solana' ? {
       count: 3,
       period_days: 10,
@@ -218,6 +221,8 @@ function buildMockValidator(network: NetworkSlug, address: string): ValidatorPro
       resolved_at: e.resolved_at,
       penalty_amount: e.penalty_amount,
       penalty_token: e.penalty_token,
+      loss_per_hour_usd: e.loss_per_hour_usd,
+      estimated_loss_usd: e.estimated_loss_usd,
     })),
   };
 }

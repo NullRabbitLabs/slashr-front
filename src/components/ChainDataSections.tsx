@@ -5,6 +5,7 @@ import type {
   SuiChainData,
   CosmosChainData,
   EthereumChainData,
+  PolkadotChainData,
 } from '@/types/api';
 
 // --- Styles (matching ValidatorProfile patterns) ---
@@ -66,14 +67,37 @@ function Section({
   title,
   children,
   isMobile,
+  helpContent,
 }: {
   title: string;
   children: React.ReactNode;
   isMobile: boolean;
+  helpContent?: React.ReactNode;
 }) {
+  const [helpOpen, setHelpOpen] = useState(false);
+
   return (
     <div style={{ marginBottom: 24, paddingBottom: 24, borderBottom: '1px solid var(--color-border)' }}>
-      <div style={{ ...sectionHeadingStyle, marginBottom: 12 }}>{title}</div>
+      <div style={{ ...sectionHeadingStyle, marginBottom: 12, display: 'flex', alignItems: 'center', gap: 8 }}>
+        {title}
+        {helpContent && (
+          <button
+            onClick={() => setHelpOpen(true)}
+            style={{
+              background: 'none',
+              border: 'none',
+              cursor: 'pointer',
+              fontSize: 12,
+              color: 'var(--color-text-dim)',
+              fontFamily: "'JetBrains Mono', monospace",
+              padding: 0,
+              lineHeight: 1,
+            }}
+          >
+            ?
+          </button>
+        )}
+      </div>
       <div
         style={
           isMobile
@@ -83,6 +107,69 @@ function Section({
       >
         {children}
       </div>
+
+      {helpContent && helpOpen && (
+        <div
+          style={{
+            position: 'fixed',
+            inset: 0,
+            zIndex: 200,
+            display: 'flex',
+            alignItems: isMobile ? 'flex-end' : 'center',
+            justifyContent: 'center',
+            background: 'var(--color-overlay)',
+          }}
+          onClick={() => setHelpOpen(false)}
+        >
+          <div
+            onClick={e => e.stopPropagation()}
+            style={{
+              background: 'var(--color-bg)',
+              border: '1px solid var(--color-border-medium)',
+              borderRadius: isMobile ? '12px 12px 0 0' : 8,
+              padding: isMobile ? '24px 20px 32px' : '32px 28px',
+              width: isMobile ? '100%' : 420,
+              maxHeight: '90vh',
+              overflowY: 'auto',
+            }}
+          >
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
+              <h3 style={{
+                fontSize: 16,
+                fontWeight: 700,
+                fontFamily: "'Space Grotesk', sans-serif",
+                letterSpacing: '-0.02em',
+                margin: 0,
+                color: 'var(--color-text-primary)',
+              }}>
+                What do these numbers mean?
+              </h3>
+              <button
+                onClick={() => setHelpOpen(false)}
+                style={{
+                  background: 'none',
+                  border: 'none',
+                  cursor: 'pointer',
+                  fontSize: 18,
+                  color: 'var(--color-text-dim)',
+                  padding: 4,
+                  lineHeight: 1,
+                }}
+              >
+                &times;
+              </button>
+            </div>
+            <div style={{
+              fontSize: 13,
+              color: 'var(--color-text-secondary)',
+              fontFamily: "'Inter', sans-serif",
+              lineHeight: 1.7,
+            }}>
+              {helpContent}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
@@ -178,7 +265,26 @@ function SolanaChainSections({
         </div>
       )}
 
-      <Section title="Performance" isMobile={isMobile}>
+      <Section
+        title="Performance"
+        isMobile={isMobile}
+        helpContent={
+          <>
+            <p style={{ margin: '0 0 12px' }}>
+              <strong style={{ color: 'var(--color-text-primary)' }}>Epoch Credits</strong> — A running score of how many votes this validator has successfully cast. Higher is better. The <code style={{ fontSize: 12, fontFamily: "'JetBrains Mono', monospace" }}>prev:</code> value is last epoch's score; the delta shows whether performance is improving or declining.
+            </p>
+            <p style={{ margin: '0 0 12px' }}>
+              <strong style={{ color: 'var(--color-text-primary)' }}>Last Vote</strong> — The most recent slot this validator voted on. If this is far behind the current slot, the validator may be falling behind the network.
+            </p>
+            <p style={{ margin: '0 0 12px' }}>
+              <strong style={{ color: 'var(--color-text-primary)' }}>Root Slot</strong> — The last slot this validator has confirmed as finalised. Should track close to Last Vote. A large gap between Root Slot and Last Vote can indicate sync issues.
+            </p>
+            <p style={{ margin: 0 }}>
+              <strong style={{ color: 'var(--color-text-primary)' }}>Improving / Declining</strong> — Compares this epoch's credits to last epoch's. An improving validator is catching up; a declining one is falling further behind.
+            </p>
+          </>
+        }
+      >
         {data.credits_current_epoch != null && (
           <Field
             label="Epoch Credits"
@@ -235,17 +341,54 @@ function SolanaChainSections({
             />
           );
         })()}
+        {data.software_version && (() => {
+          const isTest = /alpha|beta|test/i.test(data.software_version);
+          // Mirror of slasher-solana's classify_jito_version: any version
+          // containing "jito" (case-insensitive) is Jito-Solana; anything
+          // else is vanilla Agave. Vanilla validators forfeit MEV tip
+          // revenue that would otherwise flow to delegators — that's the
+          // chip's product story. We deliberately do not chip "Jito" as
+          // green because being on Jito is the expected state, not an
+          // achievement; we only call out the deviation.
+          const isJito = /jito/i.test(data.software_version);
+          return (
+            <Field
+              label="Software"
+              value={
+                <span style={{ color: isTest ? 'var(--color-danger)' : 'var(--color-text-primary)' }}>
+                  {data.software_version}
+                  {isTest && (
+                    <span style={{ fontSize: 10, marginLeft: 8, color: 'var(--color-danger)', fontFamily: "'JetBrains Mono', monospace", textTransform: 'uppercase', letterSpacing: '0.08em' }}>
+                      pre-release
+                    </span>
+                  )}
+                  {!isJito && !isTest && (
+                    <span
+                      title="Running stock Agave (vanilla Solana) instead of Jito-Solana — MEV tip revenue that could flow to delegators is forfeited."
+                      style={{
+                        fontSize: 10,
+                        marginLeft: 8,
+                        padding: '2px 6px',
+                        background: 'rgba(232, 167, 53, 0.15)',
+                        border: '1px solid rgba(232, 167, 53, 0.30)',
+                        borderRadius: 3,
+                        color: '#e8a735',
+                        fontFamily: "'JetBrains Mono', monospace",
+                        textTransform: 'uppercase',
+                        letterSpacing: '0.08em',
+                        cursor: 'help',
+                      }}
+                    >
+                      vanilla
+                    </span>
+                  )}
+                </span>
+              }
+            />
+          );
+        })()}
       </Section>
 
-      <Section title="Staking" isMobile={isMobile}>
-        {data.activated_stake_sol != null && (
-          <Field label="Activated Stake" value={`${formatNumber(Math.round(data.activated_stake_sol))} SOL`} />
-        )}
-        {data.commission != null && <Field label="Commission" value={`${data.commission}%`} />}
-        {data.epoch_vote_account != null && (
-          <Field label="Epoch Vote Account" value={data.epoch_vote_account ? 'Active' : 'Inactive'} />
-        )}
-      </Section>
     </>
   );
 }
@@ -585,6 +728,90 @@ function EthereumChainSections({
   );
 }
 
+/// Convert planck (u128 wire-string) to a human-readable DOT figure.
+/// Uses BigInt to avoid Number's 53-bit precision ceiling — top
+/// validators have stake well above 2^53 planck.
+function planckToDot(planckStr: string): string {
+  try {
+    const planck = BigInt(planckStr);
+    const denom = 10_000_000_000n; // 10^10
+    const whole = planck / denom;
+    const frac = planck % denom;
+    // Show 4 fractional digits — beyond that the value is noise for UI.
+    const fracStr = (frac / 1_000_000n).toString().padStart(4, '0');
+    return `${whole.toLocaleString()}.${fracStr}`;
+  } catch {
+    return planckStr;
+  }
+}
+
+function PolkadotChainSections({
+  data,
+  isMobile,
+}: {
+  data: PolkadotChainData;
+  isMobile: boolean;
+}) {
+  // Replaces the demoted dot_not_elected feed event. Render only when
+  // the worker has populated chain_data.is_elected — during the deploy
+  // gap window where worker is_elected hasn't reached prod yet,
+  // undefined would render falsy and incorrectly show "No". Better to
+  // render nothing than to show wrong data.
+  if (typeof data.is_elected !== 'boolean') {
+    return null;
+  }
+  return (
+    <>
+      <Section title="Active Set" isMobile={isMobile}>
+        <Field
+          label="Currently Elected"
+          value={
+            <span style={{ color: data.is_elected ? 'var(--color-accent)' : 'var(--color-danger)' }}>
+              {data.is_elected ? 'Yes' : 'No'}
+            </span>
+          }
+        />
+        {data.observed_at_block != null && (
+          <Field label="Observed at Block" value={formatNumber(data.observed_at_block)} />
+        )}
+      </Section>
+
+      {data.validator_prefs && (
+        <Section title="Validator Preferences" isMobile={isMobile}>
+          <Field
+            label="Commission"
+            value={`${(data.validator_prefs.commission_bps / 100).toFixed(2)}%`}
+          />
+          <Field
+            label="Accepting Nominations"
+            value={
+              <span
+                style={{
+                  color: data.validator_prefs.blocked ? 'var(--color-danger)' : 'var(--color-accent)',
+                }}
+              >
+                {data.validator_prefs.blocked ? 'No (blocked)' : 'Yes'}
+              </span>
+            }
+          />
+        </Section>
+      )}
+
+      {data.era_exposure && (
+        <Section title="Era Exposure" isMobile={isMobile}>
+          <Field label="Era" value={formatNumber(data.era_exposure.era_index)} />
+          <Field label="Total Stake" value={`${planckToDot(data.era_exposure.total_planck)} DOT`} />
+          <Field
+            label="Validator Own Stake"
+            value={`${planckToDot(data.era_exposure.own_planck)} DOT`}
+          />
+          <Field label="Nominators" value={formatNumber(data.era_exposure.nominator_count)} />
+        </Section>
+      )}
+    </>
+  );
+}
+
 // --- Main export ---
 
 interface ChainDataSectionsProps {
@@ -607,6 +834,8 @@ export function ChainDataSections({ chainData, isMobile }: ChainDataSectionsProp
       return (
         <EthereumChainSections data={cd as unknown as EthereumChainData} computed={computed} isMobile={isMobile} />
       );
+    case 'polkadot':
+      return <PolkadotChainSections data={cd as unknown as PolkadotChainData} isMobile={isMobile} />;
     default:
       return null;
   }

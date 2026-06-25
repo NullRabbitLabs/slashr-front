@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-**Slashr** (slashr.dev) is the frontend for a multi-chain validator penalty tracker (NullRabbit). It's a client-side SPA that consumes the Slashr REST API and displays a live feed of validator penalty events across Ethereum, Solana, Cosmos Hub, and Sui. Feed-first design — not a dashboard, not a SaaS product.
+**Slashr** (slashr.dev) is the frontend for a multi-chain validator risk-intelligence product (NullRabbit). It's a client-side SPA that consumes the Slashr REST API. As of the June 2026 redesign (reference: `~/Sync/Slashr.dc.html`) the primary nav is **Overview / Risk / Live Feed / Validators / Reports**, organised around the Slashr Risk Index. Secondary pages (Insights, Check, Leaderboard/Rankings, Alerts, Developers) remain reachable off the primary nav. (Earlier docs described this as "feed-first, not a SaaS" — superseded by the redesign.)
 
 ## Tech Stack
 
@@ -106,11 +106,11 @@ Append "Lost {amount} {token}." when `penalty_amount` and `penalty_token` are se
 
 ## Design System
 
-Dark theme only. No light mode toggle.
+**Light theme is the default**, with a dark-mode toggle (`useTheme` sets `data-theme="dark"`; light = no attribute). Both themes are first-class.
 
-**Colours:** background `#0A0A0B`, text `#E8E6E1`, muted `rgba(255,255,255,0.4)`, hint `rgba(255,255,255,0.2)`, accent red `#FF4545`, borders `rgba(255,255,255,0.06)`. Network colours: SOL `#14F195`, ETH `#849DFF`, ATOM `#A5A7C4`, SUI `#4DA2FF`.
+**Tokens:** the redesign uses short token names defined in `styles/global.css` — `--bg`, `--surface`, `--surface-2`, `--border`, `--text`/`--text-2`/`--text-3`, `--accent` (blue `#2f6bff` light / `#5b8cff` dark), `--crit`, `--warn`, `--ok`, `--track`, `--shadow`. Legacy `--color-*` tokens remain for secondary pages. Network colours come from `NETWORK_META` in `lib/constants.ts`. Risk-surface helpers (tier colours, sparklines, signal breakdown) live in `lib/risk.ts`.
 
-**Typography:** Space Grotesk 700 (headings/wordmark, -0.04em), Inter 400/500/600 (body), JetBrains Mono 400/600 (data/timestamps/tags). All via `@fontsource` npm packages, not CDN.
+**Typography:** Geist Sans 300–700 (redesign body + headings) and Geist Mono 400/500 (addresses/data), via `@fontsource/geist-sans` + `@fontsource/geist-mono`. Legacy faces (Space Grotesk / Inter / JetBrains Mono) are still imported for secondary pages. All via `@fontsource` npm packages, not CDN.
 
 **Visual rules:** no purple gradients, no rounded-everything, no card-heavy layouts. Borders are 1px max. Generous vertical spacing. Resolved events at 40% opacity, unresolved at 100%.
 

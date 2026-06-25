@@ -5,6 +5,7 @@ import SubscribeForm from '@/components/alerts/SubscribeForm';
 export default function AlertsPage() {
   const [searchParams] = useSearchParams();
   const prefillAddress = searchParams.get('address') ?? '';
+  const prefillEmail = searchParams.get('email') ?? '';
 
   usePageMeta({
     title: 'Get alerts — slashr',
@@ -38,7 +39,7 @@ export default function AlertsPage() {
         Get notified when a validator you care about has an incident. No account needed — just an email and an address.
       </p>
 
-      <SubscribeForm initialAddress={prefillAddress} />
+      <SubscribeForm initialAddress={prefillAddress} initialEmail={prefillEmail} />
     </div>
   );
 }

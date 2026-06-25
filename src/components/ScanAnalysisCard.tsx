@@ -1,9 +1,7 @@
-import { useState, useEffect } from 'react';
-import type { ScanAnalysisDetail, ScanHealthPort } from '@/types/api';
-import { fetchScanAnalysis } from '@/api/client';
+import type { InlineScanAnalysis, ScanHealthPort } from '@/types/api';
 
 interface ScanAnalysisCardProps {
-  eventUuid: string;
+  scan: InlineScanAnalysis;
 }
 
 const STATUS_COLORS: Record<string, string> = {
@@ -22,31 +20,15 @@ function relativeTime(iso: string): string {
   return `${Math.floor(hours / 24)}d ago`;
 }
 
-export default function ScanAnalysisCard({ eventUuid }: ScanAnalysisCardProps) {
-  const [data, setData] = useState<ScanAnalysisDetail | null>(null);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    let cancelled = false;
-    fetchScanAnalysis(eventUuid)
-      .then((result) => {
-        if (!cancelled) setData(result);
-      })
-      .catch(() => {})
-      .finally(() => {
-        if (!cancelled) setLoading(false);
-      });
-    return () => { cancelled = true; };
-  }, [eventUuid]);
-
-  if (loading || !data) return null;
-
-  const analysis = data.analysis as Record<string, unknown>;
+export default function ScanAnalysisCard({ scan }: ScanAnalysisCardProps) {
+  const analysis = scan.analysis as Record<string, unknown>;
   const health = analysis.health as Record<string, unknown> | undefined;
   const healthStatus = (health?.status as string) || 'unknown';
   const statusColor = STATUS_COLORS[healthStatus] || 'rgba(255,255,255,0.4)';
 
   const ports = (health?.ports as ScanHealthPort[]) || [];
+  const scanData = analysis.scan as { open_ports?: Array<{ port: number; state: string; service: string; version: string }> } | undefined;
+  const openPorts = (scanData?.open_ports ?? []).filter(p => p.state === 'open_confirmed' && p.service);
   const pattern = analysis.pattern as { total_events?: number; span_days?: number; events_per_day?: number } | undefined;
   const cves = analysis.cves as { total?: number; critical?: number } | undefined;
 
@@ -173,6 +155,34 @@ export default function ScanAnalysisCard({ eventUuid }: ScanAnalysisCardProps) {
         </div>
       )}
 
+      {/* Discovered services */}
+      {openPorts.length > 0 && (
+        <div style={{ marginBottom: 12 }}>
+          <div style={{
+            fontFamily: 'Inter, sans-serif',
+            fontSize: 11,
+            color: 'var(--color-text-secondary)',
+            marginBottom: 6,
+          }}>
+            Open services
+          </div>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+            {openPorts.map((p) => (
+              <div key={`${p.port}-${p.service}`} style={{
+                fontFamily: 'JetBrains Mono, monospace',
+                fontSize: 11,
+                color: 'var(--color-text-secondary)',
+                display: 'flex',
+                gap: 8,
+              }}>
+                <span style={{ color: '#FF4545', minWidth: 42 }}>:{p.port}</span>
+                <span>{p.service}{p.version ? ` ${p.version}` : ''}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
       {/* Pattern + CVEs */}
       <div style={{
         fontFamily: 'JetBrains Mono, monospace',
@@ -222,8 +232,7 @@ export default function ScanAnalysisCard({ eventUuid }: ScanAnalysisCardProps) {
             {followUps.map((fu, i) => {
               const fuStatus = (fu.health_status as string) || 'unknown';
               const fuColor = STATUS_COLORS[fuStatus] || 'rgba(255,255,255,0.4)';
-              const historyEntry = data.history.find(h => h.follow_up_round === i + 1);
-              const timestamp = historyEntry?.received_at ?? (fu.checked_at as string | undefined);
+              const timestamp = fu.checked_at as string | undefined;
               return (
                 <div key={i} style={{
                   display: 'flex',
@@ -265,10 +274,10 @@ export default function ScanAnalysisCard({ eventUuid }: ScanAnalysisCardProps) {
       )}
 
       {/* Reply link */}
-      {data.reply.status === 'sent' && data.reply.tweet_id && (
+      {scan.reply.status === 'sent' && scan.reply.tweet_id && (
         <div style={{ marginTop: 10 }}>
           <a
-            href={`https://x.com/i/web/status/${data.reply.tweet_id}`}
+            href={`https://x.com/i/web/status/${scan.reply.tweet_id}`}
             target="_blank"
             rel="noopener noreferrer"
             style={{

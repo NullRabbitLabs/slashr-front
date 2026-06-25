@@ -2,16 +2,17 @@ import type {
   EventListItem,
   NetworkInfo,
   StatsResponse,
+  InsightsResponse,
   ValidatorProfile,
   LeaderboardResponse,
   LeaderboardPeriod,
   LeaderboardSort,
   ReportProviderItem,
   ReportResponse,
+  RiskListResponse,
   ChainDataResponse,
   DelegationResponse,
   HealthCheckResponse,
-  ScanAnalysisDetail,
   PaginatedResponse,
   DataResponse,
   NetworkSlug,
@@ -26,6 +27,22 @@ import { getMockEvents, getMockNetworks, getMockStats, getMockValidator, getMock
 const BASE_URL = import.meta.env.VITE_API_URL || '';
 const USE_MOCK = import.meta.env.VITE_USE_MOCK === 'true';
 
+/**
+ * Preview-bypass for gated networks (api side: migration 052).
+ * Returns 'all' iff the current URL has ?preview=all, else null.
+ *
+ * Live-reads window.location each call so SPA navigation to/from the
+ * preview URL flips the behaviour immediately. Not cached.
+ *
+ * SSR-safe fallback (typeof window check) for future build-time
+ * prerendering.
+ */
+function previewParam(): string | null {
+  if (typeof window === 'undefined') return null;
+  const p = new URLSearchParams(window.location.search).get('preview');
+  return p === 'all' ? 'all' : null;
+}
+
 export async function fetchEvents(params?: {
   network?: string;
   search?: string;
@@ -39,6 +56,8 @@ export async function fetchEvents(params?: {
   if (params?.search) qs.set('search', params.search);
   if (params?.cursor) qs.set('cursor', params.cursor);
   if (params?.limit) qs.set('limit', String(params.limit));
+  const pv = previewParam();
+  if (pv) qs.set('preview', pv);
   const query = qs.toString();
   const res = await fetch(`${BASE_URL}/v1/events${query ? `?${query}` : ''}`);
   if (!res.ok) throw new Error(`API error: ${res.status}`);
@@ -48,7 +67,9 @@ export async function fetchEvents(params?: {
 export async function fetchNetworks(): Promise<DataResponse<NetworkInfo[]>> {
   if (USE_MOCK) return getMockNetworks();
 
-  const res = await fetch(`${BASE_URL}/v1/networks`);
+  const pv = previewParam();
+  const suffix = pv ? `?preview=${pv}` : '';
+  const res = await fetch(`${BASE_URL}/v1/networks${suffix}`);
   if (!res.ok) throw new Error(`API error: ${res.status}`);
   return res.json() as Promise<DataResponse<NetworkInfo[]>>;
 }
@@ -56,11 +77,34 @@ export async function fetchNetworks(): Promise<DataResponse<NetworkInfo[]>> {
 export async function fetchStats(): Promise<DataResponse<StatsResponse>> {
   if (USE_MOCK) return getMockStats();
 
-  const res = await fetch(`${BASE_URL}/v1/stats`);
+  const pv = previewParam();
+  const suffix = pv ? `?preview=${pv}` : '';
+  const res = await fetch(`${BASE_URL}/v1/stats${suffix}`);
   if (!res.ok) throw new Error(`API error: ${res.status}`);
   return res.json() as Promise<DataResponse<StatsResponse>>;
 }
 
+
+export async function fetchRiskValidators(params?: {
+  network?: string;
+  limit?: number;
+}): Promise<DataResponse<RiskListResponse>> {
+  const qs = new URLSearchParams();
+  if (params?.network) qs.set('network', params.network);
+  if (params?.limit) qs.set('limit', String(params.limit));
+  const pv = previewParam();
+  if (pv) qs.set('preview', pv);
+  const query = qs.toString();
+  const res = await fetch(`${BASE_URL}/v1/risk/validators${query ? `?${query}` : ''}`);
+  if (!res.ok) throw new Error(`API error: ${res.status}`);
+  return res.json() as Promise<DataResponse<RiskListResponse>>;
+}
+
+export async function fetchInsights(): Promise<DataResponse<InsightsResponse>> {
+  const res = await fetch(`${BASE_URL}/v1/insights`);
+  if (!res.ok) throw new Error(`API error: ${res.status}`);
+  return res.json() as Promise<DataResponse<InsightsResponse>>;
+}
 
 export async function fetchValidator(
   network: string,
@@ -71,6 +115,15 @@ export async function fetchValidator(
   const res = await fetch(`${BASE_URL}/v1/validators/${encodeURIComponent(network)}/${encodeURIComponent(address)}`);
   if (!res.ok) throw new Error(`API error: ${res.status}`);
   return res.json() as Promise<DataResponse<ValidatorProfile>>;
+}
+
+export async function resolveShortCode(
+  code: string,
+): Promise<{ network: string; address: string } | null> {
+  const res = await fetch(`${BASE_URL}/v1/validators/short/${encodeURIComponent(code)}`);
+  if (!res.ok) return null;
+  const json = (await res.json()) as DataResponse<{ network: string; address: string }>;
+  return json.data;
 }
 
 export async function fetchChainData(
@@ -172,17 +225,6 @@ export async function fetchHealthCheck(
     throw new Error(message);
   }
   return res.json() as Promise<DataResponse<HealthCheckResponse>>;
-}
-
-export async function fetchScanAnalysis(eventUuid: string): Promise<ScanAnalysisDetail | null> {
-  if (USE_MOCK) return null;
-
-  const res = await fetch(`${BASE_URL}/v1/events/${encodeURIComponent(eventUuid)}/scan-analysis`);
-  if (res.status === 404) return null;
-  if (!res.ok) return null;
-
-  const json = await res.json() as DataResponse<ScanAnalysisDetail>;
-  return json.data;
 }
 
 // --- Self-serve API key generation (MCP server) ---

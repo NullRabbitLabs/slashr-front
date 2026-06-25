@@ -36,7 +36,7 @@ export function Footer({ onOpenWaitlist }: FooterProps) {
   const isMobile = useIsMobile();
 
   return (
-    <div style={{ borderTop: '1px solid var(--color-border)' }}>
+    <div style={{ borderTop: '1px solid var(--color-border)', position: 'sticky', bottom: 0, background: 'var(--color-bg)', zIndex: 50 }}>
       <div
         style={{
           maxWidth: 860,
@@ -96,8 +96,16 @@ export function Footer({ onOpenWaitlist }: FooterProps) {
             onMouseEnter={hoverIn}
             onMouseLeave={hoverOut}
           >
-            Stay in the loop
+            Contact
           </button>
+          <Link
+            to="/insights"
+            style={linkStyle}
+            onMouseEnter={hoverIn}
+            onMouseLeave={hoverOut}
+          >
+            Insights
+          </Link>
           <Link
             to="/developers"
             style={linkStyle}

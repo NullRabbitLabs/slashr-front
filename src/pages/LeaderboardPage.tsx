@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import type { NetworkSlug, LeaderboardPeriod, LeaderboardSort } from '@/types/api';
 import { NETWORK_META, NETWORK_ORDER } from '@/lib/constants';
+import { useVisibleNetworkOrder } from '@/hooks/useVisibleNetworks';
 import { truncateMiddle, formatCompact } from '@/lib/format';
 import { relativeTime } from '@/lib/time';
 import { NetworkTag } from '@/components/NetworkTag';
@@ -39,6 +40,7 @@ export default function LeaderboardPage() {
     description: 'Worst offenders and most reliable validators across Solana, Ethereum, Sui, and Cosmos.',
   });
   const isMobile = useIsMobile();
+  const visibleNetworks = useVisibleNetworkOrder();
   const [params, setParams] = useSearchParams();
   const sentinelRef = useRef<HTMLDivElement>(null);
 
@@ -104,7 +106,7 @@ export default function LeaderboardPage() {
       <div style={{ display: 'flex', flexWrap: 'wrap', gap: isMobile ? 6 : 8, marginBottom: 16, alignItems: 'center' }}>
         {/* Network selector - single select pills */}
         <div style={{ display: 'flex', flexWrap: 'wrap', gap: isMobile ? 4 : 6 }}>
-          {NETWORK_ORDER.map(slug => {
+          {visibleNetworks.map(slug => {
             const meta = NETWORK_META[slug];
             const active = slug === network;
             return (

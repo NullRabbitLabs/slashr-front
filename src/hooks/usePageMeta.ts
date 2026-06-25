@@ -16,6 +16,11 @@ function setMetaContent(selector: string, content: string) {
   if (el) el.setAttribute('content', content);
 }
 
+function setCanonical(url: string) {
+  const el = document.querySelector('link[rel="canonical"]');
+  if (el) el.setAttribute('href', url);
+}
+
 export function usePageMeta({ title, description }: PageMeta) {
   const { pathname } = useLocation();
   const url = `${BASE_URL}${pathname}`;
@@ -25,6 +30,7 @@ export function usePageMeta({ title, description }: PageMeta) {
     setMetaContent('meta[property="og:title"]', title);
     setMetaContent('meta[property="og:description"]', description);
     setMetaContent('meta[property="og:url"]', url);
+    setCanonical(url);
     setMetaContent('meta[name="description"]', description);
     setMetaContent('meta[name="twitter:title"]', title);
     setMetaContent('meta[name="twitter:description"]', description);
@@ -34,6 +40,7 @@ export function usePageMeta({ title, description }: PageMeta) {
       setMetaContent('meta[property="og:title"]', DEFAULT_TITLE);
       setMetaContent('meta[property="og:description"]', DEFAULT_DESCRIPTION);
       setMetaContent('meta[property="og:url"]', BASE_URL);
+      setCanonical(BASE_URL);
       setMetaContent('meta[name="description"]', DEFAULT_DESCRIPTION);
       setMetaContent('meta[name="twitter:title"]', DEFAULT_TITLE);
       setMetaContent('meta[name="twitter:description"]', DEFAULT_DESCRIPTION);

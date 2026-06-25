@@ -14,6 +14,7 @@ import { MethodologyNote } from '@/components/health/MethodologyNote';
 import { HealthCardPng } from '@/components/health/HealthCardPng';
 import { CheckCleanCTA } from '@/components/CheckCleanCTA';
 import AlertsCTA from '@/components/alerts/AlertsCTA';
+import { useIsMobile } from '@/hooks/useIsMobile';
 
 const EXAMPLE_ADDRESSES = [
   'e.g. 9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM',
@@ -23,6 +24,7 @@ const EXAMPLE_ADDRESSES = [
 ];
 
 export default function CheckPage() {
+  const isMobile = useIsMobile();
   const placeholder = useRotatingPlaceholder(EXAMPLE_ADDRESSES, 3500);
   const { data, loading, error, check, reset } = useHealthCheck();
   const [searchParams, setSearchParams] = useSearchParams();
@@ -105,28 +107,32 @@ export default function CheckPage() {
   return (
     <div style={{ marginTop: 8 }}>
       {/* Heading */}
-      <div
-        style={{
-          fontSize: 11,
-          fontFamily: "'JetBrains Mono', monospace",
-          textTransform: 'uppercase',
-          letterSpacing: '0.08em',
-          color: 'var(--color-text-dim)',
-          marginBottom: 4,
-        }}
-      >
-        Check Wallet
-      </div>
-      <div
-        style={{
-          fontSize: 12,
-          fontFamily: "'Inter', sans-serif",
-          color: 'var(--color-text-tertiary)',
-          marginBottom: 16,
-        }}
-      >
-        Paste your wallet address to check your validators' grades, downtime costs, and incident history
-      </div>
+      {!isMobile && (
+        <>
+          <div
+            style={{
+              fontSize: 11,
+              fontFamily: "'JetBrains Mono', monospace",
+              textTransform: 'uppercase',
+              letterSpacing: '0.08em',
+              color: 'var(--color-text-dim)',
+              marginBottom: 4,
+            }}
+          >
+            Check Wallet
+          </div>
+          <div
+            style={{
+              fontSize: 12,
+              fontFamily: "'Inter', sans-serif",
+              color: 'var(--color-text-tertiary)',
+              marginBottom: 16,
+            }}
+          >
+            Paste your wallet address to check your validators' grades, downtime costs, and incident history
+          </div>
+        </>
+      )}
 
       {/* Input */}
       <div style={{ position: 'relative' }}>

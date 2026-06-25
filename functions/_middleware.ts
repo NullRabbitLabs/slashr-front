@@ -6,6 +6,7 @@ interface Env {
   API_ORIGIN: string;
   CF_ACCESS_CLIENT_ID: string;
   CF_ACCESS_CLIENT_SECRET: string;
+  API_JWT_TOKEN: string;
 }
 
 const BOT_UA = /Twitterbot|facebookexternalhit|Googlebot|Discordbot|Slackbot|LinkedInBot|Bingbot|Applebot|bot|crawl|spider/i;
@@ -52,6 +53,7 @@ async function fetchValidatorData(
   env: Env,
   network: string,
   address: string,
+  clientIp?: string | null,
 ): Promise<ValidatorData | null> {
   try {
     const url = `${env.API_ORIGIN}/v1/validators/${encodeURIComponent(network)}/${encodeURIComponent(address)}`;
@@ -60,6 +62,8 @@ async function fetchValidatorData(
         'CF-Access-Client-Id': env.CF_ACCESS_CLIENT_ID,
         'CF-Access-Client-Secret': env.CF_ACCESS_CLIENT_SECRET,
         Accept: 'application/json',
+        ...(env.API_JWT_TOKEN && { Authorization: `Bearer ${env.API_JWT_TOKEN}` }),
+        ...(clientIp && { 'X-Real-Client-IP': clientIp }),
       },
     });
     if (!res.ok) return null;
@@ -73,6 +77,7 @@ async function fetchValidatorData(
 async function fetchReportData(
   env: Env,
   providerSlug: string,
+  clientIp?: string | null,
 ): Promise<ReportData | null> {
   try {
     const url = `${env.API_ORIGIN}/v1/reports/${encodeURIComponent(providerSlug)}`;
@@ -81,6 +86,8 @@ async function fetchReportData(
         'CF-Access-Client-Id': env.CF_ACCESS_CLIENT_ID,
         'CF-Access-Client-Secret': env.CF_ACCESS_CLIENT_SECRET,
         Accept: 'application/json',
+        ...(env.API_JWT_TOKEN && { Authorization: `Bearer ${env.API_JWT_TOKEN}` }),
+        ...(clientIp && { 'X-Real-Client-IP': clientIp }),
       },
     });
     if (!res.ok) return null;
@@ -97,6 +104,7 @@ interface HeadMeta {
   title: string;
   description: string;
   url: string;
+  image?: string;
 }
 
 function getHeadMeta(
@@ -118,6 +126,7 @@ function getHeadMeta(
       title: `${name} \u00b7 ${networkName} \u00b7 slashr`,
       description: `${count} incident${count === 1 ? '' : 's'} recorded on slashr.`,
       url: `${base}${pathname}`,
+      image: `${base}/og/${network}/${validatorMatch[2]!}.png`,
     };
   }
 
@@ -192,7 +201,7 @@ function injectMeta(html: string, meta: HeadMeta): string {
   const d = escapeHtml(meta.description);
   const u = escapeHtml(meta.url);
 
-  return html
+  let result = html
     .replace(/<title>[^<]*<\/title>/, `<title>${t}</title>`)
     .replace(
       /<meta\s+name="description"\s+content="[^"]*"\s*\/?>/,
@@ -226,6 +235,35 @@ function injectMeta(html: string, meta: HeadMeta): string {
       /"url":\s*"[^"]*"/,
       `"url": "${meta.url}"`,
     );
+
+  // Inject dynamic OG image for validator pages
+  if (meta.image) {
+    const img = escapeHtml(meta.image);
+    // Replace existing og:image if present, otherwise add after og:url
+    if (/<meta\s+property="og:image"/.test(result)) {
+      result = result.replace(
+        /<meta\s+property="og:image"\s+content="[^"]*"\s*\/?>/,
+        `<meta property="og:image" content="${img}" />`,
+      );
+    } else {
+      result = result.replace(
+        /(<meta\s+property="og:url"\s+content="[^"]*"\s*\/?>)/,
+        `$1\n    <meta property="og:image" content="${img}" />`,
+      );
+    }
+    // Add twitter:image after twitter:description
+    result = result.replace(
+      /(<meta\s+name="twitter:description"\s+content="[^"]*"\s*\/?>)/,
+      `$1\n    <meta name="twitter:image" content="${img}" />`,
+    );
+    // Upgrade to summary_large_image for cards with images
+    result = result.replace(
+      /<meta\s+name="twitter:card"\s+content="[^"]*"\s*\/?>/,
+      `<meta name="twitter:card" content="summary_large_image" />`,
+    );
+  }
+
+  return result;
 }
 
 // --- Middleware entry ---
@@ -251,24 +289,53 @@ export const onRequest: PagesFunction<Env> = async (context) => {
   const html = await response.text();
 
   // Fetch data for dynamic pages
+  const clientIp = request.headers.get('CF-Connecting-IP');
   let validator: ValidatorData | null = null;
+  let resolvedPathname = pathname;
+
+  // Resolve short validator URLs (/v/:code) via the API
+  const shortMatch = pathname.match(/^\/v\/([a-zA-Z0-9]{3,6})\/?$/);
+  if (shortMatch) {
+    try {
+      const shortUrl = `${context.env.API_ORIGIN}/v1/validators/short/${shortMatch[1]}`;
+      const shortRes = await fetch(shortUrl, {
+        headers: {
+          'CF-Access-Client-Id': context.env.CF_ACCESS_CLIENT_ID,
+          'CF-Access-Client-Secret': context.env.CF_ACCESS_CLIENT_SECRET,
+          Accept: 'application/json',
+          ...(context.env.API_JWT_TOKEN && { Authorization: `Bearer ${context.env.API_JWT_TOKEN}` }),
+          ...(clientIp && { 'X-Real-Client-IP': clientIp }),
+        },
+      });
+      if (shortRes.ok) {
+        const shortJson = (await shortRes.json()) as { data: { network: string; address: string } };
+        const { network, address } = shortJson.data;
+        resolvedPathname = `/validator/${network}/${address}`;
+        validator = await fetchValidatorData(context.env, network, address, clientIp);
+      }
+    } catch {
+      // fall through — bot gets generic meta
+    }
+  }
+
   const validatorMatch = pathname.match(/^\/validator\/([^/]+)\/([^/]+)\/?$/);
   if (validatorMatch) {
     validator = await fetchValidatorData(
       context.env,
       validatorMatch[1]!,
       validatorMatch[2]!,
+      clientIp,
     );
   }
 
   let report: ReportData | null = null;
   const reportMatch = pathname.match(/^\/reports\/([^/]+)\/?$/);
   if (reportMatch) {
-    report = await fetchReportData(context.env, reportMatch[1]!);
+    report = await fetchReportData(context.env, reportMatch[1]!, clientIp);
   }
 
-  // Generate and inject meta tags
-  const meta = getHeadMeta(pathname, validator, report);
+  // Generate and inject meta tags (use resolved pathname for short URLs)
+  const meta = getHeadMeta(resolvedPathname, validator, report);
   const enrichedHtml = injectMeta(html, meta);
 
   return new Response(enrichedHtml, {

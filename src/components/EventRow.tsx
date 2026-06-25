@@ -33,6 +33,7 @@ export function EventRow({
   const isMobile = useIsMobile();
   const resolved = event.resolved_at != null;
   const isCritical = event.severity === 'critical';
+  const isTestSoftware = event.is_test_software === true;
 
   const isNamed = !!(event.validator_moniker?.trim());
   const displayName = isNamed
@@ -50,7 +51,7 @@ export function EventRow({
         paddingTop: 14,
         paddingBottom: 14,
         borderBottom: '1px solid var(--color-border)',
-        opacity: visible ? 1 : 0,
+        opacity: visible ? (isTestSoftware ? 0.4 : 1) : 0,
         transform: visible ? 'translateY(0)' : 'translateY(8px)',
         transition: 'opacity 0.4s ease, transform 0.4s ease',
       }}
@@ -144,17 +145,48 @@ export function EventRow({
       {/* Row 3: validator name + label */}
       <div style={{ paddingLeft: contentIndent, marginTop: 8, display: isMobile ? 'flex' : undefined, flexDirection: isMobile ? 'column' : undefined }}>
         {showValidator && (
-          <Link
-            to={`/validator/${event.network}/${event.validator_address}`}
-            style={{
-              fontWeight: 600,
-              fontSize: 14,
-              color: 'var(--color-text-primary)',
-              marginRight: isMobile ? 0 : 8,
-            }}
-          >
-            {displayName}
-          </Link>
+          <>
+            <Link
+              to={`/validator/${event.network}/${event.validator_address}`}
+              style={{
+                fontWeight: 600,
+                fontSize: 14,
+                color: 'var(--color-text-primary)',
+                marginRight: isMobile ? 0 : 8,
+              }}
+            >
+              {displayName}
+            </Link>
+            {isTestSoftware && (
+              <span style={{
+                fontSize: 9,
+                fontFamily: "'JetBrains Mono', monospace",
+                color: 'var(--color-danger)',
+                textTransform: 'uppercase',
+                letterSpacing: '0.08em',
+                marginRight: 4,
+              }}>
+                pre-release
+              </span>
+            )}
+            {event.feed_state === 'timed_out' && (
+              <span
+                title="Published with incomplete enrichment — validator stake/identity/hostname may be missing or stale because the enrichment pipeline didn't complete within the publish window."
+                style={{
+                  fontSize: 9,
+                  fontFamily: "'JetBrains Mono', monospace",
+                  color: 'var(--color-text-dim)',
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.08em',
+                  marginRight: 4,
+                  cursor: 'help',
+                  borderBottom: '1px dotted var(--color-text-dim)',
+                }}
+              >
+                unenriched
+              </span>
+            )}
+          </>
         )}
         <span
           style={{
