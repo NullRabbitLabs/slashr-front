@@ -29,9 +29,11 @@ export async function requestMagicLink(email: string, turnstileToken: string): P
     credentials: 'include',
     body: JSON.stringify({ email, turnstile_token: turnstileToken }),
   });
-  if (!res.ok) {
-    throw new Error(await errorMessage(res, 'Could not send the sign-in link. Please try again.'));
+  if (res.ok) return;
+  if (res.status === 403) {
+    throw new Error("Human verification failed. Please complete the check again.");
   }
+  throw new Error(await errorMessage(res, 'Could not send the sign-in link. Please try again.'));
 }
 
 /** Exchange a magic-link token for a session (sets the cookie). */
