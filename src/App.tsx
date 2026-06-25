@@ -1,5 +1,9 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { useStats } from '@/hooks/useStats';
+import { AuthProvider } from '@/hooks/useAuth';
+import LoginPage from '@/pages/LoginPage';
+import AuthVerifyPage from '@/pages/AuthVerifyPage';
+import AccountPage from '@/pages/AccountPage';
 import { Layout } from '@/components/Layout';
 import FeedPage from '@/pages/FeedPage';
 import ValidatorPage from '@/pages/ValidatorPage';
@@ -33,6 +37,11 @@ function AppRoutes() {
         <Route path="/alerts/verify" element={<AlertsVerifyPage />} />
         <Route path="/alerts/unsubscribe" element={<AlertsUnsubscribePage />} />
         <Route path="/alerts/manage" element={<AlertsManagePage />} />
+
+        {/* User auth (passwordless magic link) */}
+        <Route path="/login" element={<LoginPage />} />
+        <Route path="/auth/verify" element={<AuthVerifyPage />} />
+        <Route path="/account" element={<AccountPage />} />
       </Routes>
     </Layout>
   );
@@ -41,7 +50,9 @@ function AppRoutes() {
 export default function App() {
   return (
     <BrowserRouter>
-      <AppRoutes />
+      <AuthProvider>
+        <AppRoutes />
+      </AuthProvider>
     </BrowserRouter>
   );
 }

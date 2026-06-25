@@ -125,6 +125,10 @@ Events stagger in on initial load: each appears 120ms after the previous, slidin
 
 SPA routing handled by `public/_redirects` file (`/* /index.html 200`) for Cloudflare Pages.
 
+## Auth UI
+
+Passwordless magic-link auth exists for **account/API access** (the public data pages stay public). `/login` requests a sign-in link (Turnstile-gated), `/auth/verify` exchanges the emailed token for an opaque httpOnly session cookie, `/account` is the dashboard. State lives in `hooks/useAuth.tsx` (`AuthProvider` + `useAuth`); API calls in `api/auth.ts` use `credentials: 'include'`. The `/api` proxy (`functions/api/[[path]].ts`) forwards `Cookie`/`X-Slashr-CSRF` upstream and passes `Set-Cookie` back.
+
 ## What NOT to Build
 
-No auth UI, no admin panel, no settings page, no charts/graphs, no notifications, no search box (network filter strip is the only filter), no skeleton loaders (stagger animation is the loading state), no error toasts (single muted line: "having trouble reaching the api — retrying").
+No admin panel, no settings page, no charts/graphs, no notifications, no search box (network filter strip is the only filter), no skeleton loaders (stagger animation is the loading state), no error toasts (single muted line: "having trouble reaching the api — retrying").
