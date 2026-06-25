@@ -9,6 +9,8 @@ import {
   type CreatedKey,
 } from '@/api/auth';
 
+const MAX_KEYS = 4;
+
 function KeyManager() {
   const [keys, setKeys] = useState<ApiKey[]>([]);
   const [loading, setLoading] = useState(true);
@@ -57,6 +59,7 @@ function KeyManager() {
   };
 
   const active = keys.filter((k) => !k.revoked_at);
+  const atLimit = active.length >= MAX_KEYS;
 
   return (
     <section style={{ marginTop: 32 }}>
@@ -118,20 +121,26 @@ function KeyManager() {
         />
         <button
           onClick={create}
-          disabled={creating}
+          disabled={creating || atLimit}
+          title={atLimit ? `Limit of ${MAX_KEYS} keys reached` : undefined}
           style={{
             padding: '8px 16px',
             fontWeight: 600,
             border: 'none',
             borderRadius: 6,
-            background: 'var(--accent)',
-            color: '#fff',
-            cursor: creating ? 'not-allowed' : 'pointer',
+            background: creating || atLimit ? 'var(--surface-2)' : 'var(--accent)',
+            color: creating || atLimit ? 'var(--text-3)' : '#fff',
+            cursor: creating || atLimit ? 'not-allowed' : 'pointer',
+            whiteSpace: 'nowrap',
           }}
         >
           {creating ? 'Creating…' : 'Create key'}
         </button>
       </div>
+
+      <p style={{ color: 'var(--text-3)', fontSize: 12.5, margin: '0 0 16px' }}>
+        {active.length} of {MAX_KEYS} keys used{atLimit ? ' — revoke one to create another.' : '.'}
+      </p>
 
       {error && <p style={{ color: 'var(--crit)', fontSize: 14 }}>{error}</p>}
 

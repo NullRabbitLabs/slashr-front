@@ -18,6 +18,7 @@ const NAV: Array<{ label: string; path: string }> = [
   { label: 'Overview', path: '/' },
   { label: 'Risk', path: '/risk' },
   { label: 'Live Feed', path: '/feed' },
+  { label: 'Check a wallet', path: '/check' },
   { label: 'Validators', path: '/validators' },
   { label: 'Reports', path: '/reports' },
 ];
@@ -26,7 +27,6 @@ const NAV: Array<{ label: string; path: string }> = [
 const SECONDARY: Array<{ label: string; path: string }> = [
   { label: 'Insights', path: '/insights' },
   { label: 'Rankings', path: '/rankings' },
-  { label: 'Check a wallet', path: '/check' },
   { label: 'Alerts', path: '/alerts' },
   { label: 'Developers / API', path: '/developers' },
 ];
