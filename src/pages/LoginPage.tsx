@@ -23,6 +23,7 @@ export default function LoginPage() {
   }, [params]);
 
   const onToken = useCallback((t: string | null) => setToken(t), []);
+  const [attempt, setAttempt] = useState(0);
 
   const canSubmit =
     isValidEmail(email) && !submitting && (!turnstileEnabled || !!token);
@@ -37,6 +38,10 @@ export default function LoginPage() {
       setSent(true);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Something went wrong.');
+      // The Turnstile token is single-use; reset the widget so a retry gets a
+      // fresh one instead of resubmitting the spent token.
+      setToken(null);
+      setAttempt((a) => a + 1);
     } finally {
       setSubmitting(false);
     }
@@ -89,7 +94,7 @@ export default function LoginPage() {
             }}
           />
 
-          <TurnstileWidget onToken={onToken} />
+          <TurnstileWidget key={attempt} onToken={onToken} />
 
           {error && (
             <p style={{ color: 'var(--crit)', fontSize: 14, marginTop: 12 }}>{error}</p>
