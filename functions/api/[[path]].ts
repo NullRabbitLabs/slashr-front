@@ -45,6 +45,17 @@ export const onRequest: PagesFunction<Env> = async (context) => {
     headers.set('Content-Type', contentType);
   }
 
+  // Forward the session cookie + CSRF header so the user-auth endpoints
+  // (/v1/auth/*) can read the session and enforce CSRF on logout.
+  const cookie = request.headers.get('Cookie');
+  if (cookie) {
+    headers.set('Cookie', cookie);
+  }
+  const csrf = request.headers.get('X-Slashr-CSRF');
+  if (csrf) {
+    headers.set('X-Slashr-CSRF', csrf);
+  }
+
   const res = await fetch(upstream, {
     method: request.method,
     headers,
@@ -56,6 +67,12 @@ export const onRequest: PagesFunction<Env> = async (context) => {
   const responseHeaders = new Headers();
   responseHeaders.set('Content-Type', res.headers.get('Content-Type') || 'application/json');
   responseHeaders.set('Cache-Control', res.headers.get('Cache-Control') || 'no-store');
+
+  // Pass through Set-Cookie so session cookies from /v1/auth/verify and the
+  // cleared cookie from /v1/auth/logout reach the browser on slashr.dev.
+  for (const setCookie of res.headers.getSetCookie()) {
+    responseHeaders.append('Set-Cookie', setCookie);
+  }
 
   return new Response(res.body, {
     status: res.status,

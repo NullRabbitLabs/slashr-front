@@ -3,6 +3,7 @@ import type { ReactNode } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import type { StatsResponse } from '@/types/api';
 import { useTheme } from '@/hooks/useTheme';
+import { useAuth } from '@/hooks/useAuth';
 import { useNetworks } from '@/hooks/useNetworks';
 import { RiskDrawerProvider } from './risk/RiskDrawer';
 import { WaitlistDrawer } from './WaitlistDrawer';
@@ -32,6 +33,7 @@ const SECONDARY: Array<{ label: string; path: string }> = [
 
 export function Layout({ children, stats }: LayoutProps) {
   const { theme, toggle: toggleTheme } = useTheme();
+  const { user } = useAuth();
   const { networks } = useNetworks();
   const { pathname } = useLocation();
   const navigate = useNavigate();
@@ -182,6 +184,22 @@ export function Layout({ children, stats }: LayoutProps) {
                 <span style={{ fontSize: 14 }}>{theme === 'dark' ? '◑' : '◐'}</span>
               </button>
               <button
+                onClick={() => navigate(user ? '/account' : '/login')}
+                className="rd-cta-hide"
+                style={{
+                  fontSize: 13,
+                  fontWeight: 600,
+                  color: 'var(--text)',
+                  background: 'var(--surface)',
+                  border: '1px solid var(--border)',
+                  padding: '8px 15px',
+                  borderRadius: 9,
+                  cursor: 'pointer',
+                }}
+              >
+                {user ? 'Account' : 'Log in'}
+              </button>
+              <button
                 onClick={() => navigate('/developers')}
                 className="rd-cta-hide"
                 style={{
@@ -277,6 +295,22 @@ export function Layout({ children, stats }: LayoutProps) {
                   {item.label}
                 </button>
               ))}
+              <button
+                onClick={() => go(user ? '/account' : '/login')}
+                style={{
+                  marginTop: 8,
+                  fontSize: 14,
+                  fontWeight: 600,
+                  color: 'var(--text)',
+                  background: 'var(--surface-2)',
+                  border: '1px solid var(--border)',
+                  padding: '11px 12px',
+                  borderRadius: 9,
+                  cursor: 'pointer',
+                }}
+              >
+                {user ? 'Account' : 'Log in'}
+              </button>
               <button
                 onClick={() => go('/developers')}
                 style={{
