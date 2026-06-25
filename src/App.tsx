@@ -49,7 +49,9 @@ function AppRoutes() {
         {/* Validator short-link redirect (resolves then lands on gated profile) */}
         <Route path="/v/:code" element={<ShortRedirect />} />
         <Route path="/leaderboard" element={<Navigate to="/rankings" replace />} />
-        <Route path="/alerts" element={<AlertsPage />} />
+        {/* Alerts: creating one requires login; verify/unsubscribe/manage are
+            email-link landings and stay public. */}
+        <Route path="/alerts" element={<RequireAuth><AlertsPage /></RequireAuth>} />
         <Route path="/alerts/verify" element={<AlertsVerifyPage />} />
         <Route path="/alerts/unsubscribe" element={<AlertsUnsubscribePage />} />
         <Route path="/alerts/manage" element={<AlertsManagePage />} />
