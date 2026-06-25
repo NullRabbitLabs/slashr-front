@@ -4,6 +4,7 @@ import { AuthProvider } from '@/hooks/useAuth';
 import LoginPage from '@/pages/LoginPage';
 import AuthVerifyPage from '@/pages/AuthVerifyPage';
 import AccountPage from '@/pages/AccountPage';
+import { RequireAuth } from '@/components/RequireAuth';
 import { Layout } from '@/components/Layout';
 import OverviewPage from '@/pages/OverviewPage';
 import RiskPage from '@/pages/RiskPage';
@@ -29,27 +30,25 @@ function AppRoutes() {
   return (
     <Layout stats={stats}>
       <Routes>
-        {/* Primary nav (redesign) */}
+        {/* Public: landing, live feed, wallet check stay open for funnel/SEO */}
         <Route path="/" element={<OverviewPage />} />
-        <Route path="/risk" element={<RiskPage />} />
         <Route path="/feed" element={<FeedPage />} />
-        <Route path="/validators" element={<ValidatorsPage />} />
-        <Route path="/reports" element={<ReportsApiPage />} />
-
-        {/* Reports / providers (secondary) */}
-        <Route path="/reports/providers" element={<ReportsPage />} />
-        <Route path="/reports/:providerSlug" element={<ReportDetailPage />} />
-
-        {/* Validator profile */}
-        <Route path="/v/:code" element={<ShortRedirect />} />
-        <Route path="/validator/:network/:address" element={<ValidatorPage />} />
-
-        {/* Secondary pages (reachable, off primary nav) */}
-        <Route path="/rankings" element={<LeaderboardPage />} />
-        <Route path="/leaderboard" element={<Navigate to="/rankings" replace />} />
         <Route path="/check" element={<CheckPage />} />
-        <Route path="/developers" element={<DevelopersPage />} />
-        <Route path="/insights" element={<InsightsPage />} />
+
+        {/* Gated: require login (risk intelligence + dev/API surface) */}
+        <Route path="/risk" element={<RequireAuth><RiskPage /></RequireAuth>} />
+        <Route path="/validators" element={<RequireAuth><ValidatorsPage /></RequireAuth>} />
+        <Route path="/validator/:network/:address" element={<RequireAuth><ValidatorPage /></RequireAuth>} />
+        <Route path="/reports" element={<RequireAuth><ReportsApiPage /></RequireAuth>} />
+        <Route path="/reports/providers" element={<RequireAuth><ReportsPage /></RequireAuth>} />
+        <Route path="/reports/:providerSlug" element={<RequireAuth><ReportDetailPage /></RequireAuth>} />
+        <Route path="/rankings" element={<RequireAuth><LeaderboardPage /></RequireAuth>} />
+        <Route path="/insights" element={<RequireAuth><InsightsPage /></RequireAuth>} />
+        <Route path="/developers" element={<RequireAuth><DevelopersPage /></RequireAuth>} />
+
+        {/* Validator short-link redirect (resolves then lands on gated profile) */}
+        <Route path="/v/:code" element={<ShortRedirect />} />
+        <Route path="/leaderboard" element={<Navigate to="/rankings" replace />} />
         <Route path="/alerts" element={<AlertsPage />} />
         <Route path="/alerts/verify" element={<AlertsVerifyPage />} />
         <Route path="/alerts/unsubscribe" element={<AlertsUnsubscribePage />} />

@@ -227,41 +227,9 @@ export async function fetchHealthCheck(
   return res.json() as Promise<DataResponse<HealthCheckResponse>>;
 }
 
-// --- Self-serve API key generation (MCP server) ---
-
-export interface GenerateKeyResponse {
-  key: string;
-  docs: string;
-  mcp_url: string;
-}
-
-export interface GenerateKeyError {
-  status: number;
-  message: string;
-  retryAfter?: number;
-}
-
-export async function generateMcpKey(turnstileToken: string): Promise<GenerateKeyResponse> {
-  const res = await fetch('/api/generate-key', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ turnstile_token: turnstileToken }),
-  });
-
-  if (!res.ok) {
-    const data = await res.json().catch(() => null);
-    const message = data?.error || `API error: ${res.status}`;
-    const retryAfter = res.headers.get('retry-after');
-    const err: GenerateKeyError = {
-      status: res.status,
-      message,
-      retryAfter: retryAfter ? parseInt(retryAfter, 10) : undefined,
-    };
-    throw err;
-  }
-
-  return res.json() as Promise<GenerateKeyResponse>;
-}
+// API/MCP keys are minted only by signed-in users via the account dashboard
+// (see src/api/auth.ts: createApiKey). The anonymous self-serve keygen was
+// removed.
 
 // --- Email alerts ---
 
