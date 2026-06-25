@@ -4,7 +4,6 @@ import type { EventType } from '@/types/api';
 import { useStats } from '@/hooks/useStats';
 import { useEvents } from '@/hooks/useEvents';
 import { useRiskValidators } from '@/hooks/useRiskValidators';
-import { useAuth } from '@/hooks/useAuth';
 import { useRiskDrawer } from '@/components/risk/RiskDrawer';
 import { NETWORK_META, NETWORK_ORDER, EVENT_TYPE_LABELS } from '@/lib/constants';
 import { formatUsd } from '@/lib/format';
@@ -14,7 +13,6 @@ import { netColor, netTicker, tierColor, tierLabel, tierSoft } from '@/lib/risk'
 export default function OverviewPage() {
   const navigate = useNavigate();
   const { open } = useRiskDrawer();
-  const { user } = useAuth();
   const { stats } = useStats();
   const { validators } = useRiskValidators('all', 200);
   const { events } = useEvents({ network: null, search: '' });
@@ -28,11 +26,11 @@ export default function OverviewPage() {
     const varTotal = validators.reduce((s, v) => s + (v.value_at_risk_usd ?? 0), 0);
     return [
       { label: 'Incidents · 30d', value: (stats?.totals.last_30d ?? 0).toLocaleString(), color: 'var(--text)' },
-      { label: 'Critical-risk validators', value: user ? String(crit) : '—', color: crit > 0 && user ? 'var(--crit)' : 'var(--text)' },
-      { label: 'Stake value at risk', value: user ? formatUsd(varTotal) : '—', color: 'var(--text)' },
+      { label: 'Critical-risk validators', value: String(crit), color: crit > 0 ? 'var(--crit)' : 'var(--text)' },
+      { label: 'Stake value at risk', value: formatUsd(varTotal), color: 'var(--text)' },
       { label: 'Networks monitored', value: String(stats?.networks.length || NETWORK_ORDER.length), color: 'var(--text)' },
     ];
-  }, [validators, stats, user]);
+  }, [validators, stats]);
 
   const explore = [
     { title: 'Slashr Risk Index', desc: 'Every tracked validator ranked 0–100 by risk, with stake at risk and incident trend.', cta: 'Open Risk index', path: '/risk' },
@@ -97,19 +95,6 @@ export default function OverviewPage() {
             </button>
           </div>
           <div>
-            {!user ? (
-              <div style={{ padding: 28, textAlign: 'center' }}>
-                <div style={{ fontSize: 14, color: 'var(--text-2)', marginBottom: 14, lineHeight: 1.5 }}>
-                  The Slashr Risk Index is available to signed-in users.
-                </div>
-                <button
-                  onClick={() => navigate('/login?return=/risk')}
-                  style={{ fontSize: 13, fontWeight: 600, color: '#fff', background: 'var(--accent)', border: 'none', padding: '9px 18px', borderRadius: 8, cursor: 'pointer' }}
-                >
-                  Sign in to see the Risk Index
-                </button>
-              </div>
-            ) : (<>
             {topRisk.map(v => (
               <div
                 key={`${v.network}-${v.address}`}
@@ -135,7 +120,6 @@ export default function OverviewPage() {
               </div>
             ))}
             {topRisk.length === 0 && <div style={{ padding: 24, fontSize: 13, color: 'var(--text-3)' }}>No ranked validators yet.</div>}
-            </>)}
           </div>
         </div>
 

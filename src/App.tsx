@@ -30,13 +30,13 @@ function AppRoutes() {
   return (
     <Layout stats={stats}>
       <Routes>
-        {/* Public: landing, live feed, wallet check stay open for funnel/SEO */}
+        {/* Public: landing, risk index, live feed, wallet check (funnel/SEO) */}
         <Route path="/" element={<OverviewPage />} />
+        <Route path="/risk" element={<RiskPage />} />
         <Route path="/feed" element={<FeedPage />} />
         <Route path="/check" element={<CheckPage />} />
 
-        {/* Gated: require login (risk intelligence + dev/API surface) */}
-        <Route path="/risk" element={<RequireAuth><RiskPage /></RequireAuth>} />
+        {/* Gated: require login (validator data + reports + dev/API surface) */}
         <Route path="/validators" element={<RequireAuth><ValidatorsPage /></RequireAuth>} />
         <Route path="/validator/:network/:address" element={<RequireAuth><ValidatorPage /></RequireAuth>} />
         <Route path="/reports" element={<RequireAuth><ReportsApiPage /></RequireAuth>} />
