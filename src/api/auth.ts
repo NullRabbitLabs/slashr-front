@@ -63,3 +63,49 @@ export async function logout(): Promise<void> {
     credentials: 'include',
   });
 }
+
+// ---- API keys ------------------------------------------------------------
+
+export interface ApiKey {
+  id: number;
+  key_prefix: string;
+  name: string;
+  created_at: string;
+  last_used_at: string | null;
+  revoked_at: string | null;
+  requests_total: number;
+}
+
+/** A freshly minted key — `key` (the raw secret) is shown exactly once. */
+export interface CreatedKey {
+  id: number;
+  name: string;
+  key_prefix: string;
+  key: string;
+}
+
+export async function listApiKeys(): Promise<ApiKey[]> {
+  const res = await fetch(`${BASE_URL}/v1/auth/keys`, { credentials: 'include' });
+  if (!res.ok) throw new Error(await errorMessage(res, 'Failed to load keys.'));
+  return (await res.json()).data as ApiKey[];
+}
+
+export async function createApiKey(name: string): Promise<CreatedKey> {
+  const res = await fetch(`${BASE_URL}/v1/auth/keys`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', [CSRF_HEADER]: '1' },
+    credentials: 'include',
+    body: JSON.stringify({ name }),
+  });
+  if (!res.ok) throw new Error(await errorMessage(res, 'Could not create key.'));
+  return (await res.json()).data as CreatedKey;
+}
+
+export async function revokeApiKey(id: number): Promise<void> {
+  const res = await fetch(`${BASE_URL}/v1/auth/keys/${id}`, {
+    method: 'DELETE',
+    headers: { [CSRF_HEADER]: '1' },
+    credentials: 'include',
+  });
+  if (!res.ok) throw new Error(await errorMessage(res, 'Could not revoke key.'));
+}
