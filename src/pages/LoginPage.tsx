@@ -1,4 +1,5 @@
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { requestMagicLink } from '@/api/auth';
 import { TurnstileWidget, turnstileEnabled } from '@/components/TurnstileWidget';
 
@@ -13,6 +14,13 @@ export default function LoginPage() {
   const [sent, setSent] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [params] = useSearchParams();
+
+  // Preserve the page the user was trying to reach across the email round-trip.
+  useEffect(() => {
+    const ret = params.get('return');
+    if (ret) sessionStorage.setItem('slashr_return', ret);
+  }, [params]);
 
   const onToken = useCallback((t: string | null) => setToken(t), []);
 

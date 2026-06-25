@@ -1,12 +1,9 @@
-import { useState, useEffect, useRef, useCallback } from 'react';
+import { useState } from 'react';
+import { Link } from 'react-router-dom';
 import { usePageMeta } from '@/hooks/usePageMeta';
 import { useIsMobile } from '@/hooks/useIsMobile';
 import { useNetworks } from '@/hooks/useNetworks';
 import { copyToClipboard } from '@/lib/clipboard';
-import { generateMcpKey } from '@/api/client';
-import type { GenerateKeyError } from '@/api/client';
-
-const TURNSTILE_SITE_KEY = import.meta.env.VITE_TURNSTILE_SITE_KEY || '';
 
 const TOOLS = [
   {
@@ -88,51 +85,6 @@ export default function DevelopersPage() {
   const isMobile = useIsMobile();
   const { networks } = useNetworks();
   const [copied, setCopied] = useState(false);
-  const [apiKey, setApiKey] = useState<string | null>(null);
-  const [keyCopied, setKeyCopied] = useState(false);
-  const [generating, setGenerating] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [canRetry, setCanRetry] = useState(true);
-  const [turnstileToken, setTurnstileToken] = useState<string | null>(null);
-  const turnstileRef = useRef<HTMLDivElement>(null);
-  const widgetIdRef = useRef<string | null>(null);
-
-  // Load Turnstile script and render widget
-  useEffect(() => {
-    if (!TURNSTILE_SITE_KEY || apiKey) return;
-
-    const renderWidget = () => {
-      if (!turnstileRef.current || widgetIdRef.current) return;
-      const w = window as unknown as { turnstile?: { render: (el: HTMLElement, opts: Record<string, unknown>) => string; reset: (id: string) => void } };
-      if (!w.turnstile) return;
-      widgetIdRef.current = w.turnstile.render(turnstileRef.current, {
-        sitekey: TURNSTILE_SITE_KEY,
-        theme: 'dark',
-        callback: (token: string) => setTurnstileToken(token),
-        'expired-callback': () => setTurnstileToken(null),
-      });
-    };
-
-    // If script already loaded
-    if (document.querySelector('script[src*="turnstile"]')) {
-      renderWidget();
-      return;
-    }
-
-    const script = document.createElement('script');
-    script.src = 'https://challenges.cloudflare.com/turnstile/v0/api.js';
-    script.async = true;
-    script.onload = renderWidget;
-    document.head.appendChild(script);
-  }, [apiKey]);
-
-  const resetTurnstile = useCallback(() => {
-    const w = window as unknown as { turnstile?: { reset: (id: string) => void } };
-    if (w.turnstile && widgetIdRef.current) {
-      w.turnstile.reset(widgetIdRef.current);
-      setTurnstileToken(null);
-    }
-  }, []);
 
   usePageMeta({
     title: 'Developers \u2014 Slashr',
@@ -140,7 +92,7 @@ export default function DevelopersPage() {
       'Integrate validator incident data into your AI agent via MCP. Query delinquency, slashing, infrastructure scans, and delegation health across Solana, Ethereum, Sui, and Cosmos.',
   });
 
-  const mcpConfig = getMcpConfig(apiKey || 'YOUR_API_KEY');
+  const mcpConfig = getMcpConfig('YOUR_API_KEY');
 
   const copyConfig = () => {
     copyToClipboard(mcpConfig).then((ok) => {
@@ -148,51 +100,6 @@ export default function DevelopersPage() {
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
     });
-  };
-
-  const copyKey = () => {
-    if (!apiKey) return;
-    copyToClipboard(apiKey).then((ok) => {
-      if (!ok) return;
-      setKeyCopied(true);
-      setTimeout(() => setKeyCopied(false), 2000);
-    });
-  };
-
-  const handleGenerate = async () => {
-    if (!turnstileToken && TURNSTILE_SITE_KEY) {
-      setError('Please complete the verification first.');
-      return;
-    }
-    setGenerating(true);
-    setError(null);
-    try {
-      const res = await generateMcpKey(turnstileToken || '');
-      setApiKey(res.key);
-    } catch (e: unknown) {
-      const err = e as GenerateKeyError;
-      resetTurnstile();
-      if (err.status === 429) {
-        if (err.message?.includes('one key per IP')) {
-          setError("You've already generated a key today. Check your notes if you saved it.");
-          setCanRetry(false);
-        } else {
-          setError('Key generation is temporarily paused. Try again in a few minutes.');
-          setCanRetry(true);
-        }
-      } else if (err.status === 403) {
-        setError('Verification failed. Please try again.');
-        setCanRetry(true);
-      } else if (err.status === 503) {
-        setError('Key generation is temporarily unavailable. Please try again later.');
-        setCanRetry(true);
-      } else {
-        setError('Something went wrong. Please try again.');
-        setCanRetry(true);
-      }
-    } finally {
-      setGenerating(false);
-    }
   };
 
   return (
@@ -381,19 +288,12 @@ curl -X POST https://mcp.slashr.dev/mcp
 {
   "error": "authentication_required",
   "message": "Slashr MCP requires an API key.",
-  "get_key": "POST https://mcp.slashr.dev/mcp/keys/generate",
+  "get_key": "Sign in at https://slashr.dev/account to create an API key",
   "docs": "https://slashr.dev/developers"
 }
 
-# Generate a key (1 per IP per day, no auth required)
-curl -X POST https://mcp.slashr.dev/mcp/keys/generate \\
-  -H "Content-Type: application/json" -d '{}'
-
-{
-  "key": "slashr_...",
-  "docs": "https://slashr.dev/developers",
-  "mcp_url": "https://mcp.slashr.dev/mcp"
-}
+# Create a key: sign in at https://slashr.dev/account (one-time display).
+# Then use the key
 
 # Use the key
 curl -X POST https://mcp.slashr.dev/mcp \\
@@ -414,105 +314,25 @@ curl -X POST https://mcp.slashr.dev/mcp \\
             marginBottom: 20,
           }}
         >
-          Generate an API key instantly. No account required.
+          API &amp; MCP keys are tied to your account. Create and manage them from your dashboard.
         </p>
 
-        {apiKey ? (
-          <div>
-            <p
-              style={{
-                fontFamily: "'Inter', sans-serif",
-                fontSize: 13,
-                color: 'var(--color-text-secondary)',
-                marginBottom: 8,
-              }}
-            >
-              Your API key
-            </p>
-            <div style={{ position: 'relative' }}>
-              <pre
-                style={{
-                  ...codeBlock,
-                  padding: '14px 80px 14px 16px',
-                  wordBreak: 'break-all',
-                  whiteSpace: 'pre-wrap',
-                }}
-              >
-                {apiKey}
-              </pre>
-              <button
-                onClick={copyKey}
-                style={{
-                  position: 'absolute',
-                  top: 12,
-                  right: 12,
-                  background: 'var(--color-bg-surface)',
-                  border: '1px solid var(--color-border-medium)',
-                  borderRadius: 4,
-                  padding: '4px 10px',
-                  fontFamily: "'JetBrains Mono', monospace",
-                  fontSize: 11,
-                  color: keyCopied ? 'var(--color-accent)' : 'var(--color-text-dim)',
-                  cursor: 'pointer',
-                  transition: 'color 0.15s ease',
-                }}
-              >
-                {keyCopied ? 'Copied' : 'Copy'}
-              </button>
-            </div>
-            <p
-              style={{
-                fontFamily: "'Inter', sans-serif",
-                fontSize: 13,
-                color: 'var(--color-accent)',
-                marginTop: 10,
-              }}
-            >
-              Save this key now. It won't be shown again.
-            </p>
-          </div>
-        ) : (
-          <div>
-            <button
-              onClick={handleGenerate}
-              disabled={generating || (!canRetry && !!error) || (!!TURNSTILE_SITE_KEY && !turnstileToken)}
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                gap: 8,
-                width: isMobile ? '100%' : 'auto',
-                padding: '10px 24px',
-                background: generating || (!canRetry && !!error) || (!!TURNSTILE_SITE_KEY && !turnstileToken) ? 'var(--color-bg-surface)' : 'var(--color-accent)',
-                color: generating || (!canRetry && !!error) || (!!TURNSTILE_SITE_KEY && !turnstileToken) ? 'var(--color-text-dim)' : '#0a0a0b',
-                border: 'none',
-                borderRadius: 6,
-                fontFamily: "'Inter', sans-serif",
-                fontSize: 14,
-                fontWeight: 600,
-                cursor: generating || (!canRetry && !!error) || (!!TURNSTILE_SITE_KEY && !turnstileToken) ? 'not-allowed' : 'pointer',
-                transition: 'opacity 0.15s ease',
-              }}
-            >
-              {generating ? 'Generating...' : 'Generate API Key'}
-            </button>
-            {TURNSTILE_SITE_KEY && (
-              <div ref={turnstileRef} style={{ marginTop: 16 }} />
-            )}
-            {error && (
-              <p
-                style={{
-                  fontFamily: "'Inter', sans-serif",
-                  fontSize: 13,
-                  color: 'var(--color-text-dim)',
-                  marginTop: 12,
-                }}
-              >
-                {error}
-              </p>
-            )}
-          </div>
-        )}
+        <Link
+          to="/account"
+          style={{
+            display: 'inline-block',
+            padding: '10px 24px',
+            background: 'var(--color-accent)',
+            color: '#0a0a0b',
+            borderRadius: 6,
+            fontFamily: "'Inter', sans-serif",
+            fontSize: 14,
+            fontWeight: 600,
+            textDecoration: 'none',
+          }}
+        >
+          Manage keys in your account
+        </Link>
 
         <p
           style={{

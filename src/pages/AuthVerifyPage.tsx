@@ -28,7 +28,9 @@ export default function AuthVerifyPage() {
       try {
         await verifyMagicLink(token);
         await refresh();
-        navigate('/account', { replace: true });
+        const ret = sessionStorage.getItem('slashr_return');
+        sessionStorage.removeItem('slashr_return');
+        navigate(ret || '/account', { replace: true });
       } catch (err) {
         setState('error');
         setMessage(err instanceof Error ? err.message : 'This sign-in link is invalid or has expired.');
