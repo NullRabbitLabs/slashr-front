@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import type { ReactNode } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import type { StatsResponse } from '@/types/api';
 import { useTheme } from '@/hooks/useTheme';
 import { useAuth } from '@/hooks/useAuth';
@@ -126,9 +126,9 @@ export function Layout({ children, stats }: LayoutProps) {
               {NAV.map(item => {
                 const active = isActive(item.path);
                 return (
-                  <button
+                  <Link
                     key={item.path}
-                    onClick={() => navigate(item.path)}
+                    to={item.path}
                     style={{
                       fontSize: 13.5,
                       fontWeight: active ? 600 : 500,
@@ -136,12 +136,13 @@ export function Layout({ children, stats }: LayoutProps) {
                       border: 'none',
                       padding: '7px 13px',
                       borderRadius: 9,
+                      textDecoration: 'none',
                       background: active ? 'var(--surface-2)' : 'transparent',
                       color: active ? 'var(--text)' : 'var(--text-3)',
                     }}
                   >
                     {item.label}
-                  </button>
+                  </Link>
                 );
               })}
             </nav>
@@ -256,9 +257,10 @@ export function Layout({ children, stats }: LayoutProps) {
               {NAV.map(item => {
                 const active = isActive(item.path);
                 return (
-                  <button
+                  <Link
                     key={item.path}
-                    onClick={() => go(item.path)}
+                    to={item.path}
+                    onClick={() => setMenuOpen(false)}
                     style={{
                       textAlign: 'left',
                       fontSize: 15,
@@ -267,19 +269,21 @@ export function Layout({ children, stats }: LayoutProps) {
                       border: 'none',
                       padding: '11px 12px',
                       borderRadius: 9,
+                      textDecoration: 'none',
                       background: active ? 'var(--surface-2)' : 'transparent',
                       color: active ? 'var(--text)' : 'var(--text-2)',
                     }}
                   >
                     {item.label}
-                  </button>
+                  </Link>
                 );
               })}
               <div style={{ height: 1, background: 'var(--border)', margin: '8px 0' }} />
               {SECONDARY.map(item => (
-                <button
+                <Link
                   key={item.path}
-                  onClick={() => go(item.path)}
+                  to={item.path}
+                  onClick={() => setMenuOpen(false)}
                   style={{
                     textAlign: 'left',
                     fontSize: 13.5,
@@ -288,12 +292,13 @@ export function Layout({ children, stats }: LayoutProps) {
                     border: 'none',
                     padding: '10px 12px',
                     borderRadius: 9,
+                    textDecoration: 'none',
                     background: 'transparent',
                     color: 'var(--text-3)',
                   }}
                 >
                   {item.label}
-                </button>
+                </Link>
               ))}
               <button
                 onClick={() => go(user ? '/account' : '/login')}

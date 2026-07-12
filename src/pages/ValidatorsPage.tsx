@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react';
+import { Link } from 'react-router-dom';
 import { useRiskValidators } from '@/hooks/useRiskValidators';
 import { useRiskDrawer } from '@/components/risk/RiskDrawer';
 import { NetPills } from '@/components/risk/NetPills';
@@ -57,11 +58,16 @@ export default function ValidatorsPage() {
           {rows.map(v => {
             const sm = statusMeta(v.status);
             return (
-              <div
+              <Link
                 key={`${v.network}-${v.address}`}
+                to={`/validator/${v.network}/${encodeURIComponent(v.address)}`}
                 className="risk-row"
-                onClick={() => open(v)}
-                style={{ display: 'grid', gridTemplateColumns: GRID, alignItems: 'center', gap: 16, padding: '16px 22px', borderBottom: '1px solid var(--border)', boxShadow: `inset 3px 0 0 ${tierColor(v.tier)}` }}
+                onClick={e => {
+                  if (e.metaKey || e.ctrlKey || e.shiftKey) return;
+                  e.preventDefault();
+                  open(v);
+                }}
+                style={{ display: 'grid', gridTemplateColumns: GRID, alignItems: 'center', gap: 16, padding: '16px 22px', borderBottom: '1px solid var(--border)', boxShadow: `inset 3px 0 0 ${tierColor(v.tier)}`, textDecoration: 'none', color: 'inherit' }}
               >
                 <div style={{ minWidth: 0 }}>
                   <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--text)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{v.moniker || v.address}</div>
@@ -78,7 +84,7 @@ export default function ValidatorsPage() {
                   <span style={{ width: 7, height: 7, borderRadius: '50%', background: sm.color }} />
                   <span style={{ fontSize: 12.5, color: 'var(--text-2)' }}>{sm.label}</span>
                 </div>
-              </div>
+              </Link>
             );
           })}
         </div>

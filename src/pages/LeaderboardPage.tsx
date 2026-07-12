@@ -79,18 +79,19 @@ export default function LeaderboardPage() {
   return (
     <div style={{ marginTop: 8 }}>
       {/* Heading */}
-      <div
+      <h1
         style={{
           fontSize: 11,
           fontFamily: "'JetBrains Mono', monospace",
           textTransform: 'uppercase',
           letterSpacing: '0.08em',
           color: 'var(--color-text-dim)',
-          marginBottom: 4,
+          fontWeight: 600,
+          margin: '0 0 4px',
         }}
       >
         {sort === 'worst' ? 'Worst Offenders' : 'Most Reliable'}
-      </div>
+      </h1>
       <div
         style={{
           fontSize: 12,

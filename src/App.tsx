@@ -36,17 +36,19 @@ function AppRoutes() {
         <Route path="/feed" element={<FeedPage />} />
         <Route path="/check" element={<CheckPage />} />
 
-        {/* Gated: require login (validator data + reports + dev/API surface) */}
-        <Route path="/validators" element={<RequireAuth><ValidatorsPage /></RequireAuth>} />
-        <Route path="/validator/:network/:address" element={<RequireAuth><ValidatorPage /></RequireAuth>} />
-        <Route path="/reports" element={<RequireAuth><ReportsApiPage /></RequireAuth>} />
-        <Route path="/reports/providers" element={<RequireAuth><ReportsPage /></RequireAuth>} />
-        <Route path="/reports/:providerSlug" element={<RequireAuth><ReportDetailPage /></RequireAuth>} />
-        <Route path="/rankings" element={<RequireAuth><LeaderboardPage /></RequireAuth>} />
-        <Route path="/insights" element={<RequireAuth><InsightsPage /></RequireAuth>} />
-        <Route path="/developers" element={<RequireAuth><DevelopersPage /></RequireAuth>} />
+        {/* Public read surface — ungated for SEO/discovery. The API keeps its
+            Bearer floor (served via the edge service token) and account
+            features (alerts, keys) stay gated below. */}
+        <Route path="/validators" element={<ValidatorsPage />} />
+        <Route path="/validator/:network/:address" element={<ValidatorPage />} />
+        <Route path="/reports" element={<ReportsApiPage />} />
+        <Route path="/reports/providers" element={<ReportsPage />} />
+        <Route path="/reports/:providerSlug" element={<ReportDetailPage />} />
+        <Route path="/rankings" element={<LeaderboardPage />} />
+        <Route path="/insights" element={<InsightsPage />} />
+        <Route path="/developers" element={<DevelopersPage />} />
 
-        {/* Validator short-link redirect (resolves then lands on gated profile) */}
+        {/* Validator short-link redirect (resolves then lands on the public profile) */}
         <Route path="/v/:code" element={<ShortRedirect />} />
         <Route path="/leaderboard" element={<Navigate to="/rankings" replace />} />
         {/* Alerts: creating one requires login; verify/unsubscribe/manage are

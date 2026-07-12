@@ -1,10 +1,32 @@
 import { useMemo, useState } from 'react';
+import { Link } from 'react-router-dom';
 import type { RiskTier, RiskValidatorItem } from '@/types/api';
 import { useRiskValidators } from '@/hooks/useRiskValidators';
 import { useRiskDrawer } from '@/components/risk/RiskDrawer';
 import { NetPills } from '@/components/risk/NetPills';
+import { usePageMeta } from '@/hooks/usePageMeta';
+import { useJsonLd } from '@/hooks/useJsonLd';
 import { formatUsd } from '@/lib/format';
 import { netColor, sparkPoints, tierColor, tierLabel, tierSoft } from '@/lib/risk';
+
+const RISK_DATASET = {
+  '@context': 'https://schema.org',
+  '@type': 'Dataset',
+  name: 'Slashr Risk Index',
+  description:
+    'A per-validator 0–100 risk score across Solana, Ethereum, Sui, and Cosmos — a transparent composite of downtime, slashing history, commission behavior, and infrastructure health.',
+  url: 'https://slashr.dev/risk',
+  keywords: ['validator risk', 'validator slashing', 'staking risk', 'validator integrity', 'delegation risk'],
+  isAccessibleForFree: true,
+  creator: { '@type': 'Organization', name: 'NullRabbit', url: 'https://nullrabbit.ai' },
+  variableMeasured: [
+    'risk score (0–100)',
+    'incidents (30d)',
+    'slashing events (30d)',
+    'stake value at risk (USD)',
+    'commission (%)',
+  ],
+};
 
 const GRID = '50px minmax(220px,1.6fr) 188px 124px 130px 108px 80px 116px';
 
@@ -49,6 +71,13 @@ export default function RiskPage() {
   const [sortDir, setSortDir] = useState<'asc' | 'desc'>('desc');
   const { open } = useRiskDrawer();
   const { validators, loading, error } = useRiskValidators(net);
+
+  usePageMeta({
+    title: 'Slashr Risk Index — Validator Risk Scores (0–100)',
+    description:
+      'An independent 0–100 risk score for every validator we track across Solana, Ethereum, Sui, and Cosmos — a composite of downtime, slashing history, commission, and infrastructure health.',
+  });
+  useJsonLd(RISK_DATASET);
 
   const metrics = useMemo(() => {
     const crit = validators.filter(v => v.risk_score >= 75).length;
@@ -220,11 +249,16 @@ export default function RiskPage() {
 
         <div>
           {rows.map(v => (
-            <div
+            <Link
               key={`${v.network}-${v.address}`}
+              to={`/validator/${v.network}/${encodeURIComponent(v.address)}`}
               className="risk-row"
-              onClick={() => open(v)}
-              style={{ display: 'grid', gridTemplateColumns: GRID, alignItems: 'center', gap: 18, padding: '18px 24px', borderBottom: '1px solid var(--border)', boxShadow: `inset 3px 0 0 ${tierColor(v.tier)}` }}
+              onClick={e => {
+                if (e.metaKey || e.ctrlKey || e.shiftKey) return;
+                e.preventDefault();
+                open(v);
+              }}
+              style={{ display: 'grid', gridTemplateColumns: GRID, alignItems: 'center', gap: 18, padding: '18px 24px', borderBottom: '1px solid var(--border)', boxShadow: `inset 3px 0 0 ${tierColor(v.tier)}`, textDecoration: 'none', color: 'inherit' }}
             >
               <span style={{ fontSize: 13, fontWeight: 600, color: 'var(--text-3)', fontVariantNumeric: 'tabular-nums' }}>{v.rank}</span>
 
@@ -259,7 +293,7 @@ export default function RiskPage() {
               <span style={{ textAlign: 'right', fontSize: 13, color: (v.commission_pct ?? 0) >= 50 ? 'var(--crit)' : 'var(--text-2)', fontWeight: (v.commission_pct ?? 0) >= 50 ? 700 : 400, fontVariantNumeric: 'tabular-nums' }}>
                 {v.commission_pct != null ? `${v.commission_pct}%` : '—'}
               </span>
-            </div>
+            </Link>
           ))}
         </div>
       </div>

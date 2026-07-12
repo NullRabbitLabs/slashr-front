@@ -1,6 +1,7 @@
 import { useMemo } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import type { EventType } from '@/types/api';
+import { usePageMeta } from '@/hooks/usePageMeta';
 import { useStats } from '@/hooks/useStats';
 import { useEvents } from '@/hooks/useEvents';
 import { useRiskValidators } from '@/hooks/useRiskValidators';
@@ -16,6 +17,12 @@ export default function OverviewPage() {
   const { stats } = useStats();
   const { validators } = useRiskValidators('all', 200);
   const { events } = useEvents({ network: null, search: '' });
+
+  usePageMeta({
+    title: 'Slashr — Validator Risk Index & Live Slashing Feed',
+    description:
+      'Track validator slashing, downtime, and commission risk across Solana, Ethereum, Sui, and Cosmos. The Slashr Risk Index scores every validator 0–100.',
+  });
 
   const countByNet = new Map(stats?.networks.map(n => [n.slug, n.counts.last_30d]) ?? []);
   const topRisk = validators.slice(0, 8);
@@ -96,11 +103,16 @@ export default function OverviewPage() {
           </div>
           <div>
             {topRisk.map(v => (
-              <div
+              <Link
                 key={`${v.network}-${v.address}`}
+                to={`/validator/${v.network}/${encodeURIComponent(v.address)}`}
                 className="risk-row"
-                onClick={() => open(v)}
-                style={{ display: 'grid', gridTemplateColumns: '26px 1fr 76px 90px', alignItems: 'center', gap: 12, padding: '13px 18px', borderBottom: '1px solid var(--border)', boxShadow: `inset 3px 0 0 ${tierColor(v.tier)}` }}
+                onClick={e => {
+                  if (e.metaKey || e.ctrlKey || e.shiftKey) return;
+                  e.preventDefault();
+                  open(v);
+                }}
+                style={{ display: 'grid', gridTemplateColumns: '26px 1fr 76px 90px', alignItems: 'center', gap: 12, padding: '13px 18px', borderBottom: '1px solid var(--border)', boxShadow: `inset 3px 0 0 ${tierColor(v.tier)}`, textDecoration: 'none', color: 'inherit' }}
               >
                 <span style={{ fontSize: 13, fontWeight: 600, color: 'var(--text-3)', fontVariantNumeric: 'tabular-nums' }}>{v.rank}</span>
                 <div style={{ minWidth: 0 }}>
@@ -117,7 +129,7 @@ export default function OverviewPage() {
                   </div>
                   <span style={{ fontSize: 14, fontWeight: 700, color: 'var(--text)', fontVariantNumeric: 'tabular-nums', width: 22, textAlign: 'right' }}>{v.risk_score}</span>
                 </div>
-              </div>
+              </Link>
             ))}
             {topRisk.length === 0 && <div style={{ padding: 24, fontSize: 13, color: 'var(--text-3)' }}>No ranked validators yet.</div>}
           </div>
@@ -156,16 +168,16 @@ export default function OverviewPage() {
       {/* explore band */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: 16 }}>
         {explore.map(c => (
-          <button
+          <Link
             key={c.path}
-            onClick={() => navigate(c.path)}
+            to={c.path}
             className="risk-row"
-            style={{ textAlign: 'left', background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 14, boxShadow: 'var(--shadow)', padding: '18px 20px', cursor: 'pointer' }}
+            style={{ display: 'block', textAlign: 'left', background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 14, boxShadow: 'var(--shadow)', padding: '18px 20px', cursor: 'pointer', textDecoration: 'none', color: 'inherit' }}
           >
             <div style={{ fontSize: 14.5, fontWeight: 600, color: 'var(--text)', marginBottom: 8 }}>{c.title}</div>
             <div style={{ fontSize: 12.5, lineHeight: 1.5, color: 'var(--text-2)', marginBottom: 14 }}>{c.desc}</div>
             <span style={{ fontSize: 12.5, fontWeight: 600, color: 'var(--accent)' }}>{c.cta} →</span>
-          </button>
+          </Link>
         ))}
       </div>
     </div>

@@ -10,13 +10,16 @@
     <meta name="robots" content="index, follow" />
     <link rel="canonical" href="https://slashr.dev" />
 
+    <link rel="alternate" type="application/rss+xml" title="Slashr — validator incidents" href="https://slashr.dev/feed/incidents.rss" />
+    <link rel="alternate" type="application/feed+json" title="Slashr — validator incidents" href="https://slashr.dev/feed/incidents.json" />
+
     <meta property="og:type" content="website" />
     <meta property="og:title" content="slashr — live validator incident feed" />
     <meta property="og:description" content="Real-time slashing, delinquency, and missed vote tracking across Solana, Ethereum, Sui, and Cosmos." />
     <meta property="og:url" content="https://slashr.dev" />
     <meta property="og:image" content="https://slashr.dev/og-image.png" />
 
-    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:site" content="@SlashrDev" />
     <meta name="twitter:title" content="slashr — live validator incident feed" />
     <meta name="twitter:description" content="Real-time slashing, delinquency, and missed vote tracking across Solana, Ethereum, Sui, and Cosmos." />
@@ -24,12 +27,35 @@
     <script type="application/ld+json">
     {
       "@context": "https://schema.org",
-      "@type": "SoftwareApplication",
-      "name": "slashr",
-      "description": "Real-time slashing and delinquency events across Ethereum, Solana, Cosmos, and Sui. As they happen.",
-      "applicationCategory": "SecurityApplication",
-      "operatingSystem": "Web",
-      "url": "https://slashr.dev"
+      "@graph": [
+        {
+          "@type": "Organization",
+          "@id": "https://slashr.dev/#organization",
+          "name": "Slashr",
+          "url": "https://slashr.dev",
+          "logo": "https://slashr.dev/nullrabbit.png",
+          "description": "Multi-chain validator risk intelligence: slashing, downtime, and commission monitoring across Solana, Ethereum, Sui, and Cosmos.",
+          "parentOrganization": { "@type": "Organization", "name": "NullRabbit", "url": "https://nullrabbit.ai" },
+          "sameAs": ["https://x.com/SlashrDev", "https://t.me/SlashrDevBot", "https://nullrabbit.ai"]
+        },
+        {
+          "@type": "WebSite",
+          "@id": "https://slashr.dev/#website",
+          "name": "Slashr",
+          "url": "https://slashr.dev",
+          "description": "Live validator incident feed and the Slashr Risk Index across Solana, Ethereum, Sui, and Cosmos.",
+          "publisher": { "@id": "https://slashr.dev/#organization" }
+        },
+        {
+          "@type": "SoftwareApplication",
+          "name": "Slashr",
+          "applicationCategory": "SecurityApplication",
+          "operatingSystem": "Web",
+          "url": "https://slashr.dev",
+          "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+          "publisher": { "@id": "https://slashr.dev/#organization" }
+        }
+      ]
     }
     </script>
 
