@@ -60,7 +60,7 @@ async function fetchAllValidators(env: Env): Promise<Validator[]> {
     const params = new URLSearchParams();
     if (cursor) params.set('cursor', cursor);
     const url = `${env.API_ORIGIN}/v1/validators?${params}`;
-    const res = await fetch(url, { headers });
+    const res = await fetch(url, { headers, cache: 'no-store' });
     if (!res.ok) {
       console.error(`sitemap: validators fetch failed: ${res.status} ${res.statusText} (${url})`);
       break;
@@ -83,7 +83,7 @@ async function fetchAllReports(env: Env): Promise<ReportProvider[]> {
   for (let page = 1; page <= 50; page++) {
     const params = new URLSearchParams({ per_page: '200', page: String(page) });
     const url = `${env.API_ORIGIN}/v1/reports?${params}`;
-    const res = await fetch(url, { headers });
+    const res = await fetch(url, { headers, cache: 'no-store' });
     if (!res.ok) {
       console.error(`sitemap: reports fetch failed: ${res.status} ${res.statusText} (${url})`);
       break;
