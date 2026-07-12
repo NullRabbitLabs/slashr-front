@@ -1,6 +1,8 @@
 import { useState } from 'react';
 import type { EventListItem, EventType } from '@/types/api';
 import { useEvents } from '@/hooks/useEvents';
+import { usePageMeta } from '@/hooks/usePageMeta';
+import { useJsonLd } from '@/hooks/useJsonLd';
 import { NetPills } from '@/components/risk/NetPills';
 import { EVENT_TYPE_LABELS } from '@/lib/constants';
 import { netColor, netTicker } from '@/lib/risk';
@@ -25,6 +27,18 @@ const EVENT_SHORT: Partial<Record<EventType, string>> = {
   dot_not_elected: 'Not elected',
   avax_uptime_below_threshold: 'Uptime below threshold',
   near_kicked_out: 'Ejected from set',
+};
+
+const FEED_DATASET = {
+  '@context': 'https://schema.org',
+  '@type': 'Dataset',
+  name: 'Slashr validator incident feed',
+  description:
+    'A live feed of validator slashing, downtime, and commission events across Solana, Ethereum, Sui, and Cosmos.',
+  url: 'https://slashr.dev/feed',
+  keywords: ['validator slashing incidents', 'validator downtime', 'slashing events', 'staking incidents'],
+  isAccessibleForFree: true,
+  creator: { '@type': 'Organization', name: 'NullRabbit', url: 'https://nullrabbit.ai' },
 };
 
 function shortType(t: string): string {
@@ -60,6 +74,13 @@ export default function FeedPage() {
     network: net === 'all' ? null : net,
     search: '',
   });
+
+  usePageMeta({
+    title: 'Live Validator Incident Feed — Slashing & Downtime',
+    description:
+      'Every validator slashing, downtime, and commission event across Solana, Ethereum, Sui, and Cosmos, as it happens.',
+  });
+  useJsonLd(FEED_DATASET);
 
   return (
     <div>

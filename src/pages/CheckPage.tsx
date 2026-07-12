@@ -107,31 +107,30 @@ export default function CheckPage() {
   return (
     <div style={{ marginTop: 8 }}>
       {/* Heading */}
+      <h1
+        style={{
+          fontSize: 11,
+          fontFamily: "'JetBrains Mono', monospace",
+          textTransform: 'uppercase',
+          letterSpacing: '0.08em',
+          color: 'var(--color-text-dim)',
+          fontWeight: 600,
+          margin: '0 0 4px',
+        }}
+      >
+        Check your validators for slashing and downtime risk
+      </h1>
       {!isMobile && (
-        <>
-          <div
-            style={{
-              fontSize: 11,
-              fontFamily: "'JetBrains Mono', monospace",
-              textTransform: 'uppercase',
-              letterSpacing: '0.08em',
-              color: 'var(--color-text-dim)',
-              marginBottom: 4,
-            }}
-          >
-            Check Wallet
-          </div>
-          <div
-            style={{
-              fontSize: 12,
-              fontFamily: "'Inter', sans-serif",
-              color: 'var(--color-text-tertiary)',
-              marginBottom: 16,
-            }}
-          >
-            Paste your wallet address to check your validators' grades, downtime costs, and incident history
-          </div>
-        </>
+        <div
+          style={{
+            fontSize: 12,
+            fontFamily: "'Inter', sans-serif",
+            color: 'var(--color-text-tertiary)',
+            marginBottom: 16,
+          }}
+        >
+          Paste your wallet address to check your validators' grades, downtime costs, and incident history
+        </div>
       )}
 
       {/* Input */}

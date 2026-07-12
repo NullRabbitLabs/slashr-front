@@ -496,7 +496,7 @@ export function ValidatorProfile() {
               onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
             />
           )}
-          <h2
+          <h1
             style={{
               fontSize: isMobile ? 20 : 24,
               fontWeight: isNamed ? 700 : 400,
@@ -508,7 +508,7 @@ export function ValidatorProfile() {
             }}
           >
             {headerName}
-          </h2>
+          </h1>
           <NetworkTag network={validator.network} />
           {(() => {
             const explorerAddr = validator.network === 'ethereum' ? ethPubkey : address;

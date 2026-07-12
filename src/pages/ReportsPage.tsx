@@ -3,13 +3,11 @@ import { Link } from 'react-router-dom';
 import { useReportProviders } from '@/hooks/useReportProviders';
 import { useDebouncedValue } from '@/hooks/useDebouncedValue';
 import { usePageMeta } from '@/hooks/usePageMeta';
-import { useIsMobile } from '@/hooks/useIsMobile';
 
 const LETTERS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
 const monoFont = "'JetBrains Mono', monospace";
 
 export default function ReportsPage() {
-  const isMobile = useIsMobile();
   usePageMeta({
     title: 'Reliability Reports \u00b7 slashr',
     description: 'Monthly validator reliability reports by staking provider.',
@@ -61,20 +59,19 @@ export default function ReportsPage() {
 
   return (
     <div>
-      {!isMobile && (
-        <div
-          style={{
-            fontSize: 11,
-            fontFamily: monoFont,
-            textTransform: 'uppercase',
-            letterSpacing: '0.08em',
-            color: 'var(--color-text-dim)',
-            marginBottom: 16,
-          }}
-        >
-          Provider Reliability Reports
-        </div>
-      )}
+      <h1
+        style={{
+          fontSize: 11,
+          fontFamily: monoFont,
+          textTransform: 'uppercase',
+          letterSpacing: '0.08em',
+          color: 'var(--color-text-dim)',
+          fontWeight: 600,
+          margin: '0 0 16px',
+        }}
+      >
+        Provider Reliability Reports
+      </h1>
 
       {/* Search input */}
       <input

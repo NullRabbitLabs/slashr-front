@@ -5,6 +5,7 @@ interface Env {
   API_ORIGIN: string;
   CF_ACCESS_CLIENT_ID: string;
   CF_ACCESS_CLIENT_SECRET: string;
+  API_JWT_TOKEN?: string;
 }
 
 interface Validator {
@@ -21,14 +22,18 @@ const BASE = 'https://slashr.dev';
 
 const STATIC_PAGES: { path: string; priority: string; changefreq: string }[] = [
   { path: '/', priority: '1.0', changefreq: 'hourly' },
+  { path: '/risk', priority: '0.9', changefreq: 'hourly' },
+  { path: '/feed', priority: '0.9', changefreq: 'hourly' },
   { path: '/validators', priority: '0.8', changefreq: 'daily' },
   { path: '/rankings', priority: '0.8', changefreq: 'daily' },
   { path: '/insights', priority: '0.7', changefreq: 'daily' },
   { path: '/reports', priority: '0.7', changefreq: 'daily' },
+  { path: '/reports/providers', priority: '0.6', changefreq: 'daily' },
   { path: '/check', priority: '0.5', changefreq: 'monthly' },
-  { path: '/developers', priority: '0.4', changefreq: 'monthly' },
-  { path: '/alerts', priority: '0.4', changefreq: 'monthly' },
+  { path: '/developers', priority: '0.5', changefreq: 'monthly' },
 ];
+// Note: /alerts is intentionally excluded — it's an account feature, not a
+// crawlable content page.
 
 function escapeXml(s: string): string {
   return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
@@ -39,6 +44,10 @@ function apiHeaders(env: Env): Headers {
   h.set('CF-Access-Client-Id', env.CF_ACCESS_CLIENT_ID);
   h.set('CF-Access-Client-Secret', env.CF_ACCESS_CLIENT_SECRET);
   h.set('Accept', 'application/json');
+  // The API requires a Bearer credential (require_auth). Without this the
+  // validator/report fetches 401 and the sitemap silently degrades to
+  // static-pages-only. Mirrors the service token used by _middleware.ts.
+  if (env.API_JWT_TOKEN) h.set('Authorization', `Bearer ${env.API_JWT_TOKEN}`);
   return h;
 }
 
@@ -92,11 +101,18 @@ function buildSitemap(validators: Validator[], reports: ReportProvider[]): strin
     '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">',
   ];
 
+  // Freshest event date across all validators — used as <lastmod> for the
+  // static pages so crawlers see data recency (the data updates continuously).
+  const freshest = validators.reduce<string>((max, v) => {
+    const d = v.last_event_at ? v.last_event_at.slice(0, 10) : '';
+    return d > max ? d : max;
+  }, '');
+
   // Static pages
   for (const p of STATIC_PAGES) {
+    lines.push(`  <url>`, `    <loc>${BASE}${p.path}</loc>`);
+    if (freshest) lines.push(`    <lastmod>${freshest}</lastmod>`);
     lines.push(
-      `  <url>`,
-      `    <loc>${BASE}${p.path}</loc>`,
       `    <changefreq>${p.changefreq}</changefreq>`,
       `    <priority>${p.priority}</priority>`,
       `  </url>`,

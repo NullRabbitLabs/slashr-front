@@ -230,10 +230,6 @@ function injectMeta(html: string, meta: HeadMeta): string {
     .replace(
       /<link\s+rel="canonical"\s+href="[^"]*"\s*\/?>/,
       `<link rel="canonical" href="${u}" />`,
-    )
-    .replace(
-      /"url":\s*"[^"]*"/,
-      `"url": "${meta.url}"`,
     );
 
   // Inject dynamic OG image for validator pages

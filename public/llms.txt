@@ -1,0 +1,33 @@
+# Slashr
+
+> Slashr (slashr.dev) is a multi-chain validator risk-intelligence product by NullRabbit. It tracks validator slashing, delinquency (downtime), jailing, and commission events across Solana, Ethereum, Sui, and Cosmos, and scores every validator 0–100 with the Slashr Risk Index.
+
+Slashr helps stakers, delegators, staking operators, and risk/treasury teams see which validators put stake at risk. Chain data is collected continuously and surfaced three ways: a live incident feed, a per-validator risk score (the Slashr Risk Index), and cross-chain reliability reports.
+
+The Slashr Risk Index is the public inverse of an internal validator health grade: a transparent 0–100 composite of downtime, slashing history, commission behavior, and infrastructure health. Higher score = higher risk.
+
+## Core surfaces
+
+- [Slashr Risk Index](https://slashr.dev/risk): Every tracked validator ranked 0–100 by risk, with stake at risk, incident trend, and slashing count.
+- [Live incident feed](https://slashr.dev/feed): Slashing, downtime, and commission events across every network, as they happen.
+- [Validator directory](https://slashr.dev/validators): All validators with recorded incidents, searchable by network.
+- [Rankings](https://slashr.dev/rankings): Worst offenders and most reliable validators by network and period.
+- [Reliability reports](https://slashr.dev/reports): Cross-chain reliability summaries per staking provider.
+- [Check your validators](https://slashr.dev/check): Paste a wallet address to see the incident history and risk of the validators it delegates to.
+
+## Feeds (machine-readable)
+
+- RSS 2.0: https://slashr.dev/feed/incidents.rss
+- JSON Feed 1.1: https://slashr.dev/feed/incidents.json
+
+## For developers and AI agents
+
+- [Developers](https://slashr.dev/developers): REST API and MCP server documentation.
+- MCP server (streamable HTTP): `https://mcp.slashr.dev/mcp`. Tools: get_validator_incidents, get_validator_stats, get_scan_results, get_worst_offenders, check_delegation, get_network_summary.
+- REST API and full docs: https://slashr.dev/developers and https://docs.slashr.dev
+
+## About
+
+- Built by [NullRabbit](https://nullrabbit.ai).
+- Networks currently public: Solana, Ethereum, Sui, Cosmos.
+- On X: https://x.com/SlashrDev
