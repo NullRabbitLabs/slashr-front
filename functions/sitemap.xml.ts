@@ -39,7 +39,7 @@ function escapeXml(s: string): string {
   return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 }
 
-function apiHeaders(env: Env): Headers {
+function apiHeaders(env: Env, clientIp: string | null): Headers {
   const h = new Headers();
   h.set('CF-Access-Client-Id', env.CF_ACCESS_CLIENT_ID);
   h.set('CF-Access-Client-Secret', env.CF_ACCESS_CLIENT_SECRET);
@@ -48,13 +48,18 @@ function apiHeaders(env: Env): Headers {
   // validator/report fetches 401 and the sitemap silently degrades to
   // static-pages-only. Mirrors the service token used by _middleware.ts.
   if (env.API_JWT_TOKEN) h.set('Authorization', `Bearer ${env.API_JWT_TOKEN}`);
+  // cloudflared overwrites CF-Connecting-IP / X-Forwarded-For on the tunnel hop,
+  // so the API keys rate-limiting off X-Real-Client-IP. Without it the paginated
+  // /v1/validators crawl shares one missing-IP bucket and gets 429'd (→ empty
+  // sitemap). Mirrors how functions/api/[[path]].ts forwards it.
+  if (clientIp) h.set('X-Real-Client-IP', clientIp);
   return h;
 }
 
-async function fetchAllValidators(env: Env): Promise<Validator[]> {
+async function fetchAllValidators(env: Env, clientIp: string | null): Promise<Validator[]> {
   const all: Validator[] = [];
   let cursor: string | null = null;
-  const headers = apiHeaders(env);
+  const headers = apiHeaders(env, clientIp);
 
   for (let i = 0; i < 100; i++) {
     const params = new URLSearchParams();
@@ -76,9 +81,9 @@ async function fetchAllValidators(env: Env): Promise<Validator[]> {
   return all;
 }
 
-async function fetchAllReports(env: Env): Promise<ReportProvider[]> {
+async function fetchAllReports(env: Env, clientIp: string | null): Promise<ReportProvider[]> {
   const all: ReportProvider[] = [];
-  const headers = apiHeaders(env);
+  const headers = apiHeaders(env, clientIp);
 
   for (let page = 1; page <= 50; page++) {
     const params = new URLSearchParams({ per_page: '200', page: String(page) });
@@ -151,13 +156,14 @@ function staticOnlySitemap(): string {
 }
 
 export const onRequest: PagesFunction<Env> = async (context) => {
-  const { env } = context;
+  const { env, request } = context;
+  const clientIp = request.headers.get('CF-Connecting-IP');
 
   let xml: string;
   try {
     const [validators, reports] = await Promise.all([
-      fetchAllValidators(env),
-      fetchAllReports(env),
+      fetchAllValidators(env, clientIp),
+      fetchAllReports(env, clientIp),
     ]);
     console.log(`sitemap: ${validators.length} validators, ${reports.length} reports`);
     xml = buildSitemap(validators, reports);
