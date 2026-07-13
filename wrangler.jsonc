@@ -1,0 +1,11 @@
+{
+	"$schema": "node_modules/wrangler/config-schema.json",
+	"name": "slashr-ssr",
+	"compatibility_date": "2026-07-13",
+	"compatibility_flags": ["nodejs_compat"],
+	"main": "./workers/app.ts",
+	// Non-secret defaults. Secrets (API_ORIGIN, CF_ACCESS_CLIENT_ID,
+	// CF_ACCESS_CLIENT_SECRET, API_JWT_TOKEN) are set via
+	// `wrangler secret put` or a local `.dev.vars` file — never committed.
+	"vars": {}
+}

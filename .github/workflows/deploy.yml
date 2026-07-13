@@ -1,58 +1,32 @@
-name: Deploy to Cloudflare Pages
+name: Deploy (Workers SSR)
 
+# Replaces the old Cloudflare Pages deploy. The frontend is now a React Router
+# framework-mode app served from a Cloudflare Worker (`slashr-ssr`).
+#
+# At the prod flip: rename the worker to `slashr` (wrangler.jsonc) + attach the
+# slashr.dev custom domain to it, and set the API secrets so loaders hit
+# api.slashr.dev directly instead of the public slashr.dev/api double-hop.
 on:
   push:
-    branches: [main, beta-front]
-  pull_request:
     branches: [main]
+  workflow_dispatch:
 
 concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
+  group: workers-deploy-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
-  test:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 22
-          cache: npm
-
-      - run: npm ci
-
-      - name: Type check
-        run: npx tsc --noEmit
-
-      - name: Build
-        run: npm run build
-        env:
-          VITE_USE_MOCK: "true"
-
   deploy:
-    needs: [test]
-    if: github.event_name == 'push'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-
       - uses: actions/setup-node@v4
         with:
           node-version: 22
-          cache: npm
-
       - run: npm ci
-
       - run: npm run build
-        env:
-          VITE_API_URL: /api
-          VITE_USE_MOCK: "false"
-          VITE_TURNSTILE_SITE_KEY: ${{ secrets.VITE_TURNSTILE_SITE_KEY }}
-
-      - name: Deploy to Cloudflare Pages
-        run: npx wrangler pages deploy dist --project-name=slashr --branch=${{ github.ref_name }}
+      - name: Deploy to Cloudflare Workers
+        run: npx wrangler deploy -c build/server/wrangler.json
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}

@@ -1,6 +1,15 @@
-node_modules/
-dist/
-.env*
-*.local
-.claude/
-prompt.md
+.DS_Store
+.env
+.dev.vars
+/node_modules
+
+# React Router
+/.react-router/
+/build/
+
+# Cloudflare / wrangler
+/.wrangler/
+worker-configuration.d.ts
+
+# TypeScript build info
+*.tsbuildinfo

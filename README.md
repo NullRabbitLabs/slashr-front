@@ -1,126 +1,87 @@
-# slashr
+# Welcome to React Router!
 
-Live multi-chain validator penalty tracker. Every time a validator goes offline, gets slashed, or misbehaves — it shows up here.
+A modern, production-ready template for building full-stack React applications using React Router.
 
-**[slashr.dev](https://slashr.dev)**
+[![Open in StackBlitz](https://developer.stackblitz.com/img/open_in_stackblitz.svg)](https://stackblitz.com/github/remix-run/react-router-templates/tree/main/default)
 
-## What is this
+## Features
 
-Blockchains are kept running by validators — machines that verify transactions and put up money as a guarantee they'll behave. When they don't, they get penalised. Sometimes a slap on the wrist. Sometimes they lose everything.
+- 🚀 Server-side rendering
+- ⚡️ Hot Module Replacement (HMR)
+- 📦 Asset bundling and optimization
+- 🔄 Data loading and mutations
+- 🔒 TypeScript by default
+- 🎉 TailwindCSS for styling
+- 📖 [React Router docs](https://reactrouter.com/)
 
-Slashr tracks these penalty events in real-time across:
+## Getting Started
 
-- **Solana** — delinquency (missed votes)
-- **Ethereum** — slashing, inactivity leaks
-- **Cosmos Hub** — double-sign slashing, downtime jailing
-- **Sui** — tallying penalties
+### Installation
 
-The audience is delegators, researchers, and anyone watching validator behaviour.
-
-## Stack
-
-React 19 + TypeScript + Vite. Deploys to Cloudflare Pages. No SSR — this is a static client-side SPA.
-
-Dependencies are minimal by design: no state management library, no CSS-in-JS, no component library. Just React, React Router, and three fonts.
-
-## Getting started
+Install the dependencies:
 
 ```bash
 npm install
 ```
 
-Create a `.env` file:
+### Development
 
-```
-VITE_API_URL=http://localhost:3000   # API base URL
-VITE_USE_MOCK=true                   # use embedded mock data instead of real API
-```
+Start the development server with HMR:
 
 ```bash
-npm run dev      # dev server
-npm run build    # production build (zero TS errors required)
-npm run preview  # preview production build
+npm run dev
 ```
 
-## Project structure
+Your application will be available at `http://localhost:5173`.
 
-```
-src/
-  api/          client.ts (fetch wrapper), mock.ts (embedded mock data)
-  components/   UI components (EventRow, NetworkStrip, TabBar, etc.)
-  hooks/        data fetching hooks (useEvents, useLeaderboard, etc.)
-  pages/        route-level pages (FeedPage, LeaderboardPage, etc.)
-  lib/          constants, formatters, time utilities
-  styles/       global.css (CSS variables, dark/light theme)
-  types/        TypeScript types matching API response shapes
+## Building for Production
+
+Create a production build:
+
+```bash
+npm run build
 ```
 
-## Pages
+## Deployment
 
-| Route | What it shows |
-|-------|---------------|
-| `/` | Live feed of validator penalty events |
-| `/validators` | Paginated validator directory |
-| `/leaderboard` | Worst-performing validators ranked by severity |
-| `/reports` | Provider reliability reports |
-| `/check` | Paste a wallet address to check your validators |
-| `/validator/:network/:address` | Individual validator profile + event history |
-| `/developers` | MCP integration docs and API key request |
+### Docker Deployment
 
-## MCP Server
+To build and run using Docker:
 
-Slashr exposes validator incident data to AI agents via the [Model Context Protocol](https://modelcontextprotocol.io). Published on the MCP Registry as [`dev.slashr/mcp`](https://registry.modelcontextprotocol.io).
+```bash
+docker build -t my-app .
 
-**Endpoint:** `https://mcp.slashr.dev/mcp`
-**Transport:** Streamable HTTP
-**Auth:** Bearer token
-
-### Connect your agent
-
-```json
-{
-  "mcpServers": {
-    "slashr": {
-      "url": "https://mcp.slashr.dev/mcp",
-      "headers": {
-        "Authorization": "Bearer YOUR_API_KEY"
-      }
-    }
-  }
-}
+# Run the container
+docker run -p 3000:3000 my-app
 ```
 
-### Get an API key
+The containerized application can be deployed to any platform that supports Docker, including:
 
-[Request access](https://github.com/NullRabbitLabs/slashr-front/issues/new?template=mcp-key-request.md) — open an issue with your project name and we'll DM you a key.
+- AWS ECS
+- Google Cloud Run
+- Azure Container Apps
+- Digital Ocean App Platform
+- Fly.io
+- Railway
 
-### Tools
+### DIY Deployment
 
-| Tool | Description |
-|------|-------------|
-| `get_validator_incidents` | Incident history for a validator (delinquency, slashing, jailing) |
-| `get_validator_stats` | Chain-specific performance data (stake, commission, epoch credits) |
-| `get_scan_results` | Infrastructure scan: port states, CVEs, health verdict |
-| `get_worst_offenders` | Validators ranked by incident severity |
-| `check_delegation` | Health check on a wallet's staked positions |
-| `get_network_summary` | Aggregate incident stats for a chain |
+If you're familiar with deploying Node applications, the built-in app server is production-ready.
 
-Chains: `sol`, `eth`, `sui`, `atom`. Auto-detected from address format when omitted.
+Make sure to deploy the output of `npm run build`
 
-See [slashr.dev/developers](https://slashr.dev/developers) for full docs.
+```
+├── package.json
+├── package-lock.json (or pnpm-lock.yaml, or bun.lockb)
+├── build/
+│   ├── client/    # Static assets
+│   └── server/    # Server-side code
+```
 
-## REST API
+## Styling
 
-The frontend consumes the Slashr REST API. All responses use `{"data": ...}` envelope with optional cursor pagination. Set `VITE_USE_MOCK=true` to run without a backend.
-
-## Design
-
-Dark theme by default, light theme available. Monospace-accented, feed-first. Not a dashboard.
-
-- **Headings:** Space Grotesk 700
-- **Body:** Inter 400/500/600
-- **Data/tags:** JetBrains Mono 400/600
+This template comes with [Tailwind CSS](https://tailwindcss.com/) already configured for a simple default starting experience. You can use whatever CSS framework you prefer.
 
 ---
 
-Built by [NullRabbit](https://nullrabbit.ai)
+Built with ❤️ using React Router.
