@@ -4,7 +4,7 @@
 // production these go through the same-origin /api proxy; in dev they hit
 // VITE_API_URL directly (which must allow credentialed CORS).
 
-const BASE_URL = import.meta.env.VITE_API_URL || '';
+const BASE_URL = import.meta.env.VITE_API_URL || '/api';
 const CSRF_HEADER = 'X-Slashr-CSRF';
 
 export interface AuthUser {

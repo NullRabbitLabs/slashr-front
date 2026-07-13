@@ -25,6 +25,11 @@ jobs:
           node-version: 22
       - run: npm ci
       - run: npm run build
+        env:
+          # Client build-time vars (inlined into the bundle).
+          VITE_API_URL: /api
+          # Turnstile site key is public (ships in the page); safe to commit.
+          VITE_TURNSTILE_SITE_KEY: 0x4AAAAAADq99Vu2xH2hQdzo
       - name: Deploy to Cloudflare Workers
         run: npx wrangler deploy -c build/server/wrangler.json
         env:
