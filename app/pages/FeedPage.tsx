@@ -81,7 +81,7 @@ export default function FeedPage({ initialData }: FeedPageProps = {}) {
   });
 
   usePageMeta({
-    title: 'Live Validator Incident Feed — Slashing & Downtime',
+    title: 'Live Validator Incident Feed · Slashing & Downtime',
     description:
       'Every validator slashing, downtime, and commission event across Solana, Ethereum, Sui, and Cosmos, as it happens.',
   });
@@ -93,7 +93,7 @@ export default function FeedPage({ initialData }: FeedPageProps = {}) {
         <h1 style={{ fontSize: 23, fontWeight: 700, letterSpacing: '-.02em', color: 'var(--text)', margin: '0 0 4px' }}>Live incident feed</h1>
         <p style={{ fontSize: 14, color: 'var(--text-2)', margin: 0 }}>
           Every downtime, slashing, and commission event as it happens. Your staking rewards depend on validators staying
-          online — here’s every time one didn’t.
+          online. Here’s every time one didn’t.
         </p>
       </div>
 
@@ -102,7 +102,7 @@ export default function FeedPage({ initialData }: FeedPageProps = {}) {
       </div>
 
       {loading && <div style={{ padding: 30, color: 'var(--text-3)', fontSize: 13 }}>Loading feed…</div>}
-      {error && <div style={{ padding: 12, color: 'var(--text-3)', fontSize: 13 }}>Having trouble reaching the API — retrying.</div>}
+      {error && <div style={{ padding: 12, color: 'var(--text-3)', fontSize: 13 }}>Having trouble reaching the API. Retrying.</div>}
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
         {events.map(e => {

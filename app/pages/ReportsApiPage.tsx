@@ -44,7 +44,7 @@ export default function ReportsApiPage() {
           <div style={{ fontSize: 11, fontWeight: 600, letterSpacing: '.1em', textTransform: 'uppercase', color: 'var(--accent)', marginBottom: 11 }}>Developers &amp; data</div>
           <h1 style={{ fontSize: 28, fontWeight: 700, letterSpacing: '-.03em', color: 'var(--text)', margin: '0 0 10px' }}>Reports &amp; API</h1>
           <p style={{ fontSize: 15, lineHeight: 1.6, color: 'var(--text-2)', margin: 0 }}>
-            Pull Slashr risk data into your own monitoring and treasury systems — REST, webhooks, and scheduled exports.
+            Pull Slashr risk data into your own monitoring and treasury systems: REST, webhooks, and scheduled exports.
           </p>
         </div>
         <div style={{ display: 'flex', gap: 10, flex: 'none' }}>

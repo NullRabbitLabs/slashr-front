@@ -81,7 +81,7 @@ export function Sparkline({ events }: SparklineProps) {
               style={{ cursor: 'default' }}
             >
               <title>
-                {formatDate(DAYS - 1 - i)} — {count} incident{count === 1 ? '' : 's'}
+                {formatDate(DAYS - 1 - i)} · {count} incident{count === 1 ? '' : 's'}
               </title>
             </rect>
           );
@@ -102,7 +102,7 @@ export function Sparkline({ events }: SparklineProps) {
             pointerEvents: 'none',
           }}
         >
-          {formatDate(DAYS - 1 - hoveredIndex)} — {buckets[hoveredIndex]} incident{buckets[hoveredIndex] === 1 ? '' : 's'}
+          {formatDate(DAYS - 1 - hoveredIndex)} · {buckets[hoveredIndex]} incident{buckets[hoveredIndex] === 1 ? '' : 's'}
         </div>
       )}
     </div>

@@ -17,7 +17,7 @@ export async function loader() {
 
 export function meta() {
   return pageMeta({
-    title: "Validator Directory — Stake, Uptime & Risk · slashr",
+    title: "Validator Directory · Stake, Uptime & Risk · slashr",
     description:
       "Every validator we track across Solana, Ethereum, Sui, and Cosmos, with total stake, 30-day uptime, and live risk status. Click any validator for its full risk profile.",
     canonical: "https://slashr.dev/validators",

@@ -51,7 +51,7 @@ export default function LoginPage() {
     <div style={{ maxWidth: 420, margin: '64px auto', padding: '0 20px' }}>
       <h1 style={{ fontSize: 24, marginBottom: 8, color: 'var(--text)' }}>Sign in to Slashr</h1>
       <p style={{ color: 'var(--text-2)', fontSize: 15, lineHeight: 1.5, marginBottom: 24 }}>
-        Accounts unlock the API and MCP access. We&rsquo;ll email you a sign-in link — no password
+        Accounts unlock the API and MCP access. We&rsquo;ll email you a sign-in link, no password
         to remember.
       </p>
 

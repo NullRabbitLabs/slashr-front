@@ -153,7 +153,7 @@ export default function ReportsPage({ initialProviders }: ReportsPageProps = {})
 
       {error && (
         <div style={{ padding: '20px 0', color: 'var(--color-text-dim)', fontSize: 13 }}>
-          having trouble reaching the api — retrying
+          having trouble reaching the api, retrying
         </div>
       )}
 

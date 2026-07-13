@@ -25,7 +25,7 @@ export default function OverviewPage({ initialStats, initialRisk, initialEvents 
   const { events } = useEvents({ network: null, search: '', initialData: initialEvents });
 
   usePageMeta({
-    title: 'Slashr — Validator Risk Index & Live Slashing Feed',
+    title: 'Slashr · Validator Risk Index & Live Slashing Feed',
     description:
       'Track validator slashing, downtime, and commission risk across Solana, Ethereum, Sui, and Cosmos. The Slashr Risk Index scores every validator 0–100.',
   });
@@ -60,10 +60,10 @@ export default function OverviewPage({ initialStats, initialRisk, initialEvents 
             Validator risk intelligence
           </div>
           <h1 className="rd-hero-headline" style={{ fontSize: 32, lineHeight: 1.12, fontWeight: 700, letterSpacing: '-.025em', color: 'var(--text)', margin: '0 0 12px', whiteSpace: 'nowrap' }}>
-            Know which validators put stake at risk — before they do.
+            Know which validators put stake at risk before they do.
           </h1>
-          <p style={{ fontSize: 15, lineHeight: 1.55, color: 'var(--text-2)', margin: 0, maxWidth: 720, textWrap: 'pretty' }}>
-            Continuous slashing, downtime, and commission monitoring across every network we track — for staking
+          <p style={{ fontSize: 15, lineHeight: 1.55, color: 'var(--text-2)', margin: 0 }}>
+            Continuous slashing, downtime, and commission monitoring across every network we track, for staking
             operators, risk teams, and treasury desks who want the data behind the feed.
           </p>
         </div>

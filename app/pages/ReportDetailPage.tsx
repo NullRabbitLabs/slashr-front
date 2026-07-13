@@ -148,7 +148,7 @@ export default function ReportDetailPage({
   if (error || !report) {
     return (
       <div style={{ padding: '40px 0', color: 'var(--color-text-dim)', fontSize: 13 }}>
-        {error === 'API error: 404' ? 'No report found for this provider.' : 'having trouble reaching the api — retrying'}
+        {error === 'API error: 404' ? 'No report found for this provider.' : 'having trouble reaching the api, retrying'}
       </div>
     );
   }

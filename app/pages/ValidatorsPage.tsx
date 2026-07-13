@@ -52,7 +52,7 @@ export default function ValidatorsPage({ initialRisk }: { initialRisk?: RiskList
         </div>
 
         {loading && <div style={{ padding: 40, textAlign: 'center', color: 'var(--text-3)', fontSize: 13 }}>Loading validators…</div>}
-        {error && <div style={{ padding: 40, textAlign: 'center', color: 'var(--crit)', fontSize: 13 }}>Couldn’t load validators — retrying.</div>}
+        {error && <div style={{ padding: 40, textAlign: 'center', color: 'var(--crit)', fontSize: 13 }}>Couldn’t load validators. Retrying.</div>}
         {!loading && !error && rows.length === 0 && <div style={{ padding: 40, textAlign: 'center', color: 'var(--text-3)', fontSize: 13 }}>No validators match.</div>}
 
         <div>

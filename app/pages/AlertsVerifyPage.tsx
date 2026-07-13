@@ -8,7 +8,7 @@ export default function AlertsVerifyPage() {
   const { data, loading, error } = useVerify(token);
 
   usePageMeta({
-    title: 'Verify alert — slashr',
+    title: 'Verify alert · slashr',
     description: 'Confirm your Slashr email alert subscription.',
   });
 

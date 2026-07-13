@@ -14,7 +14,7 @@ const RISK_DATASET = {
   '@type': 'Dataset',
   name: 'Slashr Risk Index',
   description:
-    'A per-validator 0–100 risk score across Solana, Ethereum, Sui, and Cosmos — a transparent composite of downtime, slashing history, commission behavior, and infrastructure health.',
+    'A per-validator 0–100 risk score across Solana, Ethereum, Sui, and Cosmos, a transparent composite of downtime, slashing history, commission behavior, and infrastructure health.',
   url: 'https://slashr.dev/risk',
   keywords: ['validator risk', 'validator slashing', 'staking risk', 'validator integrity', 'delegation risk'],
   isAccessibleForFree: true,
@@ -73,9 +73,9 @@ export default function RiskPage({ initialRisk }: { initialRisk?: RiskListRespon
   const { validators, loading, error } = useRiskValidators(net, 200, initialRisk);
 
   usePageMeta({
-    title: 'Slashr Risk Index — Validator Risk Scores (0–100)',
+    title: 'Slashr Risk Index · Validator Risk Scores (0–100)',
     description:
-      'An independent 0–100 risk score for every validator we track across Solana, Ethereum, Sui, and Cosmos — a composite of downtime, slashing history, commission, and infrastructure health.',
+      'An independent 0–100 risk score for every validator we track across Solana, Ethereum, Sui, and Cosmos, a composite of downtime, slashing history, commission, and infrastructure health.',
   });
   useJsonLd(RISK_DATASET);
 
@@ -148,7 +148,7 @@ export default function RiskPage({ initialRisk }: { initialRisk?: RiskListRespon
             Slashr Risk Index
           </h1>
           <p style={{ fontSize: 15, lineHeight: 1.6, color: 'var(--text-2)', margin: 0 }}>
-            An independent risk score for every validator we track — a transparent composite of downtime, slashing history,
+            An independent risk score for every validator we track, a transparent composite of downtime, slashing history,
             commission behavior, and infrastructure health, to help with delegation and monitoring decisions.
           </p>
         </div>
@@ -242,7 +242,7 @@ export default function RiskPage({ initialRisk }: { initialRisk?: RiskListRespon
         </div>
 
         {loading && <div style={{ padding: 40, textAlign: 'center', color: 'var(--text-3)', fontSize: 13 }}>Loading risk index…</div>}
-        {error && <div style={{ padding: 40, textAlign: 'center', color: 'var(--crit)', fontSize: 13 }}>Couldn’t load the risk index — retrying.</div>}
+        {error && <div style={{ padding: 40, textAlign: 'center', color: 'var(--crit)', fontSize: 13 }}>Couldn’t load the risk index. Retrying.</div>}
         {!loading && !error && rows.length === 0 && (
           <div style={{ padding: 40, textAlign: 'center', color: 'var(--text-3)', fontSize: 13 }}>No validators match.</div>
         )}

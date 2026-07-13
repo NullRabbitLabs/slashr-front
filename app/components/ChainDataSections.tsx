@@ -271,16 +271,16 @@ function SolanaChainSections({
         helpContent={
           <>
             <p style={{ margin: '0 0 12px' }}>
-              <strong style={{ color: 'var(--color-text-primary)' }}>Epoch Credits</strong> — A running score of how many votes this validator has successfully cast. Higher is better. The <code style={{ fontSize: 12, fontFamily: "'JetBrains Mono', monospace" }}>prev:</code> value is last epoch's score; the delta shows whether performance is improving or declining.
+              <strong style={{ color: 'var(--color-text-primary)' }}>Epoch Credits</strong>: A running score of how many votes this validator has successfully cast. Higher is better. The <code style={{ fontSize: 12, fontFamily: "'JetBrains Mono', monospace" }}>prev:</code> value is last epoch's score; the delta shows whether performance is improving or declining.
             </p>
             <p style={{ margin: '0 0 12px' }}>
-              <strong style={{ color: 'var(--color-text-primary)' }}>Last Vote</strong> — The most recent slot this validator voted on. If this is far behind the current slot, the validator may be falling behind the network.
+              <strong style={{ color: 'var(--color-text-primary)' }}>Last Vote</strong>: The most recent slot this validator voted on. If this is far behind the current slot, the validator may be falling behind the network.
             </p>
             <p style={{ margin: '0 0 12px' }}>
-              <strong style={{ color: 'var(--color-text-primary)' }}>Root Slot</strong> — The last slot this validator has confirmed as finalised. Should track close to Last Vote. A large gap between Root Slot and Last Vote can indicate sync issues.
+              <strong style={{ color: 'var(--color-text-primary)' }}>Root Slot</strong>: The last slot this validator has confirmed as finalised. Should track close to Last Vote. A large gap between Root Slot and Last Vote can indicate sync issues.
             </p>
             <p style={{ margin: 0 }}>
-              <strong style={{ color: 'var(--color-text-primary)' }}>Improving / Declining</strong> — Compares this epoch's credits to last epoch's. An improving validator is catching up; a declining one is falling further behind.
+              <strong style={{ color: 'var(--color-text-primary)' }}>Improving / Declining</strong>: Compares this epoch's credits to last epoch's. An improving validator is catching up; a declining one is falling further behind.
             </p>
           </>
         }
@@ -364,7 +364,7 @@ function SolanaChainSections({
                   )}
                   {!isJito && !isTest && (
                     <span
-                      title="Running stock Agave (vanilla Solana) instead of Jito-Solana — MEV tip revenue that could flow to delegators is forfeited."
+                      title="Running stock Agave (vanilla Solana) instead of Jito-Solana, MEV tip revenue that could flow to delegators is forfeited."
                       style={{
                         fontSize: 10,
                         marginLeft: 8,

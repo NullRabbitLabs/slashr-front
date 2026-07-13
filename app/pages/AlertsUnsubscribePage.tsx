@@ -10,7 +10,7 @@ export default function AlertsUnsubscribePage() {
   const { info, confirmed, loading, confirming, error, confirm } = useUnsubscribe(token);
 
   usePageMeta({
-    title: 'Unsubscribe — slashr',
+    title: 'Unsubscribe · slashr',
     description: 'Unsubscribe from Slashr email alerts.',
   });
 

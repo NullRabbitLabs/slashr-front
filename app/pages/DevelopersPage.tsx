@@ -368,7 +368,7 @@ curl -X POST https://mcp.slashr.dev/mcp \\
             maxWidth: 640,
           }}
         >
-          Slashr also has a JSON REST API for direct integration — events, validators, rankings,
+          Slashr also has a JSON REST API for direct integration: events, validators, rankings,
           delegation health checks, and more. Your API key works for both MCP and REST.
         </p>
         <a

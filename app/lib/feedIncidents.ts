@@ -30,8 +30,8 @@ const EVENT_LABELS: Record<string, string> = {
   dot_not_elected: 'Dropped from active validator set.',
   commission_increase: 'Raised commission. Delegators earn less.',
   vanilla_solana: 'Running vanilla Solana. MEV tips forfeited.',
-  jito_opted_out: 'Stopped running Jito-Solana — delegators no longer earn MEV tips.',
-  jito_opted_in: 'Opted back into Jito-Solana — delegators earn MEV tips again.',
+  jito_opted_out: 'Stopped running Jito-Solana. Delegators no longer earn MEV tips.',
+  jito_opted_in: 'Opted back into Jito-Solana. Delegators earn MEV tips again.',
   tia_slashed_downtime: 'Offline too long on Celestia. Jailed.',
   tia_slashed_double_sign: 'Signed conflicting blocks at the same height on Celestia. Tombstoned.',
   avax_uptime_below_threshold: 'Uptime fell below the Avalanche reward threshold. Stakers earn nothing this period.',
@@ -86,7 +86,7 @@ export interface FeedItem {
 
 export const FEED_META = {
   base: BASE,
-  title: 'Slashr — validator incidents',
+  title: 'Slashr · validator incidents',
   homeUrl: `${BASE}/feed`,
   rssUrl: `${BASE}/feed/incidents.rss`,
   jsonUrl: `${BASE}/feed/incidents.json`,

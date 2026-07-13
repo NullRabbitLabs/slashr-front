@@ -171,7 +171,7 @@ export function EventRow({
             )}
             {event.feed_state === 'timed_out' && (
               <span
-                title="Published with incomplete enrichment — validator stake/identity/hostname may be missing or stale because the enrichment pipeline didn't complete within the publish window."
+                title="Published with incomplete enrichment: validator stake/identity/hostname may be missing or stale because the enrichment pipeline didn't complete within the publish window."
                 style={{
                   fontSize: 9,
                   fontFamily: "'JetBrains Mono', monospace",

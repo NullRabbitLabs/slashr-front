@@ -83,13 +83,13 @@ export const links: Route.LinksFunction = () => [
   {
     rel: "alternate",
     type: "application/rss+xml",
-    title: "Slashr — validator incidents",
+    title: "Slashr · validator incidents",
     href: "https://slashr.dev/feed/incidents.rss",
   },
   {
     rel: "alternate",
     type: "application/feed+json",
-    title: "Slashr — validator incidents",
+    title: "Slashr · validator incidents",
     href: "https://slashr.dev/feed/incidents.json",
   },
 ];
@@ -98,7 +98,7 @@ export const links: Route.LinksFunction = () => [
 // via their own `meta` export.
 export const meta: Route.MetaFunction = () =>
   pageMeta({
-    title: "slashr — live validator incident feed",
+    title: "slashr · live validator incident feed",
     description:
       "Real-time slashing, delinquency, and missed vote tracking across Solana, Ethereum, Sui, and Cosmos.",
     canonical: "https://slashr.dev",

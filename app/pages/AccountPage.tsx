@@ -79,7 +79,7 @@ function KeyManager() {
             background: 'var(--surface)',
           }}
         >
-          <strong style={{ color: 'var(--text)' }}>Copy your key now — it won&rsquo;t be shown again.</strong>
+          <strong style={{ color: 'var(--text)' }}>Copy your key now. It won&rsquo;t be shown again.</strong>
           <code
             style={{
               display: 'block',
@@ -139,7 +139,7 @@ function KeyManager() {
       </div>
 
       <p style={{ color: 'var(--text-3)', fontSize: 12.5, margin: '0 0 16px' }}>
-        {active.length} of {MAX_KEYS} keys used{atLimit ? ' — revoke one to create another.' : '.'}
+        {active.length} of {MAX_KEYS} keys used{atLimit ? '. Revoke one to create another.' : '.'}
       </p>
 
       {error && <p style={{ color: 'var(--crit)', fontSize: 14 }}>{error}</p>}

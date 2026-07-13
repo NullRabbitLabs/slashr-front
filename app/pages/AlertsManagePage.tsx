@@ -13,7 +13,7 @@ export default function AlertsManagePage() {
   const [confirmId, setConfirmId] = useState<string | null>(null);
 
   usePageMeta({
-    title: 'Manage alerts — slashr',
+    title: 'Manage alerts · slashr',
     description: 'Manage your Slashr email alert subscriptions.',
   });
 

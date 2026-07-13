@@ -8,7 +8,7 @@ export default function AlertsPage() {
   const prefillEmail = searchParams.get('email') ?? '';
 
   usePageMeta({
-    title: 'Get alerts — slashr',
+    title: 'Get alerts · slashr',
     description: 'Subscribe to email alerts for validator incidents across Solana, Ethereum, Cosmos, and Sui.',
   });
 
@@ -36,7 +36,7 @@ export default function AlertsPage() {
           lineHeight: 1.5,
         }}
       >
-        Get notified when a validator you care about has an incident. No account needed — just an email and an address.
+        Get notified when a validator you care about has an incident. No account needed, just an email and an address.
       </p>
 
       <SubscribeForm initialAddress={prefillAddress} initialEmail={prefillEmail} />

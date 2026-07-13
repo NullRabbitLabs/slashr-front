@@ -18,7 +18,7 @@ export async function loader() {
 
 export function meta() {
   return pageMeta({
-    title: "Live Validator Incident Feed — Slashing & Downtime · slashr",
+    title: "Live Validator Incident Feed · Slashing & Downtime · slashr",
     description:
       "Every validator slashing, downtime, and commission event across Solana, Ethereum, Sui, and Cosmos, as it happens.",
     canonical: "https://slashr.dev/feed",
