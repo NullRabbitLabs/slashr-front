@@ -39,7 +39,6 @@ async function proxy(request: Request): Promise<Response> {
         : [];
   for (const c of setCookies) out.append("set-cookie", c);
   out.set("cache-control", "no-store");
-  out.set("x-api-upstream", apiBase()); // debug: shows api.slashr.dev vs pages.dev fallback
   return new Response(res.body, { status: res.status, headers: out });
 }
 

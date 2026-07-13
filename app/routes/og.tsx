@@ -100,11 +100,12 @@ export async function loader({ request, params }: Route.LoaderArgs) {
     if (lossStr) statChips.push({ text: lossStr, color: "#FF4545" });
     if (costStr) statChips.push({ text: costStr, color: "rgba(255,255,255,0.4)" });
 
+    // satori's workerd build needs uncompressed TTF/OTF (not WOFF).
     const origin = new URL(request.url).origin;
     const [spaceGrotesk, jetbrainsMono, inter] = await Promise.all([
-      fetch(`${origin}/fonts/space-grotesk-latin-700-normal.woff`).then((r) => r.arrayBuffer()),
-      fetch(`${origin}/fonts/jetbrains-mono-latin-600-normal.woff`).then((r) => r.arrayBuffer()),
-      fetch(`${origin}/fonts/inter-latin-500-normal.woff`).then((r) => r.arrayBuffer()),
+      fetch(`${origin}/fonts/space-grotesk-700.ttf`).then((r) => r.arrayBuffer()),
+      fetch(`${origin}/fonts/jetbrains-mono-600.ttf`).then((r) => r.arrayBuffer()),
+      fetch(`${origin}/fonts/inter-500.ttf`).then((r) => r.arrayBuffer()),
     ]);
 
     const svg = await satori(

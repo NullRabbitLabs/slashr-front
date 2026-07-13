@@ -30,8 +30,7 @@ export function meta({ loaderData, params }: Route.MetaArgs) {
     title: `${name} · ${net} · slashr`,
     description: `${count} recorded incident${count === 1 ? "" : "s"} for ${name} on ${net}. Risk signals and event history on slashr.`,
     canonical: `https://slashr.dev/validator/${net}/${params.address}`,
-    // OG image falls back to the static card until satori's workerd build's
-    // WOFF-decode is sorted (needs TTF/OTF); the /og route stays for that fix.
+    image: `https://slashr.dev/og/${net}/${params.address}.png`,
   });
 }
 
