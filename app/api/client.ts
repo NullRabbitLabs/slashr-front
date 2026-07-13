@@ -29,7 +29,7 @@ import { getMockEvents, getMockNetworks, getMockStats, getMockValidator, getMock
 // - Server (SSR loaders): hit the public prod API directly — no CORS, no secrets.
 //   (For the prod flip, swap SSR base to https://api.slashr.dev + inject secrets.)
 const BASE_URL = import.meta.env.SSR
-  ? 'https://slashr.dev/api'
+  ? 'https://slashr.pages.dev/api'
   : import.meta.env.VITE_API_URL || '/api';
 const USE_MOCK = import.meta.env.VITE_USE_MOCK === 'true';
 

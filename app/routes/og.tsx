@@ -8,7 +8,7 @@ import satori from "@cf-wasm/satori/workerd";
 import { Resvg } from "@cf-wasm/resvg/workerd";
 import type { Route } from "./+types/og";
 
-const UPSTREAM = "https://slashr.dev/api";
+const UPSTREAM = "https://slashr.pages.dev/api";
 
 const NETWORK_META: Record<string, { ticker: string; color: string; name: string }> = {
   solana: { ticker: "SOL", color: "#14F195", name: "Solana" },

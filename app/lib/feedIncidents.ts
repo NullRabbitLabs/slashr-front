@@ -4,7 +4,7 @@
 // (zero secrets); for the prod flip, point UPSTREAM at api.slashr.dev + secrets.
 
 const BASE = 'https://slashr.dev';
-const UPSTREAM = 'https://slashr.dev/api';
+const UPSTREAM = 'https://slashr.pages.dev/api';
 
 const NETWORK_NAMES: Record<string, string> = {
   solana: 'Solana',

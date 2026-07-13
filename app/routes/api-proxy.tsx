@@ -1,14 +1,14 @@
 import type { Route } from "./+types/api-proxy";
 
 // Zero-secret beta data path: forward /api/* to the existing PUBLIC prod proxy
-// at https://slashr.dev/api/* — which already injects CF-Access + Bearer upstream,
+// at https://slashr.pages.dev/api/* — which already injects CF-Access + Bearer upstream,
 // so no secrets are needed on this Worker for a preview deploy.
 //
 // For the production flip, set BETA_API_UPSTREAM to https://api.slashr.dev and
 // inject the real CF-Access + API_JWT_TOKEN secrets here instead of double-hopping.
 const UPSTREAM =
   (import.meta.env.VITE_BETA_API_UPSTREAM as string | undefined) ||
-  "https://slashr.dev/api";
+  "https://slashr.pages.dev/api";
 
 async function proxy(request: Request): Promise<Response> {
   const url = new URL(request.url);

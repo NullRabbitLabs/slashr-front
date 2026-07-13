@@ -3,7 +3,7 @@
 // prod API (zero secrets). Degrades to static-pages-only on any failure.
 
 const BASE = "https://slashr.dev";
-const UPSTREAM = "https://slashr.dev/api";
+const UPSTREAM = "https://slashr.pages.dev/api";
 
 interface Validator {
   network: string;
