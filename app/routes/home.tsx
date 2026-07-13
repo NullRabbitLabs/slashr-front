@@ -1,5 +1,6 @@
 import type { Route } from "./+types/home";
 import { fetchStats, fetchRiskValidators, fetchEvents } from "@/api/client";
+import { pageMeta } from "@/lib/pageMeta";
 import OverviewPage from "@/pages/OverviewPage";
 
 export async function loader() {
@@ -20,15 +21,12 @@ export async function loader() {
 }
 
 export function meta() {
-  return [
-    { title: "Slashr — Validator Risk Index & Live Slashing Feed" },
-    {
-      name: "description",
-      content:
-        "Track validator slashing, downtime, and commission risk across Solana, Ethereum, Sui, and Cosmos. The Slashr Risk Index scores every validator 0–100.",
-    },
-    { tagName: "link", rel: "canonical", href: "https://slashr.dev" },
-  ];
+  return pageMeta({
+    title: "Slashr — Validator Risk Index & Live Slashing Feed",
+    description:
+      "Track validator slashing, downtime, and commission risk across Solana, Ethereum, Sui, and Cosmos. The Slashr Risk Index scores every validator 0–100.",
+    canonical: "https://slashr.dev",
+  });
 }
 
 export default function HomeRoute({ loaderData }: Route.ComponentProps) {

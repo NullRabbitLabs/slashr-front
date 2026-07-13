@@ -1,5 +1,6 @@
 import type { Route } from "./+types/reports.providers";
 import { fetchReportProviders } from "@/api/client";
+import { pageMeta } from "@/lib/pageMeta";
 import ReportsPage from "@/pages/ReportsPage";
 
 export async function loader() {
@@ -12,18 +13,11 @@ export async function loader() {
 }
 
 export function meta(_: Route.MetaArgs) {
-  return [
-    { title: "Reliability Reports · slashr" },
-    {
-      name: "description",
-      content: "Monthly validator reliability reports by staking provider.",
-    },
-    {
-      tagName: "link",
-      rel: "canonical",
-      href: "https://slashr.dev/reports/providers",
-    },
-  ];
+  return pageMeta({
+    title: "Reliability Reports · slashr",
+    description: "Monthly validator reliability reports by staking provider.",
+    canonical: "https://slashr.dev/reports/providers",
+  });
 }
 
 export default function ReportsProvidersRoute({ loaderData }: Route.ComponentProps) {

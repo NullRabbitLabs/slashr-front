@@ -1,5 +1,6 @@
 import type { Route } from "./+types/validator";
 import { fetchValidator, fetchChainData } from "@/api/client";
+import { pageMeta } from "@/lib/pageMeta";
 import { ValidatorProfile } from "@/components/ValidatorProfile";
 
 export async function loader({ params }: Route.LoaderArgs) {
@@ -25,18 +26,12 @@ export function meta({ loaderData, params }: Route.MetaArgs) {
   const name = loaderData?.validator?.moniker?.trim() || params.address;
   const net = params.network;
   const count = loaderData?.validator?.events?.length ?? 0;
-  return [
-    { title: `${name} · ${net} · slashr` },
-    {
-      name: "description",
-      content: `${count} recorded incident${count === 1 ? "" : "s"} for ${name} on ${net}. Risk signals and event history on slashr.`,
-    },
-    {
-      tagName: "link",
-      rel: "canonical",
-      href: `https://slashr.dev/validator/${net}/${params.address}`,
-    },
-  ];
+  return pageMeta({
+    title: `${name} · ${net} · slashr`,
+    description: `${count} recorded incident${count === 1 ? "" : "s"} for ${name} on ${net}. Risk signals and event history on slashr.`,
+    canonical: `https://slashr.dev/validator/${net}/${params.address}`,
+    image: `https://slashr.dev/og/${net}/${params.address}.png`,
+  });
 }
 
 export default function ValidatorRoute({ loaderData }: Route.ComponentProps) {

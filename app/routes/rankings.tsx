@@ -1,5 +1,6 @@
 import type { Route } from "./+types/rankings";
 import { fetchLeaderboard } from "@/api/client";
+import { pageMeta } from "@/lib/pageMeta";
 import LeaderboardPage, { resolveNetworkParam, isPeriod } from "@/pages/LeaderboardPage";
 
 export async function loader({ request }: Route.LoaderArgs) {
@@ -26,19 +27,12 @@ export async function loader({ request }: Route.LoaderArgs) {
 }
 
 export function meta() {
-  return [
-    { title: "Validator Rankings · slashr" },
-    {
-      name: "description",
-      content:
-        "Worst offenders and most reliable validators across Solana, Ethereum, Sui, and Cosmos.",
-    },
-    {
-      tagName: "link",
-      rel: "canonical",
-      href: "https://slashr.dev/rankings",
-    },
-  ];
+  return pageMeta({
+    title: "Validator Rankings · slashr",
+    description:
+      "Worst offenders and most reliable validators across Solana, Ethereum, Sui, and Cosmos.",
+    canonical: "https://slashr.dev/rankings",
+  });
 }
 
 export default function RankingsRoute({ loaderData }: Route.ComponentProps) {

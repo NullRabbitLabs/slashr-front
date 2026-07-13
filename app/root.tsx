@@ -29,6 +29,7 @@ import "./styles/global.css";
 import { AuthProvider } from "@/hooks/useAuth";
 import { Layout as AppShell } from "@/components/Layout";
 import { useStats } from "@/hooks/useStats";
+import { pageMeta } from "@/lib/pageMeta";
 
 // Stamp data-theme before first paint so a stored/OS dark preference doesn't
 // flash the light surface (FOUC). useTheme seeds its state from this attribute.
@@ -95,25 +96,13 @@ export const links: Route.LinksFunction = () => [
 
 // Default (homepage) meta. Individual routes override title/description/canonical
 // via their own `meta` export.
-export const meta: Route.MetaFunction = () => [
-  { title: "slashr — live validator incident feed" },
-  {
-    name: "description",
-    content:
+export const meta: Route.MetaFunction = () =>
+  pageMeta({
+    title: "slashr — live validator incident feed",
+    description:
       "Real-time slashing, delinquency, and missed vote tracking across Solana, Ethereum, Sui, and Cosmos.",
-  },
-  { name: "robots", content: "index, follow" },
-  { property: "og:type", content: "website" },
-  { property: "og:title", content: "slashr — live validator incident feed" },
-  {
-    property: "og:description",
-    content:
-      "Real-time slashing, delinquency, and missed vote tracking across Solana, Ethereum, Sui, and Cosmos.",
-  },
-  { property: "og:image", content: "https://slashr.dev/og-image.png" },
-  { name: "twitter:card", content: "summary_large_image" },
-  { name: "twitter:site", content: "@SlashrDev" },
-];
+    canonical: "https://slashr.dev",
+  });
 
 export function Layout({ children }: { children: ReactNode }) {
   return (

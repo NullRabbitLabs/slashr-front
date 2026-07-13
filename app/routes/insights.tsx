@@ -1,5 +1,6 @@
 import type { Route } from "./+types/insights";
 import { fetchInsights } from "@/api/client";
+import { pageMeta } from "@/lib/pageMeta";
 import InsightsPage from "@/pages/InsightsPage";
 
 export async function loader() {
@@ -12,19 +13,12 @@ export async function loader() {
 }
 
 export function meta() {
-  return [
-    { title: "Insights · slashr" },
-    {
-      name: "description",
-      content:
-        "Heatmaps, loss charts, and network breakdowns for validator penalties.",
-    },
-    {
-      tagName: "link",
-      rel: "canonical",
-      href: "https://slashr.dev/insights",
-    },
-  ];
+  return pageMeta({
+    title: "Insights · slashr",
+    description:
+      "Heatmaps, loss charts, and network breakdowns for validator penalties.",
+    canonical: "https://slashr.dev/insights",
+  });
 }
 
 export default function InsightsRoute({ loaderData }: Route.ComponentProps) {

@@ -1,5 +1,6 @@
 import type { Route } from "./+types/feed";
 import { fetchEvents } from "@/api/client";
+import { pageMeta } from "@/lib/pageMeta";
 import FeedPage from "@/pages/FeedPage";
 
 export async function loader() {
@@ -16,15 +17,12 @@ export async function loader() {
 }
 
 export function meta() {
-  return [
-    { title: "Live Validator Incident Feed — Slashing & Downtime · slashr" },
-    {
-      name: "description",
-      content:
-        "Every validator slashing, downtime, and commission event across Solana, Ethereum, Sui, and Cosmos, as it happens.",
-    },
-    { tagName: "link", rel: "canonical", href: "https://slashr.dev/feed" },
-  ];
+  return pageMeta({
+    title: "Live Validator Incident Feed — Slashing & Downtime · slashr",
+    description:
+      "Every validator slashing, downtime, and commission event across Solana, Ethereum, Sui, and Cosmos, as it happens.",
+    canonical: "https://slashr.dev/feed",
+  });
 }
 
 export default function FeedRoute({ loaderData }: Route.ComponentProps) {

@@ -12,6 +12,8 @@ export default [
   route("feed/incidents.rss", "routes/feed.incidents.rss.tsx"),
   route("feed/incidents.json", "routes/feed.incidents.json.tsx"),
   route("sitemap.xml", "routes/sitemap.tsx"),
+  // Dynamic per-validator OG image (satori + resvg WASM).
+  route("og/:network/:address", "routes/og.tsx"),
   route("risk", "routes/risk.tsx"),
   route("feed", "routes/feed.tsx"),
   route("check", "routes/check.tsx"),

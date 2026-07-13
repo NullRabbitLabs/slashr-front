@@ -13,6 +13,8 @@
     "postinstall": "wrangler types"
   },
   "dependencies": {
+    "@cf-wasm/resvg": "^0.3.4",
+    "@cf-wasm/satori": "^0.3.6",
     "@fontsource/geist-mono": "^5.2.8",
     "@fontsource/geist-sans": "^5.2.5",
     "@fontsource/inter": "^5.0.0",
