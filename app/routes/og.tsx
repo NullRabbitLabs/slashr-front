@@ -100,12 +100,14 @@ export async function loader({ request, params }: Route.LoaderArgs) {
     if (lossStr) statChips.push({ text: lossStr, color: "#FF4545" });
     if (costStr) statChips.push({ text: costStr, color: "rgba(255,255,255,0.4)" });
 
-    // satori's workerd build needs uncompressed TTF/OTF (not WOFF).
-    const origin = new URL(request.url).origin;
+    // satori's workerd build needs uncompressed TTF/OTF. The Worker can't
+    // reliably self-fetch its own /fonts/* assets in prod (the self-subrequest
+    // hits the SSR handler, not the assets binding → satori gets HTML), so pull
+    // the TTF from gstatic (Google's CDN) directly.
     const [spaceGrotesk, jetbrainsMono, inter] = await Promise.all([
-      fetch(`${origin}/fonts/space-grotesk-700.ttf`).then((r) => r.arrayBuffer()),
-      fetch(`${origin}/fonts/jetbrains-mono-600.ttf`).then((r) => r.arrayBuffer()),
-      fetch(`${origin}/fonts/inter-500.ttf`).then((r) => r.arrayBuffer()),
+      fetch("https://fonts.gstatic.com/s/spacegrotesk/v22/V8mQoQDjQSkFtoMM3T6r8E7mF71Q-gOoraIAEj4PVksjNsdjTQ.ttf").then((r) => r.arrayBuffer()),
+      fetch("https://fonts.gstatic.com/s/jetbrainsmono/v24/tDbY2o-flEEny0FZhsfKu5WU4zr3E_BX0PnT8RD8FqtjPVmSsac.ttf").then((r) => r.arrayBuffer()),
+      fetch("https://fonts.gstatic.com/s/inter/v20/UcCO3FwrK3iLTeHuS_nVMrMxCp50SjIw2boKoduKmMEVuI6fMZhrj72A.ttf").then((r) => r.arrayBuffer()),
     ]);
 
     const svg = await satori(
