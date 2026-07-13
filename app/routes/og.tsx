@@ -7,8 +7,7 @@
 import satori from "@cf-wasm/satori/workerd";
 import { Resvg } from "@cf-wasm/resvg/workerd";
 import type { Route } from "./+types/og";
-
-const UPSTREAM = "https://slashr.pages.dev/api";
+import { apiBase, apiAuthHeaders } from "@/api/upstream.server";
 
 const NETWORK_META: Record<string, { ticker: string; color: string; name: string }> = {
   solana: { ticker: "SOL", color: "#14F195", name: "Solana" },
@@ -59,8 +58,8 @@ export async function loader({ request, params }: Route.LoaderArgs) {
 
     try {
       const res = await fetch(
-        `${UPSTREAM}/v1/validators/${encodeURIComponent(network)}/${encodeURIComponent(address)}`,
-        { headers: { Accept: "application/json" } },
+        `${apiBase()}/v1/validators/${encodeURIComponent(network)}/${encodeURIComponent(address)}`,
+        { headers: { ...apiAuthHeaders(), Accept: "application/json" } },
       );
       if (res.ok) {
         const json = (await res.json()) as {

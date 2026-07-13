@@ -3,8 +3,9 @@
 // Event codes are NEVER shown raw (repo rule). Fetches the PUBLIC prod API
 // (zero secrets); for the prod flip, point UPSTREAM at api.slashr.dev + secrets.
 
+import { apiBase, apiAuthHeaders } from '@/api/upstream.server';
+
 const BASE = 'https://slashr.dev';
-const UPSTREAM = 'https://slashr.pages.dev/api';
 
 const NETWORK_NAMES: Record<string, string> = {
   solana: 'Solana',
@@ -138,8 +139,8 @@ export function mapEvents(events: ApiEvent[]): FeedItem[] {
 }
 
 export async function fetchFeedItems(limit = 50): Promise<FeedItem[]> {
-  const res = await fetch(`${UPSTREAM}/v1/events?limit=${limit}`, {
-    headers: { Accept: 'application/json' },
+  const res = await fetch(`${apiBase()}/v1/events?limit=${limit}`, {
+    headers: { ...apiAuthHeaders(), Accept: 'application/json' },
   });
   if (!res.ok) throw new Error(`events fetch failed: ${res.status}`);
   const json = (await res.json()) as { data: ApiEvent[] };

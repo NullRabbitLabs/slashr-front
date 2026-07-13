@@ -2,8 +2,9 @@
 // Ported from the Pages Function functions/sitemap.xml.ts. Fetches the PUBLIC
 // prod API (zero secrets). Degrades to static-pages-only on any failure.
 
+import { apiBase, apiAuthHeaders } from "@/api/upstream.server";
+
 const BASE = "https://slashr.dev";
-const UPSTREAM = "https://slashr.pages.dev/api";
 
 interface Validator {
   network: string;
@@ -37,8 +38,8 @@ async function fetchAllValidators(): Promise<Validator[]> {
   for (let i = 0; i < 40; i++) {
     const params = new URLSearchParams();
     if (cursor) params.set("cursor", cursor);
-    const res = await fetch(`${UPSTREAM}/v1/validators?${params}`, {
-      headers: { Accept: "application/json" },
+    const res = await fetch(`${apiBase()}/v1/validators?${params}`, {
+      headers: { ...apiAuthHeaders(), Accept: "application/json" },
     });
     if (!res.ok) {
       console.error(`sitemap: validators fetch failed: ${res.status}`);
@@ -59,8 +60,8 @@ async function fetchAllReports(): Promise<ReportProvider[]> {
   const all: ReportProvider[] = [];
   for (let page = 1; page <= 20; page++) {
     const params = new URLSearchParams({ per_page: "200", page: String(page) });
-    const res = await fetch(`${UPSTREAM}/v1/reports?${params}`, {
-      headers: { Accept: "application/json" },
+    const res = await fetch(`${apiBase()}/v1/reports?${params}`, {
+      headers: { ...apiAuthHeaders(), Accept: "application/json" },
     });
     if (!res.ok) {
       console.error(`sitemap: reports fetch failed: ${res.status}`);

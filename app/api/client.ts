@@ -24,14 +24,30 @@ import type {
 } from '@/types/api';
 import { getMockEvents, getMockNetworks, getMockStats, getMockValidator, getMockDelegations, getMockLeaderboard, getMockChainData, getMockHealthCheck } from './mock';
 
-// Isomorphic base:
-// - Browser: same-origin '/api' proxy (routes/api-proxy.tsx) which forwards to prod.
-// - Server (SSR loaders): hit the public prod API directly — no CORS, no secrets.
-//   (For the prod flip, swap SSR base to https://api.slashr.dev + inject secrets.)
-const BASE_URL = import.meta.env.SSR
-  ? 'https://slashr.pages.dev/api'
-  : import.meta.env.VITE_API_URL || '/api';
 const USE_MOCK = import.meta.env.VITE_USE_MOCK === 'true';
+
+/**
+ * Isomorphic API access.
+ * - Browser: same-origin '/api' proxy (routes/api-proxy.tsx → api.slashr.dev + Bearer).
+ * - Server (SSR loaders): hit the API directly via the server-only upstream module
+ *   (Bearer from the Worker secret; falls back to slashr.pages.dev/api if unset).
+ *   `./upstream.server` is dead-code-eliminated from the client bundle.
+ */
+async function apiFetch(path: string, init?: RequestInit): Promise<Response> {
+  if (import.meta.env.SSR) {
+    const { apiBase, apiAuthHeaders } = await import('./upstream.server');
+    return fetch(`${apiBase()}${path}`, {
+      ...init,
+      headers: {
+        Accept: 'application/json',
+        ...apiAuthHeaders(),
+        ...(init?.headers as Record<string, string> | undefined),
+      },
+    });
+  }
+  const base = import.meta.env.VITE_API_URL || '/api';
+  return fetch(`${base}${path}`, init);
+}
 
 /**
  * Preview-bypass for gated networks (api side: migration 052).
@@ -65,7 +81,7 @@ export async function fetchEvents(params?: {
   const pv = previewParam();
   if (pv) qs.set('preview', pv);
   const query = qs.toString();
-  const res = await fetch(`${BASE_URL}/v1/events${query ? `?${query}` : ''}`);
+  const res = await apiFetch(`/v1/events${query ? `?${query}` : ''}`);
   if (!res.ok) throw new Error(`API error: ${res.status}`);
   return res.json() as Promise<PaginatedResponse<EventListItem>>;
 }
@@ -75,7 +91,7 @@ export async function fetchNetworks(): Promise<DataResponse<NetworkInfo[]>> {
 
   const pv = previewParam();
   const suffix = pv ? `?preview=${pv}` : '';
-  const res = await fetch(`${BASE_URL}/v1/networks${suffix}`);
+  const res = await apiFetch(`/v1/networks${suffix}`);
   if (!res.ok) throw new Error(`API error: ${res.status}`);
   return res.json() as Promise<DataResponse<NetworkInfo[]>>;
 }
@@ -85,7 +101,7 @@ export async function fetchStats(): Promise<DataResponse<StatsResponse>> {
 
   const pv = previewParam();
   const suffix = pv ? `?preview=${pv}` : '';
-  const res = await fetch(`${BASE_URL}/v1/stats${suffix}`);
+  const res = await apiFetch(`/v1/stats${suffix}`);
   if (!res.ok) throw new Error(`API error: ${res.status}`);
   return res.json() as Promise<DataResponse<StatsResponse>>;
 }
@@ -101,13 +117,13 @@ export async function fetchRiskValidators(params?: {
   const pv = previewParam();
   if (pv) qs.set('preview', pv);
   const query = qs.toString();
-  const res = await fetch(`${BASE_URL}/v1/risk/validators${query ? `?${query}` : ''}`);
+  const res = await apiFetch(`/v1/risk/validators${query ? `?${query}` : ''}`);
   if (!res.ok) throw new Error(`API error: ${res.status}`);
   return res.json() as Promise<DataResponse<RiskListResponse>>;
 }
 
 export async function fetchInsights(): Promise<DataResponse<InsightsResponse>> {
-  const res = await fetch(`${BASE_URL}/v1/insights`);
+  const res = await apiFetch(`/v1/insights`);
   if (!res.ok) throw new Error(`API error: ${res.status}`);
   return res.json() as Promise<DataResponse<InsightsResponse>>;
 }
@@ -118,7 +134,7 @@ export async function fetchValidator(
 ): Promise<DataResponse<ValidatorProfile>> {
   if (USE_MOCK) return getMockValidator(network, address);
 
-  const res = await fetch(`${BASE_URL}/v1/validators/${encodeURIComponent(network)}/${encodeURIComponent(address)}`);
+  const res = await apiFetch(`/v1/validators/${encodeURIComponent(network)}/${encodeURIComponent(address)}`);
   if (!res.ok) throw new Error(`API error: ${res.status}`);
   return res.json() as Promise<DataResponse<ValidatorProfile>>;
 }
@@ -126,7 +142,7 @@ export async function fetchValidator(
 export async function resolveShortCode(
   code: string,
 ): Promise<{ network: string; address: string } | null> {
-  const res = await fetch(`${BASE_URL}/v1/validators/short/${encodeURIComponent(code)}`);
+  const res = await apiFetch(`/v1/validators/short/${encodeURIComponent(code)}`);
   if (!res.ok) return null;
   const json = (await res.json()) as DataResponse<{ network: string; address: string }>;
   return json.data;
@@ -138,8 +154,8 @@ export async function fetchChainData(
 ): Promise<DataResponse<ChainDataResponse> | null> {
   if (USE_MOCK) return getMockChainData(network, address);
 
-  const res = await fetch(
-    `${BASE_URL}/v1/validators/${encodeURIComponent(network)}/${encodeURIComponent(address)}/chain-data`,
+  const res = await apiFetch(
+    `/v1/validators/${encodeURIComponent(network)}/${encodeURIComponent(address)}/chain-data`,
   );
   if (res.status === 404) return null;
   if (!res.ok) throw new Error(`API error: ${res.status}`);
@@ -162,7 +178,7 @@ export async function fetchLeaderboard(params: {
   if (params.sort) qs.set('sort', params.sort);
   if (params.page) qs.set('page', String(params.page));
   if (params.per_page) qs.set('per_page', String(params.per_page));
-  const res = await fetch(`${BASE_URL}/v1/rankings?${qs}`);
+  const res = await apiFetch(`/v1/rankings?${qs}`);
   if (!res.ok) throw new Error(`API error: ${res.status}`);
   return res.json() as Promise<DataResponse<LeaderboardResponse>>;
 }
@@ -179,7 +195,7 @@ export async function fetchReportProviders(params?: {
   if (params?.page) qs.set('page', String(params.page));
   if (params?.per_page) qs.set('per_page', String(params.per_page));
   const query = qs.toString();
-  const res = await fetch(`${BASE_URL}/v1/reports${query ? `?${query}` : ''}`);
+  const res = await apiFetch(`/v1/reports${query ? `?${query}` : ''}`);
   if (!res.ok) throw new Error(`API error: ${res.status}`);
   return res.json() as Promise<DataResponse<ReportProviderItem[]> & { total?: number }>;
 }
@@ -189,7 +205,7 @@ export async function fetchReport(
   period?: string,
 ): Promise<DataResponse<ReportResponse>> {
   const qs = period ? `?period=${encodeURIComponent(period)}` : '';
-  const res = await fetch(`${BASE_URL}/v1/reports/${encodeURIComponent(providerSlug)}${qs}`);
+  const res = await apiFetch(`/v1/reports/${encodeURIComponent(providerSlug)}${qs}`);
   if (!res.ok) throw new Error(`API error: ${res.status}`);
   return res.json() as Promise<DataResponse<ReportResponse>>;
 }
@@ -200,7 +216,7 @@ export async function fetchDelegations(
 ): Promise<DataResponse<DelegationResponse>> {
   if (USE_MOCK) return getMockDelegations(network, walletAddress);
 
-  const res = await fetch(`${BASE_URL}/v1/delegations/${encodeURIComponent(network)}/${encodeURIComponent(walletAddress)}`);
+  const res = await apiFetch(`/v1/delegations/${encodeURIComponent(network)}/${encodeURIComponent(walletAddress)}`);
   if (!res.ok) {
     let message = `API error: ${res.status}`;
     try {
@@ -219,7 +235,7 @@ export async function fetchHealthCheck(
 ): Promise<DataResponse<HealthCheckResponse>> {
   if (USE_MOCK) return getMockHealthCheck(address);
 
-  const res = await fetch(`${BASE_URL}/v1/health/${encodeURIComponent(address)}`);
+  const res = await apiFetch(`/v1/health/${encodeURIComponent(address)}`);
   if (!res.ok) {
     let message = `API error: ${res.status}`;
     try {
@@ -247,7 +263,7 @@ export async function subscribeAlert(
   const body: Record<string, string> = { email, target_address: targetAddress };
   if (chain) body.chain = chain;
 
-  const res = await fetch(`${BASE_URL}/v1/alerts/subscribe`, {
+  const res = await apiFetch(`/v1/alerts/subscribe`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(body),
@@ -268,7 +284,7 @@ export async function subscribeAlert(
 export async function verifyAlert(
   token: string,
 ): Promise<DataResponse<VerifyAlertResponse>> {
-  const res = await fetch(`${BASE_URL}/v1/alerts/verify?token=${encodeURIComponent(token)}`);
+  const res = await apiFetch(`/v1/alerts/verify?token=${encodeURIComponent(token)}`);
   if (!res.ok) {
     let message = `API error: ${res.status}`;
     try {
@@ -285,7 +301,7 @@ export async function verifyAlert(
 export async function fetchUnsubscribeInfo(
   token: string,
 ): Promise<DataResponse<UnsubscribeInfoResponse>> {
-  const res = await fetch(`${BASE_URL}/v1/alerts/unsubscribe?token=${encodeURIComponent(token)}`);
+  const res = await apiFetch(`/v1/alerts/unsubscribe?token=${encodeURIComponent(token)}`);
   if (!res.ok) {
     let message = `API error: ${res.status}`;
     try {
@@ -302,7 +318,7 @@ export async function fetchUnsubscribeInfo(
 export async function confirmUnsubscribe(
   token: string,
 ): Promise<DataResponse<UnsubscribeConfirmResponse>> {
-  const res = await fetch(`${BASE_URL}/v1/alerts/unsubscribe`, {
+  const res = await apiFetch(`/v1/alerts/unsubscribe`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ token }),
@@ -323,7 +339,7 @@ export async function confirmUnsubscribe(
 export async function fetchAlertSubscriptions(
   managementToken: string,
 ): Promise<DataResponse<ManageAlertsResponse>> {
-  const res = await fetch(`${BASE_URL}/v1/alerts/manage?token=${encodeURIComponent(managementToken)}`);
+  const res = await apiFetch(`/v1/alerts/manage?token=${encodeURIComponent(managementToken)}`);
   if (!res.ok) {
     let message = `API error: ${res.status}`;
     try {
