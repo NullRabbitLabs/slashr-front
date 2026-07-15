@@ -22,6 +22,7 @@ import AlertsVerifyPage from '@/pages/AlertsVerifyPage';
 import AlertsUnsubscribePage from '@/pages/AlertsUnsubscribePage';
 import AlertsManagePage from '@/pages/AlertsManagePage';
 import InsightsPage from '@/pages/InsightsPage';
+import MethodologyPage from '@/pages/MethodologyPage';
 import ShortRedirect from '@/pages/ShortRedirect';
 
 function AppRoutes() {
@@ -33,6 +34,7 @@ function AppRoutes() {
         {/* Public: landing, risk index, live feed, wallet check (funnel/SEO) */}
         <Route path="/" element={<OverviewPage />} />
         <Route path="/risk" element={<RiskPage />} />
+        <Route path="/methodology" element={<MethodologyPage />} />
         <Route path="/feed" element={<FeedPage />} />
         <Route path="/check" element={<CheckPage />} />
 

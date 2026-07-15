@@ -53,6 +53,12 @@ export interface NetworkInfo {
   last_run_at: string | null;
   last_run_status: string | null;
   poll_interval_secs: number;
+  /**
+   * Whether the chain's protocol currently enforces slashing of delegated
+   * principal. Optional: absent on API versions before migration 076 —
+   * render loss-semantics copy only when the field is present.
+   */
+  slashes_principal?: boolean;
 }
 
 export interface EventListItem {
@@ -148,6 +154,17 @@ export interface InlineScanAnalysis {
 export interface StatsResponse {
   networks: NetworkStats[];
   totals: StatsCounts;
+  /**
+   * Event-class split, bucketed server-side from the event-type catalog:
+   * operational = downtime/equivocation/inactivity/stake-change incidents;
+   * state_changes = operator configuration and lifecycle signals (MEV
+   * toggles, commission changes, voluntary exits). Optional: absent on API
+   * versions that predate the split.
+   */
+  class_totals?: {
+    operational: StatsCounts;
+    state_changes: StatsCounts;
+  };
 }
 
 export interface NetworkStats {
@@ -616,7 +633,18 @@ export interface RiskValidatorItem {
   stake: number | null;
   stake_token: string | null;
   stake_usd: number | null;
+  /**
+   * Delegated stake associated with this validator's risk conditions, in
+   * USD (equals stake_usd). NOT expected or guaranteed loss — when
+   * slashes_principal is false the protocol cannot slash principal at all.
+   */
   value_at_risk_usd: number | null;
+  /**
+   * Whether this validator's network enforces slashing of delegated
+   * principal. Optional: absent on API versions before migration 076 —
+   * render loss-semantics copy only when the field is present.
+   */
+  slashes_principal?: boolean;
   incident_count_30d: number;
   slashing_count: number;
   commission_pct: number | null;

@@ -284,7 +284,7 @@ export function ValidatorProfile() {
     description: validator
       ? `${validator.events.length} incidents \u00b7 ${
           validator.stake != null && validator.stake_token
-            ? `${formatStakeCompact(validator.stake)} ${validator.stake_token} at risk`
+            ? `${formatStakeCompact(validator.stake)} ${validator.stake_token} staked`
             : 'stake unknown'
         } \u00b7 Infrastructure: ${verdictLabel}`
       : 'Validator incident history on slashr.',
@@ -636,7 +636,7 @@ export function ValidatorProfile() {
             <div>
               <div style={metaLabelStyle}>Stake</div>
               <div style={metaValueStyle} title={`${Math.round(validator.stake).toLocaleString()} ${validator.stake_token}`}>
-                {formatCompact(Math.round(validator.stake))} {validator.stake_token} at risk
+                {formatCompact(Math.round(validator.stake))} {validator.stake_token} staked
               </div>
             </div>
           )}

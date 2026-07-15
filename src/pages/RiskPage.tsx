@@ -15,7 +15,7 @@ const COLUMNS: Array<{ key: SortKey; label: string; align: 'left' | 'right'; sor
   { key: 'name', label: 'Validator', align: 'left', sortable: true },
   { key: 'score', label: 'Risk score', align: 'left', sortable: true },
   { key: 'inc30', label: 'Incidents 30d', align: 'left', sortable: true },
-  { key: 'var', label: 'Stake at risk', align: 'right', sortable: true },
+  { key: 'var', label: 'Stake (USD)', align: 'right', sortable: true },
   { key: 'uptime', label: 'Uptime 30d', align: 'right', sortable: false },
   { key: 'slashing', label: 'Slashes', align: 'right', sortable: true },
   { key: 'comm', label: 'Commission', align: 'right', sortable: false },
@@ -29,9 +29,9 @@ const TIERS: Array<{ tier: RiskTier; label: string; range: string }> = [
 ];
 
 function downloadCsv(rows: RiskValidatorItem[]) {
-  const header = ['rank', 'network', 'address', 'moniker', 'risk_score', 'tier', 'stake_usd', 'value_at_risk_usd', 'incident_count_30d', 'slashing_count', 'commission_pct'];
+  const header = ['rank', 'network', 'address', 'moniker', 'risk_score', 'tier', 'stake_usd', 'value_at_risk_usd', 'slashes_principal', 'incident_count_30d', 'slashing_count', 'commission_pct'];
   const lines = rows.map(r =>
-    [r.rank, r.network, r.address, r.moniker ?? '', r.risk_score, r.tier, r.stake_usd ?? '', r.value_at_risk_usd ?? '', r.incident_count_30d, r.slashing_count, r.commission_pct ?? ''].join(','),
+    [r.rank, r.network, r.address, r.moniker ?? '', r.risk_score, r.tier, r.stake_usd ?? '', r.value_at_risk_usd ?? '', r.slashes_principal ?? '', r.incident_count_30d, r.slashing_count, r.commission_pct ?? ''].join(','),
   );
   const blob = new Blob([[header.join(','), ...lines].join('\n')], { type: 'text/csv' });
   const url = URL.createObjectURL(blob);
@@ -56,8 +56,8 @@ export default function RiskPage() {
     const slashTotal = validators.reduce((s, v) => s + v.slashing_count, 0);
     return [
       { label: 'Validators tracked', value: String(validators.length), sub: 'with recent incidents', color: 'var(--text)' },
-      { label: 'Critical-risk validators', value: String(crit), sub: 'score 75 or higher', color: 'var(--crit)' },
-      { label: 'Stake value at risk', value: formatUsd(varTotal), sub: 'exposed to incidents · 30d', color: 'var(--text)' },
+      { label: 'Critical-risk validators', value: String(crit), sub: 'score 75 or higher · thresholds provisional', color: 'var(--crit)' },
+      { label: 'Delegated stake · listed validators', value: formatUsd(varTotal), sub: 'stake associated with listed validators — not expected loss', color: 'var(--text)' },
       { label: 'Slashing events', value: String(slashTotal), sub: 'confirmed on-chain · 30d', color: 'var(--text)' },
     ];
   }, [validators]);
@@ -119,8 +119,10 @@ export default function RiskPage() {
             Slashr Risk Index
           </h1>
           <p style={{ fontSize: 15, lineHeight: 1.6, color: 'var(--text-2)', margin: 0 }}>
-            An independent risk score for every validator we track — a transparent composite of downtime, slashing history,
-            commission behavior, and infrastructure health, to help with delegation and monitoring decisions.
+            A risk score for every validator we track — a transparent composite of incident frequency (including slashing
+            events), downtime, recovery speed, repeat-failure patterns, and infrastructure health. Scores describe observed
+            behaviour; they are not predictions and do not measure expected loss.{' '}
+            <a href="/methodology" style={{ color: 'var(--accent)', fontWeight: 600, textDecoration: 'none' }}>How the score works →</a>
           </p>
         </div>
         <div style={{ width: 320, maxWidth: '100%', background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 14, padding: '16px 18px', boxShadow: 'var(--shadow)' }}>
@@ -253,7 +255,14 @@ export default function RiskPage() {
                 <span style={{ fontSize: 13, fontWeight: 600, color: 'var(--text-2)', fontVariantNumeric: 'tabular-nums' }}>{v.incident_count_30d}</span>
               </div>
 
-              <span style={{ textAlign: 'right', fontSize: 13.5, fontWeight: 600, color: 'var(--text)', fontVariantNumeric: 'tabular-nums' }}>{formatUsd(v.value_at_risk_usd)}</span>
+              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 3 }}>
+                <span style={{ fontSize: 13.5, fontWeight: 600, color: 'var(--text)', fontVariantNumeric: 'tabular-nums' }}>{formatUsd(v.value_at_risk_usd)}</span>
+                {v.slashes_principal != null && (
+                  <span style={{ fontSize: 10, color: 'var(--text-3)', whiteSpace: 'nowrap' }}>
+                    {v.slashes_principal ? 'principal slashable' : 'no principal slashing'}
+                  </span>
+                )}
+              </div>
               <span style={{ textAlign: 'right', fontSize: 13, color: 'var(--text-3)', fontVariantNumeric: 'tabular-nums' }}>{v.uptime_30d != null ? `${v.uptime_30d.toFixed(1)}%` : '—'}</span>
               <span style={{ textAlign: 'right', fontSize: 13, fontWeight: 600, color: v.slashing_count > 0 ? 'var(--crit)' : 'var(--text-2)', fontVariantNumeric: 'tabular-nums' }}>{v.slashing_count}</span>
               <span style={{ textAlign: 'right', fontSize: 13, color: (v.commission_pct ?? 0) >= 50 ? 'var(--crit)' : 'var(--text-2)', fontWeight: (v.commission_pct ?? 0) >= 50 ? 700 : 400, fontVariantNumeric: 'tabular-nums' }}>
@@ -268,7 +277,8 @@ export default function RiskPage() {
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 16, marginTop: 16, flexWrap: 'wrap' }}>
         <div style={{ fontSize: 12, color: 'var(--text-3)' }}>Showing {rows.length} tracked validators</div>
         <div style={{ fontSize: 12, color: 'var(--text-3)' }}>
-          Scores recalculated continuously · <span style={{ color: 'var(--accent)', fontWeight: 600 }}>inverse of the Slashr health grade</span>
+          Scores recalculated continuously · tier thresholds provisional pending calibration ·{' '}
+          <a href="/methodology" style={{ color: 'var(--accent)', fontWeight: 600, textDecoration: 'none' }}>Methodology</a>
         </div>
       </div>
     </div>

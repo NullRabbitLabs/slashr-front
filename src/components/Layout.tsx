@@ -41,7 +41,9 @@ export function Layout({ children, stats }: LayoutProps) {
   const [menuOpen, setMenuOpen] = useState(false);
 
   const totalEvents = stats?.totals.all_time;
-  const netCount = networks.length || 8;
+  // Derived only — no hardcoded fallback. While /v1/networks is loading the
+  // header simply omits the count rather than guessing.
+  const netCount = networks.length;
 
   const isActive = (path: string) =>
     path === '/' ? pathname === '/' : pathname.startsWith(path);
@@ -120,6 +122,13 @@ export function Layout({ children, stats }: LayoutProps) {
                 RISK
               </span>
             </a>
+            <a
+              href="https://nullrabbit.ai"
+              className="rd-parent"
+              style={{ fontSize: 11.5, fontWeight: 500, color: 'var(--text-3)', whiteSpace: 'nowrap', textDecoration: 'none', flex: 'none' }}
+            >
+              by <span style={{ fontWeight: 600, color: 'var(--text-2)' }}>NullRabbit</span>
+            </a>
 
             {/* nav */}
             <nav className="rd-nav" style={{ display: 'flex', alignItems: 'center', gap: 2 }}>
@@ -162,7 +171,7 @@ export function Layout({ children, stats }: LayoutProps) {
                   <span style={{ color: 'var(--text)', fontWeight: 600, fontVariantNumeric: 'tabular-nums' }}>
                     {totalEvents != null ? totalEvents.toLocaleString() : '—'}
                   </span>{' '}
-                  events · {netCount} networks
+                  events{netCount > 0 ? ` · ${netCount} networks` : ''}
                 </span>
               </div>
               <button
