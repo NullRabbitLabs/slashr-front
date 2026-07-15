@@ -56,7 +56,7 @@ export default function RiskPage() {
     const slashTotal = validators.reduce((s, v) => s + v.slashing_count, 0);
     return [
       { label: 'Validators tracked', value: String(validators.length), sub: 'with recent incidents', color: 'var(--text)' },
-      { label: 'Critical-risk validators', value: String(crit), sub: 'score 75 or higher · thresholds provisional', color: 'var(--crit)' },
+      { label: 'Critical-risk validators', value: String(crit), sub: 'score 75+ · judgement band, not calibrated', color: 'var(--crit)' },
       { label: 'Delegated stake · listed validators', value: formatUsd(varTotal), sub: 'stake associated with listed validators — not expected loss', color: 'var(--text)' },
       { label: 'Slashing events', value: String(slashTotal), sub: 'confirmed on-chain · 30d', color: 'var(--text)' },
     ];
@@ -109,6 +109,20 @@ export default function RiskPage() {
 
   return (
     <div>
+      {/* correction notice — scores must not move silently (see /methodology) */}
+      <div
+        role="note"
+        style={{ display: 'flex', gap: 10, alignItems: 'flex-start', background: 'var(--surface-2)', border: '1px solid var(--border)', borderRadius: 12, padding: '11px 14px', marginBottom: 20, fontSize: 12.5, lineHeight: 1.5, color: 'var(--text-2)' }}
+      >
+        <span aria-hidden style={{ flex: 'none', marginTop: 1 }}>↻</span>
+        <span>
+          <strong style={{ color: 'var(--text)' }}>Scores corrected 15 Jul 2026.</strong> Configuration and lifecycle
+          events (MEV client toggles, commission changes, voluntary exits) no longer count as incidents. Scores are
+          computed live, so the correction is already reflected here.{' '}
+          <a href="/methodology#corrections" style={{ color: 'var(--accent)', fontWeight: 600, textDecoration: 'none' }}>What changed →</a>
+        </span>
+      </div>
+
       {/* hero + distribution */}
       <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', gap: 36, marginBottom: 28, flexWrap: 'wrap' }}>
         <div style={{ maxWidth: 600 }}>
@@ -277,7 +291,7 @@ export default function RiskPage() {
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 16, marginTop: 16, flexWrap: 'wrap' }}>
         <div style={{ fontSize: 12, color: 'var(--text-3)' }}>Showing {rows.length} tracked validators</div>
         <div style={{ fontSize: 12, color: 'var(--text-3)' }}>
-          Scores recalculated continuously · tier thresholds provisional pending calibration ·{' '}
+          Scores recalculated continuously · tiers are judgement bands, not calibrated to outcomes ·{' '}
           <a href="/methodology" style={{ color: 'var(--accent)', fontWeight: 600, textDecoration: 'none' }}>Methodology</a>
         </div>
       </div>

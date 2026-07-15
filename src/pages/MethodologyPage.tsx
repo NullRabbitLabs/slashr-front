@@ -14,17 +14,17 @@ const FACTORS: Array<{ name: string; weight: string; how: string }> = [
   {
     name: 'Incident frequency',
     weight: '30%',
-    how: 'Published events over the last 90 days. Each event adds 10 penalty points, capped at 100.',
+    how: 'Operational incidents over the last 90 days. Each incident adds 10 penalty points, capped at 100. Configuration and lifecycle events — MEV client toggles, commission changes, voluntary exits — are not incidents and are excluded from every component below.',
   },
   {
     name: 'Total downtime',
     weight: '25%',
-    how: 'Merged event intervals over 90 days (overlaps are not double-counted). Each hour adds 2 points, capped at 100.',
+    how: 'Merged operational-incident intervals over 90 days (overlaps are not double-counted). Each hour adds 2 points, capped at 100.',
   },
   {
     name: 'Recovery speed',
     weight: '15%',
-    how: 'Average minutes from event start to resolution. Each 10 minutes adds 1 point, capped at 100.',
+    how: 'Average minutes from operational-incident start to resolution. Each 10 minutes adds 1 point, capped at 100.',
   },
   {
     name: 'Infrastructure scan',
@@ -34,7 +34,16 @@ const FACTORS: Array<{ name: string; weight: string; how: string }> = [
   {
     name: 'Repeat-failure pattern',
     weight: '15%',
-    how: 'A flat 80 points if the same event type occurred 3 or more times in the last 7 days; otherwise 0.',
+    how: 'A flat 80 points if the same operational-incident type occurred 3 or more times in the last 7 days; otherwise 0.',
+  },
+];
+
+const CORRECTIONS = [
+  {
+    date: '15 July 2026',
+    title: 'Incident classification corrected',
+    body:
+      'The grade previously counted every published event as an incident, including configuration and lifecycle events — MEV client (Jito) opt-in/opt-out toggles, commission changes, and Ethereum voluntary exits. These are not operational incidents, and on some networks they were the large majority of events. From this date the incident, downtime, recovery, and repeat-failure components count operational incidents only. Scores are recomputed live from event data on every request, so this correction applied to every score at once; earlier scores are not restated as though they were always calculated this way.',
   },
 ];
 
@@ -165,10 +174,13 @@ export default function MethodologyPage() {
         </table>
       </div>
       <p style={{ ...p, marginTop: 12 }}>
-        <strong style={{ color: 'var(--text)' }}>The tier thresholds are provisional.</strong> They have not yet
-        been calibrated against long-run outcome data, and a validator&rsquo;s tier should be read as a ranking
-        band, not a verdict. Calibration against real data is open work; until it lands, this caveat stays here
-        and on the Risk Index page.
+        <strong style={{ color: 'var(--text)' }}>These thresholds are operator-set judgement bands, not a
+        derivation.</strong> They divide the 0–100 score into four ranks at round numbers we chose; they are not
+        fitted to realized outcomes such as actual slashing or failure rates, because that calibration has not yet
+        been done. A tier is therefore a <em>ranking band</em> — where a validator sits relative to others on the
+        score — and not a prediction that a Critical validator will fail or that a Low one will not. We state this
+        plainly rather than imply a derivation that does not exist. Calibrating the bands against outcome data is
+        open work; when it is done, this section will say what they were fitted to.
       </p>
 
       <h2 style={h2}>What the stake figures mean</h2>
@@ -242,7 +254,7 @@ export default function MethodologyPage() {
       <h2 style={h2}>Known limitations</h2>
       <ul style={{ ...p, paddingLeft: 20, display: 'grid', gap: 6 }}>
         <li>One global formula: weights and thresholds are currently identical across networks with very different penalty regimes.</li>
-        <li>Tier thresholds are provisional pending calibration against real outcome data.</li>
+        <li>Tier thresholds are operator-set judgement bands, not yet calibrated against realized outcomes.</li>
         <li>The window is 90 days: older history does not affect the score.</li>
         <li>Only published events count — gated chains and gated detector classes are excluded until their soak completes.</li>
         <li>Infrastructure scan coverage is partial; validators without a scan are not penalised on that factor.</li>
@@ -260,6 +272,23 @@ export default function MethodologyPage() {
         and we will review the event data. Factually wrong events can be suppressed by an operator, which removes
         them from scoring; scores themselves are never manually adjusted.
       </p>
+
+      <h2 id="corrections" style={{ ...h2, scrollMarginTop: 80 }}>Corrections</h2>
+      <p style={p}>
+        When we change how the score is calculated in a way that moves published scores, we record it here with a
+        date and a reason rather than letting scores shift silently.
+      </p>
+      <div style={{ display: 'grid', gap: 12 }}>
+        {CORRECTIONS.map(c => (
+          <div key={c.date} style={{ ...card, padding: '14px 16px', maxWidth: 760 }}>
+            <div style={{ display: 'flex', gap: 10, alignItems: 'baseline', flexWrap: 'wrap', marginBottom: 6 }}>
+              <span style={{ fontSize: 13, fontWeight: 700, color: 'var(--text)' }}>{c.title}</span>
+              <span style={{ fontSize: 11.5, color: 'var(--text-3)', fontVariantNumeric: 'tabular-nums' }}>{c.date}</span>
+            </div>
+            <div style={{ fontSize: 13.5, lineHeight: 1.6, color: 'var(--text-2)' }}>{c.body}</div>
+          </div>
+        ))}
+      </div>
     </div>
   );
 }
