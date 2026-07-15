@@ -29,12 +29,45 @@ const FACTORS: Array<{ name: string; weight: string; how: string }> = [
   {
     name: 'Infrastructure scan',
     weight: '15%',
-    how: 'Latest scan of the validator’s public infrastructure: 15 points per known CVE (capped at 60) plus 5 per exposed service (capped at 40).',
+    how: 'From NullRabbit’s non-invasive scan of a validator’s publicly-exposed infrastructure: 15 points per known CVE (capped at 60) plus 5 per exposed service / open port (capped at 40). See “What the infrastructure scan reads” below — the scanner IPs are published and an opt-out is available.',
   },
   {
     name: 'Repeat-failure pattern',
     weight: '15%',
     how: 'A flat 80 points if the same operational-incident type occurred 3 or more times in the last 7 days; otherwise 0.',
+  },
+];
+
+// Mechanism references connect an incident CLASS to NullRabbit's research
+// registry (NRDAX) where a documented fault mechanism genuinely corresponds.
+// Deliberately class-level and reference-only: a slashing event records that
+// a fault occurred on-chain, it does NOT assert the validator exploited any
+// technique. Operational and configuration classes have no attack mechanism
+// and say so — the honest unknown is the intake prompt for the research
+// programme, not a gap to paper over.
+const MECHANISM_REFS: Array<{ group: string; classes: string; mechanism: React.ReactNode }> = [
+  {
+    group: 'Equivocation (double-signing)',
+    classes: 'Slashed / double-sign / duplicate-block events on Ethereum, Cosmos, Solana, Celestia, Polkadot',
+    mechanism: (
+      <>
+        A documented consensus fault. NullRabbit catalogues equivocation mechanisms in its research registry —{' '}
+        <a href="https://nrdax.com" style={{ color: 'var(--accent)', fontWeight: 600, textDecoration: 'none' }}>NRDAX</a>.
+        A slashing event records that the fault occurred on-chain; it does <em>not</em> indicate the validator
+        exploited a technique — most are operator misconfiguration (for example two signing instances running at
+        once).
+      </>
+    ),
+  },
+  {
+    group: 'Downtime & liveness',
+    classes: 'Delinquency, jailing/downtime slashes, inactivity leak, uptime kickouts',
+    mechanism: <>Availability failures, not exploits. No attack mechanism is implied or established.</>,
+  },
+  {
+    group: 'Configuration & lifecycle',
+    classes: 'Commission changes, MEV-client (Jito) toggles, voluntary exits',
+    mechanism: <>Operator configuration or protocol-designed events — not incidents, and no mechanism applies.</>,
   },
 ];
 
@@ -232,6 +265,23 @@ export default function MethodologyPage() {
         protocol-confirmed violation.
       </p>
 
+      <h2 style={h2}>What the infrastructure scan reads</h2>
+      <p style={p}>
+        The 15% infrastructure factor uses two numbers from NullRabbit’s security scanner: the count of known CVEs
+        associated with the software your node exposes, and the number of open, publicly-reachable services (ports)
+        on the host your validator advertises. It reads only what is already public-facing — the scan is
+        non-invasive: it does not attempt to exploit anything, access data, brute-force credentials, run
+        denial-of-service tests, or touch private networks.
+      </p>
+      <p style={p}>
+        You can verify this against your own host. NullRabbit publishes every IP it scans from and offers an
+        opt-out, on its{' '}
+        <a href="https://nullrabbit.ai/scanning" style={{ color: 'var(--accent)', fontWeight: 600, textDecoration: 'none' }}>scanner transparency page</a>.
+        A validator with no scannable public IP — most chains identify validators by an on-chain key, not a host —
+        simply has no scan data, and the infrastructure factor contributes nothing (neither penalty nor credit) to
+        its score.
+      </p>
+
       <h2 style={h2}>Tracing a score</h2>
       <p style={p}>
         Click any validator row to see the signals behind its score: incident count, downtime, recovery,
@@ -241,6 +291,35 @@ export default function MethodologyPage() {
         </code>
         , so any score can be recomputed independently.
       </p>
+
+      <h2 style={h2}>Mechanism references</h2>
+      <p style={p}>
+        Slashr is NullRabbit’s live observation layer: it shows validator faults happening in the real world. Where
+        an incident class corresponds to a documented fault mechanism, we point to the research registry that names
+        it. Where no mechanism applies — the majority of incidents, which are operational or configuration events —
+        we say so plainly.
+      </p>
+      <div style={{ ...card, maxWidth: 760 }}>
+        <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+          <thead>
+            <tr>
+              <th style={th} scope="col">Incident class</th>
+              <th style={th} scope="col">Mechanism</th>
+            </tr>
+          </thead>
+          <tbody>
+            {MECHANISM_REFS.map(m => (
+              <tr key={m.group}>
+                <td style={{ ...td, whiteSpace: 'normal' }}>
+                  <div style={{ fontWeight: 600, color: 'var(--text)' }}>{m.group}</div>
+                  <div style={{ fontSize: 12, color: 'var(--text-3)', marginTop: 2 }}>{m.classes}</div>
+                </td>
+                <td style={td}>{m.mechanism}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
 
       <h2 style={h2}>What the score does not claim</h2>
       <p style={p}>
