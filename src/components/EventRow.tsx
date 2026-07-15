@@ -5,7 +5,7 @@ import { getEventLabel } from '@/lib/constants';
 import { relativeTime, formatUtcTime } from '@/lib/time';
 import { formatStake, formatUsd, stripCidr } from '@/lib/format';
 import { useIsMobile } from '@/hooks/useIsMobile';
-import { EVENT_TYPE_DESCRIPTIONS } from '@/lib/constants';
+import { EVENT_TYPE_DESCRIPTIONS, EVENT_TYPE_MECHANISM } from '@/lib/constants';
 import { NetworkTag } from './NetworkTag';
 import { SeverityMark } from './SeverityMark';
 
@@ -43,6 +43,7 @@ export function EventRow({
   const contentIndent = 0;
 
   const eventDescription = EVENT_TYPE_DESCRIPTIONS[event.event_type as keyof typeof EVENT_TYPE_DESCRIPTIONS] ?? null;
+  const mechanism = EVENT_TYPE_MECHANISM[event.event_type as keyof typeof EVENT_TYPE_MECHANISM] ?? null;
 
   return (
     <div
@@ -213,6 +214,30 @@ export function EventRow({
             }}
           >
             {eventDescription}
+          </div>
+        )}
+        {/* Row 5: mechanism reference (equivocation classes → NRDAX). Class-level
+            and reference-only — see EVENT_TYPE_MECHANISM. */}
+        {showDescription && mechanism && (
+          <div
+            style={{
+              fontSize: 11.5,
+              color: 'var(--color-text-tertiary)',
+              fontFamily: "'Inter', sans-serif",
+              marginTop: 5,
+              lineHeight: 1.4,
+            }}
+          >
+            <span title={mechanism.note}>Mechanism: {mechanism.label}</span>{' '}
+            <a
+              href={mechanism.url}
+              target="_blank"
+              rel="noopener noreferrer"
+              title={mechanism.note}
+              style={{ color: 'var(--accent, #2f6bff)', fontWeight: 600, textDecoration: 'none' }}
+            >
+              NRDAX ↗
+            </a>
           </div>
         )}
       </div>
