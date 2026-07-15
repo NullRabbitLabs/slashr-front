@@ -117,6 +117,18 @@ export interface ValidatorProfile {
     first_event: string | null;
     last_event: string | null;
   } | null;
+  /**
+   * Honest track record: "no incidents recorded since <monitoring_since>".
+   * `clean` is only true when the chain has a resolved monitoring anchor AND
+   * the validator has zero visible incidents; `monitoring_since` is null when
+   * the chain has no anchor yet (claim withheld). Optional for forward-compat
+   * with cached responses that predate the field.
+   */
+  track_record?: {
+    monitoring_since: string | null;
+    clean: boolean;
+    last_incident_at: string | null;
+  } | null;
   events: ValidatorEventItem[];
 }
 

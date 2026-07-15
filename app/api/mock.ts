@@ -213,6 +213,11 @@ function buildMockValidator(network: NetworkSlug, address: string): ValidatorPro
       first_event: '2026-03-24T08:00:00Z',
       last_event: '2026-04-03T12:43:00Z',
     } : null,
+    track_record: {
+      monitoring_since: '2026-03-23T21:30:05Z',
+      clean: network !== 'solana',
+      last_incident_at: network === 'solana' ? '2026-04-03T12:43:00Z' : null,
+    },
     events: events.map(e => ({
       id: e.id,
       event_type: e.event_type,

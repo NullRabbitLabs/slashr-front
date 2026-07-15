@@ -10,7 +10,7 @@ import type {
 import { getEventLabel } from '@/lib/constants';
 import { useIsMobile } from '@/hooks/useIsMobile';
 import { usePageMeta } from '@/hooks/usePageMeta';
-import { formatUtcTime } from '@/lib/time';
+import { formatUtcTime, formatDate } from '@/lib/time';
 import { truncateMiddle, formatStakeCompact, formatCompact, formatUsd } from '@/lib/format';
 import { NETWORK_META, EVENT_TYPE_DESCRIPTIONS } from '@/lib/constants';
 import { NetworkTag } from './NetworkTag';
@@ -713,6 +713,38 @@ export function ValidatorProfile({
               </div>
             </div>
           )}
+        </div>
+      )}
+
+      {/* Track record — the honest "no incidents recorded since <date>" claim.
+          Only asserted when the chain has a resolved monitoring anchor. */}
+      {validator.track_record?.monitoring_since && (
+        <div style={{ marginBottom: 24, paddingBottom: 24, borderBottom: '1px solid var(--color-border)' }}>
+          <div style={sectionHeadingStyle}>Track record</div>
+          <div style={{ marginTop: 12 }}>
+            {validator.track_record.clean ? (
+              <span
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: 6,
+                  padding: '5px 12px',
+                  borderRadius: 20,
+                  fontSize: 13,
+                  fontWeight: 600,
+                  color: 'var(--ok)',
+                  background: 'var(--ok-soft)',
+                }}
+              >
+                <span aria-hidden="true">&#10003;</span>
+                No incidents recorded since {formatDate(validator.track_record.monitoring_since)}
+              </span>
+            ) : (
+              <div style={metaValueStyle}>
+                Monitored since {formatDate(validator.track_record.monitoring_since)}
+              </div>
+            )}
+          </div>
         </div>
       )}
 
