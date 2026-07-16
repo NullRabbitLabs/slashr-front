@@ -40,6 +40,17 @@ export default function ValidatorsPage({ initialRisk }: { initialRisk?: RiskList
         </div>
       </div>
 
+      {net !== 'all' && (
+        <div style={{ marginBottom: 14 }}>
+          <Link
+            to={`/networks/${net}/validators`}
+            style={{ fontSize: 13, fontWeight: 600, color: 'var(--accent)', textDecoration: 'none' }}
+          >
+            See every {net[0].toUpperCase() + net.slice(1)} validator and its track record &rarr;
+          </Link>
+        </div>
+      )}
+
       <div className="rd-table-scroll">
       <div style={{ background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 16, boxShadow: 'var(--shadow)', overflow: 'hidden', minWidth: 820 }}>
         <div style={{ display: 'grid', gridTemplateColumns: GRID, gap: 16, padding: '14px 22px', borderBottom: '1px solid var(--border)', background: 'var(--surface-2)', fontSize: 11, fontWeight: 600, letterSpacing: '.05em', textTransform: 'uppercase', color: 'var(--text-3)' }}>
