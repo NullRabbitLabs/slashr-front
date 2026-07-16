@@ -5,7 +5,6 @@ import { useDebouncedValue } from '@/hooks/useDebouncedValue';
 import { usePageMeta } from '@/hooks/usePageMeta';
 
 const LETTERS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
-const monoFont = "'JetBrains Mono', monospace";
 
 interface ReportsPageProps {
   initialProviders?: ReportProvidersResponse | null;
@@ -13,28 +12,29 @@ interface ReportsPageProps {
 
 export default function ReportsPage({ initialProviders }: ReportsPageProps = {}) {
   usePageMeta({
-    title: 'Reliability Reports \u00b7 slashr',
-    description: 'Monthly validator reliability reports by staking provider.',
+    title: 'Reliability Reports · slashr',
+    description: 'Monthly validator reliability reports by staking operator.',
   });
   const [searchInput, setSearchInput] = useState('');
   const [activeLetter, setActiveLetter] = useState<string | null>(null);
   const debouncedSearch = useDebouncedValue(searchInput, 300);
   const sentinelRef = useRef<HTMLDivElement>(null);
 
-  // Only send search to API if >= 2 chars
   const apiSearch = debouncedSearch.length >= 2 ? debouncedSearch : undefined;
   const apiLetter = activeLetter ?? undefined;
 
-  const { providers, loading, loadingMore, error, hasMore, loadMore } = useReportProviders(apiSearch, apiLetter, initialProviders);
+  const { providers, loading, loadingMore, error, hasMore, loadMore } = useReportProviders(
+    apiSearch,
+    apiLetter,
+    initialProviders,
+  );
 
-  // Client-side filter for instant feedback while API search debounces
   const filteredProviders = useMemo(() => {
     if (!searchInput.trim()) return providers;
     const q = searchInput.toLowerCase();
     return providers.filter(p => p.provider_name.toLowerCase().includes(q));
   }, [providers, searchInput]);
 
-  // Clear letter when typing search and vice versa
   useEffect(() => {
     if (debouncedSearch.length >= 2) setActiveLetter(null);
   }, [debouncedSearch]);
@@ -49,205 +49,119 @@ export default function ReportsPage({ initialProviders }: ReportsPageProps = {})
     setSearchInput('');
   };
 
-  // Infinite scroll
   useEffect(() => {
     const el = sentinelRef.current;
     if (!el) return;
     const observer = new IntersectionObserver(
-      (entries) => { if (entries[0]?.isIntersecting) loadMore(); },
+      entries => {
+        if (entries[0]?.isIntersecting) loadMore();
+      },
       { rootMargin: '200px' },
     );
     observer.observe(el);
     return () => observer.disconnect();
   }, [loadMore]);
 
+  const pill = (active: boolean): React.CSSProperties => ({
+    padding: '4px 9px',
+    borderRadius: 7,
+    fontSize: 11.5,
+    fontWeight: 600,
+    cursor: 'pointer',
+    border: `1px solid ${active ? 'var(--accent)' : 'var(--border)'}`,
+    background: active ? 'var(--accent)' : 'var(--surface)',
+    color: active ? '#fff' : 'var(--text-2)',
+    minWidth: 26,
+  });
+
   return (
     <div>
-      <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', gap: 12, margin: '0 0 16px' }}>
-        <h1
-          style={{
-            fontSize: 11,
-            fontFamily: monoFont,
-            textTransform: 'uppercase',
-            letterSpacing: '0.08em',
-            color: 'var(--color-text-dim)',
-            fontWeight: 600,
-            margin: 0,
-          }}
-        >
-          Provider Reliability Reports
-        </h1>
-        <Link to="/reports/api" style={{ fontSize: 12.5, fontWeight: 600, color: 'var(--accent)', textDecoration: 'none', whiteSpace: 'nowrap' }}>
-          API &amp; delivery →
-        </Link>
-      </div>
-
-      {/* Search input */}
-      <input
-        type="text"
-        value={searchInput}
-        onChange={e => setSearchInput(e.target.value)}
-        placeholder="search providers..."
-        style={{
-          width: '100%',
-          padding: '8px 12px',
-          background: 'var(--color-bg-surface)',
-          border: '1px solid var(--color-separator)',
-          borderRadius: 4,
-          color: 'var(--color-text-primary)',
-          fontSize: 13,
-          fontFamily: monoFont,
-          outline: 'none',
-          boxSizing: 'border-box',
-          marginBottom: 10,
-        }}
-      />
-
-      {/* A-Z letter bar */}
-      <div style={{ display: 'flex', flexWrap: 'wrap', gap: 2, marginBottom: 16 }}>
-        <button
-          onClick={handleClearAll}
-          style={{
-            padding: '4px 8px',
-            borderRadius: 3,
-            background: !activeLetter ? 'var(--color-text-primary)' : 'var(--color-bg-hover)',
-            color: !activeLetter ? 'var(--color-bg)' : 'var(--color-text-dim)',
-            fontSize: 10,
-            fontFamily: monoFont,
-            fontWeight: 600,
-            letterSpacing: '0.03em',
-            border: `1px solid ${!activeLetter ? 'var(--color-text-primary)' : 'var(--color-border)'}`,
-            cursor: 'pointer',
-            transition: 'all 0.15s ease',
-          }}
-        >
-          ALL
-        </button>
-        {LETTERS.map(letter => {
-          const active = activeLetter === letter;
-          return (
-            <button
-              key={letter}
-              onClick={() => handleLetterClick(letter)}
-              style={{
-                padding: '4px 6px',
-                borderRadius: 3,
-                background: active ? 'var(--color-text-primary)' : 'var(--color-bg-hover)',
-                color: active ? 'var(--color-bg)' : 'var(--color-text-dim)',
-                fontSize: 10,
-                fontFamily: monoFont,
-                fontWeight: 600,
-                border: `1px solid ${active ? 'var(--color-text-primary)' : 'var(--color-border)'}`,
-                cursor: 'pointer',
-                transition: 'all 0.15s ease',
-                minWidth: 24,
-              }}
-            >
-              {letter}
-            </button>
-          );
-        })}
-      </div>
-
-      {/* Results */}
-      {loading && (
-        <div style={{ padding: '20px 0', color: 'var(--color-text-secondary)', fontSize: 13 }}>
-          Loading...
+      <div style={{ marginBottom: 18 }}>
+        <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', gap: 12 }}>
+          <h1 style={{ fontSize: 23, fontWeight: 700, letterSpacing: '-.02em', color: 'var(--text)', margin: '0 0 4px' }}>
+            Reliability reports
+          </h1>
+          <Link to="/reports/api" style={{ fontSize: 13, fontWeight: 600, color: 'var(--accent)', textDecoration: 'none', whiteSpace: 'nowrap' }}>
+            API &amp; delivery →
+          </Link>
         </div>
-      )}
+        <p style={{ fontSize: 14, color: 'var(--text-2)', margin: 0 }}>
+          Monthly reliability reports by staking operator: incidents, uptime, and track record.
+        </p>
+      </div>
+
+      <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 12, flexWrap: 'wrap' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 6, background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 9, padding: '0 11px', height: 36, width: 260 }}>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--text-3)" strokeWidth="2"><circle cx="11" cy="11" r="7" /><path d="M21 21l-4-4" /></svg>
+          <input
+            value={searchInput}
+            onChange={e => setSearchInput(e.target.value)}
+            placeholder="Search operator"
+            style={{ border: 'none', outline: 'none', background: 'none', font: 'inherit', fontSize: 13, color: 'var(--text)', width: '100%' }}
+          />
+        </div>
+        {!loading && !error && (
+          <span style={{ fontSize: 12.5, color: 'var(--text-3)' }}>
+            {filteredProviders.length} operator{filteredProviders.length !== 1 ? 's' : ''}
+          </span>
+        )}
+      </div>
+
+      <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4, marginBottom: 16 }}>
+        <button onClick={handleClearAll} style={pill(!activeLetter)}>All</button>
+        {LETTERS.map(letter => (
+          <button key={letter} onClick={() => handleLetterClick(letter)} style={pill(activeLetter === letter)}>
+            {letter}
+          </button>
+        ))}
+      </div>
 
       {error && (
-        <div style={{ padding: '20px 0', color: 'var(--color-text-dim)', fontSize: 13 }}>
-          having trouble reaching the api, retrying
+        <div style={{ padding: 40, textAlign: 'center', color: 'var(--text-3)', fontSize: 13, background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 16 }}>
+          Having trouble reaching the API, retrying.
         </div>
       )}
 
-      {!loading && !error && (
-        <>
-          <div
-            style={{
-              fontSize: 11,
-              fontFamily: monoFont,
-              color: 'var(--color-text-ghost)',
-              marginBottom: 8,
-            }}
-          >
-            {filteredProviders.length} provider{filteredProviders.length !== 1 ? 's' : ''}
-          </div>
+      {!error && (
+        <div className="rd-table-scroll">
+          <div style={{ background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 16, boxShadow: 'var(--shadow)', overflow: 'hidden' }}>
+            {loading && (
+              <div style={{ padding: 40, textAlign: 'center', color: 'var(--text-3)', fontSize: 13 }}>Loading…</div>
+            )}
 
-          {filteredProviders.length === 0 ? (
-            <div style={{ padding: '20px 0', color: 'var(--color-text-secondary)', fontSize: 13 }}>
-              {apiSearch || apiLetter
-                ? 'No providers found.'
-                : 'No reliability reports generated yet.'}
-            </div>
-          ) : (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
-              {filteredProviders.map(p => (
+            {!loading && filteredProviders.length === 0 && (
+              <div style={{ padding: 40, textAlign: 'center', color: 'var(--text-3)', fontSize: 13 }}>
+                {apiSearch || apiLetter ? 'No operators found.' : 'No reliability reports generated yet.'}
+              </div>
+            )}
+
+            {!loading &&
+              filteredProviders.map(p => (
                 <Link
                   key={p.provider_slug}
                   to={`/reports/${p.provider_slug}`}
-                  className="event-row"
-                  style={{
-                    display: 'flex',
-                    justifyContent: 'space-between',
-                    alignItems: 'center',
-                    padding: '14px 16px',
-                    textDecoration: 'none',
-                    color: 'inherit',
-                    borderBottom: '1px solid var(--color-border)',
-                  }}
+                  className="risk-row"
+                  style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 16, padding: '15px 22px', borderBottom: '1px solid var(--border)', textDecoration: 'none', color: 'inherit' }}
                 >
-                  <div>
-                    <div
-                      style={{
-                        fontSize: 14,
-                        fontWeight: 500,
-                        color: 'var(--color-text-primary)',
-                        marginBottom: 4,
-                      }}
-                    >
+                  <div style={{ minWidth: 0 }}>
+                    <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--text)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                       {p.provider_name}
                     </div>
-                    <div
-                      style={{
-                        fontSize: 12,
-                        fontFamily: monoFont,
-                        color: 'var(--color-text-dim)',
-                      }}
-                    >
+                    <div style={{ fontSize: 12, color: 'var(--text-3)', marginTop: 2 }}>
                       {p.report_count} report{p.report_count !== 1 ? 's' : ''}
-                      {p.latest_period && (
-                        <span style={{ marginLeft: 8, color: 'var(--color-text-tertiary)' }}>
-                          latest: {p.latest_period}
-                        </span>
-                      )}
+                      {p.latest_period && <span style={{ marginLeft: 8 }}>latest {p.latest_period}</span>}
                     </div>
                   </div>
-                  <div
-                    style={{
-                      fontSize: 12,
-                      fontFamily: monoFont,
-                      color: 'var(--color-text-ghost)',
-                    }}
-                  >
-                    &rarr;
-                  </div>
+                  <span aria-hidden="true" style={{ fontSize: 15, color: 'var(--text-3)', flex: 'none' }}>→</span>
                 </Link>
               ))}
-            </div>
-          )}
 
-          {/* Infinite scroll sentinel */}
-          {hasMore && <div ref={sentinelRef} style={{ height: 1 }} />}
-
-          {/* Loading more indicator */}
-          {loadingMore && (
-            <div style={{ padding: '12px 0', color: 'var(--color-text-ghost)', fontFamily: monoFont, fontSize: 13 }}>
-              loading...
-            </div>
-          )}
-        </>
+            {hasMore && <div ref={sentinelRef} style={{ height: 1 }} />}
+            {loadingMore && (
+              <div style={{ padding: '14px 0', textAlign: 'center', color: 'var(--text-3)', fontSize: 13 }}>Loading…</div>
+            )}
+          </div>
+        </div>
       )}
     </div>
   );

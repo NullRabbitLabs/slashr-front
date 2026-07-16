@@ -1,15 +1,18 @@
 import type { Route } from "./+types/networks.$network.validators";
-import { fetchNetworkValidators } from "@/api/client";
+import { fetchNetworks, fetchNetworkValidators } from "@/api/client";
 import { pageMeta } from "@/lib/pageMeta";
 import DirectoryPage from "@/pages/DirectoryPage";
 
 export async function loader({ params }: Route.LoaderArgs) {
   try {
-    const data = await fetchNetworkValidators(params.network, { limit: 100 });
-    return { network: params.network, data };
+    const [data, nets] = await Promise.all([
+      fetchNetworkValidators(params.network, { limit: 100 }),
+      fetchNetworks(),
+    ]);
+    return { network: params.network, data, networks: nets.data };
   } catch {
     // Degrade gracefully: unknown/gated network or API hiccup.
-    return { network: params.network, data: null };
+    return { network: params.network, data: null, networks: [] };
   }
 }
 
@@ -23,5 +26,11 @@ export function meta({ params }: Route.MetaArgs) {
 }
 
 export default function NetworkDirectoryRoute({ loaderData }: Route.ComponentProps) {
-  return <DirectoryPage initialNetwork={loaderData.network} initialData={loaderData.data} />;
+  return (
+    <DirectoryPage
+      network={loaderData.network}
+      data={loaderData.data}
+      networks={loaderData.networks}
+    />
+  );
 }

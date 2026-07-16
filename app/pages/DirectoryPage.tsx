@@ -1,8 +1,6 @@
 import { useMemo, useState } from 'react';
 import { Link } from 'react-router';
-import type { NetworkDirectoryResponse } from '@/types/api';
-import { useNetworks } from '@/hooks/useNetworks';
-import { useNetworkValidators } from '@/hooks/useNetworkValidators';
+import type { NetworkDirectoryResponse, NetworkInfo } from '@/types/api';
 import { formatDate } from '@/lib/time';
 
 const GRID = 'minmax(200px,2fr) 150px minmax(160px,1fr)';
@@ -16,35 +14,82 @@ function titleCase(s: string): string {
   return s.charAt(0).toUpperCase() + s.slice(1);
 }
 
+type SortCol = 'validator' | 'stake' | 'track';
+
 /**
  * The single validator directory: every validator on a network, clean ones
- * included, with its honest track record. Backs both `/validators` (defaulting
- * to a primary network) and `/networks/:network/validators` (scoped by the
- * route param). Network pills switch the active chain client-side. Risk-ranked
- * data lives separately at `/risk`.
+ * included, with its honest track record (operational incidents only). Backs
+ * both `/validators` (defaulting to a primary network) and
+ * `/networks/:network/validators`. Network pills are real links to each
+ * network's directory. Risk-ranked data lives separately at `/risk`.
  */
 export default function DirectoryPage({
-  initialNetwork,
-  initialData,
+  network,
+  data,
+  networks,
 }: {
-  initialNetwork: string;
-  initialData: NetworkDirectoryResponse | null;
+  network: string;
+  data: NetworkDirectoryResponse | null;
+  networks: NetworkInfo[];
 }) {
-  const [net, setNet] = useState(initialNetwork);
   const [query, setQuery] = useState('');
-  const { networks } = useNetworks();
-  const { validators, monitoringSince, loading } = useNetworkValidators(
-    net,
-    net === initialNetwork ? initialData : null,
-  );
+  const [sortCol, setSortCol] = useState<SortCol>('stake');
+  const [sortDir, setSortDir] = useState<'asc' | 'desc'>('desc');
+
+  const validators = data?.validators ?? [];
+  const monitoringSince = data?.monitoring_since ?? null;
 
   const rows = useMemo(() => {
     const q = query.trim().toLowerCase();
-    if (!q) return validators;
-    return validators.filter(
-      v => (v.moniker ?? '').toLowerCase().includes(q) || v.address.toLowerCase().includes(q),
-    );
-  }, [validators, query]);
+    const filtered = q
+      ? validators.filter(
+          v => (v.moniker ?? '').toLowerCase().includes(q) || v.address.toLowerCase().includes(q),
+        )
+      : validators.slice();
+    filtered.sort((a, b) => {
+      let c = 0;
+      if (sortCol === 'validator') {
+        c = (a.moniker || a.address).localeCompare(b.moniker || b.address);
+      } else if (sortCol === 'stake') {
+        c = (a.stake ?? -1) - (b.stake ?? -1);
+      } else {
+        // Track record: clean validators first, then fewest incidents.
+        const av = a.clean ? -1 : a.incident_count;
+        const bv = b.clean ? -1 : b.incident_count;
+        c = av - bv;
+      }
+      return sortDir === 'asc' ? c : -c;
+    });
+    return filtered;
+  }, [validators, query, sortCol, sortDir]);
+
+  const toggleSort = (col: SortCol) => {
+    if (col === sortCol) {
+      setSortDir(d => (d === 'asc' ? 'desc' : 'asc'));
+    } else {
+      setSortCol(col);
+      setSortDir(col === 'validator' ? 'asc' : 'desc');
+    }
+  };
+  const arrow = (col: SortCol) => (sortCol === col ? (sortDir === 'asc' ? ' ↑' : ' ↓') : '');
+
+  const headerCell = (col: SortCol, label: string, align: 'left' | 'right'): React.CSSProperties => ({
+    textAlign: align,
+    justifyContent: align === 'right' ? 'flex-end' : 'flex-start',
+    display: 'flex',
+    alignItems: 'center',
+    gap: 2,
+    background: 'none',
+    border: 'none',
+    padding: 0,
+    font: 'inherit',
+    fontSize: 11,
+    fontWeight: 600,
+    letterSpacing: '.05em',
+    textTransform: 'uppercase',
+    color: sortCol === col ? 'var(--text)' : 'var(--text-3)',
+    cursor: 'pointer',
+  });
 
   return (
     <div>
@@ -53,7 +98,7 @@ export default function DirectoryPage({
           Validator directory
         </h1>
         <p style={{ fontSize: 14, color: 'var(--text-2)', margin: 0 }}>
-          Every validator we track on {titleCase(net)}, clean or not.
+          Every validator we track on {titleCase(network)}, clean or not.
           {monitoringSince && (
             <>
               {' '}A clean validator shows{' '}
@@ -68,24 +113,27 @@ export default function DirectoryPage({
 
       <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 14, flexWrap: 'wrap' }}>
         <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
-          {networks.map(n => (
-            <button
-              key={n.slug}
-              onClick={() => setNet(n.slug)}
-              style={{
-                padding: '5px 12px',
-                borderRadius: 8,
-                fontSize: 12.5,
-                fontWeight: 600,
-                cursor: 'pointer',
-                border: `1px solid ${n.slug === net ? 'var(--accent)' : 'var(--border)'}`,
-                background: n.slug === net ? 'var(--accent)' : 'var(--surface)',
-                color: n.slug === net ? '#fff' : 'var(--text-2)',
-              }}
-            >
-              {n.name}
-            </button>
-          ))}
+          {networks.map(n => {
+            const active = n.slug === network;
+            return (
+              <Link
+                key={n.slug}
+                to={`/networks/${n.slug}/validators`}
+                style={{
+                  padding: '5px 12px',
+                  borderRadius: 8,
+                  fontSize: 12.5,
+                  fontWeight: 600,
+                  textDecoration: 'none',
+                  border: `1px solid ${active ? 'var(--accent)' : 'var(--border)'}`,
+                  background: active ? 'var(--accent)' : 'var(--surface)',
+                  color: active ? '#fff' : 'var(--text-2)',
+                }}
+              >
+                {n.name}
+              </Link>
+            );
+          })}
         </div>
         <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 6, background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 9, padding: '0 11px', height: 36, width: 240 }}>
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--text-3)" strokeWidth="2"><circle cx="11" cy="11" r="7" /><path d="M21 21l-4-4" /></svg>
@@ -95,13 +143,13 @@ export default function DirectoryPage({
 
       <div className="rd-table-scroll">
         <div style={{ background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 16, boxShadow: 'var(--shadow)', overflow: 'hidden', minWidth: 640 }}>
-          <div style={{ display: 'grid', gridTemplateColumns: GRID, gap: 16, padding: '14px 22px', borderBottom: '1px solid var(--border)', background: 'var(--surface-2)', fontSize: 11, fontWeight: 600, letterSpacing: '.05em', textTransform: 'uppercase', color: 'var(--text-3)' }}>
-            <span>Validator</span>
-            <span style={{ textAlign: 'right' }}>Total staked</span>
-            <span style={{ textAlign: 'right' }}>Track record</span>
+          <div style={{ display: 'grid', gridTemplateColumns: GRID, gap: 16, padding: '14px 22px', borderBottom: '1px solid var(--border)', background: 'var(--surface-2)' }}>
+            <button onClick={() => toggleSort('validator')} style={headerCell('validator', 'Validator', 'left')}>Validator{arrow('validator')}</button>
+            <button onClick={() => toggleSort('stake')} style={headerCell('stake', 'Total staked', 'right')}>Total staked{arrow('stake')}</button>
+            <button onClick={() => toggleSort('track')} style={headerCell('track', 'Track record', 'right')}>Track record{arrow('track')}</button>
           </div>
 
-          {!loading && rows.length === 0 && (
+          {rows.length === 0 && (
             <div style={{ padding: 40, textAlign: 'center', color: 'var(--text-3)', fontSize: 13 }}>
               {validators.length === 0 ? 'No validators registered yet.' : 'No validators match your search.'}
             </div>
@@ -114,7 +162,7 @@ export default function DirectoryPage({
             return (
               <Link
                 key={v.address}
-                to={`/validator/${net}/${encodeURIComponent(v.address)}`}
+                to={`/validator/${network}/${encodeURIComponent(v.address)}`}
                 className="risk-row"
                 style={{ display: 'grid', gridTemplateColumns: GRID, alignItems: 'center', gap: 16, padding: '16px 22px', borderBottom: '1px solid var(--border)', boxShadow: `inset 3px 0 0 ${v.clean ? 'var(--ok)' : 'var(--crit)'}`, textDecoration: 'none', color: 'inherit' }}
               >

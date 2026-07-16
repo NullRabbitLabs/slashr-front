@@ -5,15 +5,15 @@ import DirectoryPage from "@/pages/DirectoryPage";
 
 export async function loader() {
   // The directory is per-network; /validators defaults to the first public
-  // network and lets the pills switch. Risk-ranked data lives at /risk.
+  // network and its pills link to the others. Risk-ranked data lives at /risk.
   try {
     const nets = await fetchNetworks();
     const primary = nets.data[0]?.slug ?? "solana";
     const data = await fetchNetworkValidators(primary, { limit: 100 });
-    return { network: primary as string, data };
+    return { network: primary as string, data, networks: nets.data };
   } catch {
     // Degrade gracefully - the page still renders and refetches client-side.
-    return { network: "solana", data: null };
+    return { network: "solana", data: null, networks: [] };
   }
 }
 
@@ -27,5 +27,11 @@ export function meta() {
 }
 
 export default function ValidatorsRoute({ loaderData }: Route.ComponentProps) {
-  return <DirectoryPage initialNetwork={loaderData.network} initialData={loaderData.data} />;
+  return (
+    <DirectoryPage
+      network={loaderData.network}
+      data={loaderData.data}
+      networks={loaderData.networks}
+    />
+  );
 }
