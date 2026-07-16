@@ -9,7 +9,7 @@ const DEFAULT_IMAGE = "https://slashr.dev/og-image.png";
 
 // Returns the COMPLETE meta descriptor set for a page (title + description +
 // robots + og:* + twitter:* + canonical link). RR route meta replaces ancestor
-// meta, so every route's meta must return a full set — use this.
+// meta, so every route's meta must return a full set - use this.
 export function pageMeta({ title, description, canonical, image = DEFAULT_IMAGE }: PageMetaOpts) {
   return [
     { title },

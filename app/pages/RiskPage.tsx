@@ -140,7 +140,7 @@ export default function RiskPage({ initialRisk }: { initialRisk?: RiskListRespon
     <div>
       {/* hero + distribution */}
       <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', gap: 36, marginBottom: 28, flexWrap: 'wrap' }}>
-        <div style={{ maxWidth: 600 }}>
+        <div style={{ flex: 1, minWidth: 300 }}>
           <div style={{ fontSize: 11, fontWeight: 600, letterSpacing: '.1em', textTransform: 'uppercase', color: 'var(--accent)', marginBottom: 11 }}>
             Risk analytics
           </div>

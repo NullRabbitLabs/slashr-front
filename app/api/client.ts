@@ -223,7 +223,7 @@ export async function fetchDelegations(
       const body = await res.json();
       if (body?.error?.message) message = body.error.message;
     } catch {
-      // Response wasn't JSON — keep the generic message
+      // Response wasn't JSON - keep the generic message
     }
     throw new Error(message);
   }

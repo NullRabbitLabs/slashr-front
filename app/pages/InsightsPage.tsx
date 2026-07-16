@@ -154,7 +154,7 @@ export default function InsightsPage({ initialInsights }: { initialInsights?: In
         </div>
       </div>
 
-      {/* Activity section — heatmap full width */}
+      {/* Activity section - heatmap full width */}
       <div style={{ marginBottom: isMobile ? 20 : 32 }}>
         <div style={SECTION_HEADING}>
           <span style={{ color: '#FF4545', fontSize: 6 }}>{'\u25A0'}</span>
@@ -163,7 +163,7 @@ export default function InsightsPage({ initialInsights }: { initialInsights?: In
         <Heatmap daily={data.daily} />
       </div>
 
-      {/* Hour of Day + Day of Week — side by side */}
+      {/* Hour of Day + Day of Week - side by side */}
       <div
         style={{
           display: 'grid',

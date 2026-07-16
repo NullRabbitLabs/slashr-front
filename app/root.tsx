@@ -70,7 +70,7 @@ const JSON_LD = {
       "@type": "SoftwareApplication",
       name: "Slashr",
       description:
-        "Live validator risk intelligence — slashing, downtime, and operator behaviour across proof-of-stake networks. NullRabbit's observation layer.",
+        "Live validator risk intelligence: slashing, downtime, and operator behaviour across proof-of-stake networks. NullRabbit's observation layer.",
       applicationCategory: "SecurityApplication",
       operatingSystem: "Web",
       url: "https://slashr.dev",

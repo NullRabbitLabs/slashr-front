@@ -1,4 +1,4 @@
-// GET /feed/incidents.json — JSON Feed 1.1 of recent validator incidents.
+// GET /feed/incidents.json - JSON Feed 1.1 of recent validator incidents.
 // Ported from the Pages Function functions/feed/incidents.json.ts.
 import { fetchFeedItems, renderJsonFeed } from "@/lib/feedIncidents";
 

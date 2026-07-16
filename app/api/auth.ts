@@ -57,7 +57,7 @@ export async function fetchMe(): Promise<AuthUser | null> {
   return body.data as AuthUser;
 }
 
-/** Sign out — revokes the session server-side and clears the cookie. */
+/** Sign out - revokes the session server-side and clears the cookie. */
 export async function logout(): Promise<void> {
   await fetch(`${BASE_URL}/v1/auth/logout`, {
     method: 'POST',
@@ -78,7 +78,7 @@ export interface ApiKey {
   requests_total: number;
 }
 
-/** A freshly minted key — `key` (the raw secret) is shown exactly once. */
+/** A freshly minted key - `key` (the raw secret) is shown exactly once. */
 export interface CreatedKey {
   id: number;
   name: string;

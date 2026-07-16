@@ -1,4 +1,4 @@
-// GET /sitemap.xml — generated from validator + report data.
+// GET /sitemap.xml - generated from validator + report data.
 // Ported from the Pages Function functions/sitemap.xml.ts. Fetches the PUBLIC
 // prod API (zero secrets). Degrades to static-pages-only on any failure.
 

@@ -1,4 +1,4 @@
-// GET /feed/incidents.rss — RSS 2.0 feed of recent validator incidents.
+// GET /feed/incidents.rss - RSS 2.0 feed of recent validator incidents.
 // Ported from the Pages Function functions/feed/incidents.rss.ts.
 import { fetchFeedItems, renderRss } from "@/lib/feedIncidents";
 
