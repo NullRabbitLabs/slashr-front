@@ -91,6 +91,19 @@ export interface EventListItem {
   /// field for payload size). Present as 'timed_out' when the event
   /// went public without full validator-level enrichment.
   feed_state?: 'live' | 'timed_out';
+  /** Documented fault-mechanism reference for this event's class (NRDAX),
+   *  from the API (migration 078). Present only for the equivocation family;
+   *  absent for operational / configuration classes. */
+  mechanism?: MechanismRef;
+}
+
+/** Class-level reference from an incident to a documented fault mechanism in
+ *  NullRabbit's research registry. Reference-only: it names the fault type and
+ *  links the registry; `note` carries the not-an-accusation disclaimer. */
+export interface MechanismRef {
+  label: string;
+  url: string;
+  note: string;
 }
 
 export interface EventDetail extends EventListItem {

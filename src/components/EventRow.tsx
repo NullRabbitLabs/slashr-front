@@ -5,7 +5,7 @@ import { getEventLabel } from '@/lib/constants';
 import { relativeTime, formatUtcTime } from '@/lib/time';
 import { formatStake, formatUsd, stripCidr } from '@/lib/format';
 import { useIsMobile } from '@/hooks/useIsMobile';
-import { EVENT_TYPE_DESCRIPTIONS, EVENT_TYPE_MECHANISM } from '@/lib/constants';
+import { EVENT_TYPE_DESCRIPTIONS } from '@/lib/constants';
 import { NetworkTag } from './NetworkTag';
 import { SeverityMark } from './SeverityMark';
 
@@ -43,7 +43,9 @@ export function EventRow({
   const contentIndent = 0;
 
   const eventDescription = EVENT_TYPE_DESCRIPTIONS[event.event_type as keyof typeof EVENT_TYPE_DESCRIPTIONS] ?? null;
-  const mechanism = EVENT_TYPE_MECHANISM[event.event_type as keyof typeof EVENT_TYPE_MECHANISM] ?? null;
+  // Data-backed: the API carries the class-level mechanism reference on the
+  // event itself (migration 078), so there is one source of truth.
+  const mechanism = event.mechanism ?? null;
 
   return (
     <div

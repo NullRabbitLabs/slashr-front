@@ -59,27 +59,11 @@ export const EVENT_TYPE_DESCRIPTIONS: Record<EventType, string> = {
   near_kicked_out:             'Validator was kicked out of the Near active set at the last epoch boundary. Reasons include not producing enough blocks, not validating enough chunks, unstaking, or losing the seat auction. Stake is not slashed, but the validator earns nothing for the kicked epoch and must be re-elected to resume rewards.',
 };
 
-// Mechanism reference: connects an incident CLASS to NullRabbit's research
-// registry (NRDAX) where a documented fault mechanism genuinely corresponds.
-// Only the equivocation (double-signing) family maps — those events record a
-// specific, protocol-confirmed consensus fault. Reference-only and
-// class-level by design: this describes the fault type, it is NOT an assertion
-// that the validator exploited a technique (most double-signs are operator
-// misconfiguration, e.g. two signing instances). Operational and
-// configuration event types have no attack mechanism and are absent here.
-export interface MechanismRef {
-  label: string;
-  url: string;
-  note: string;
-}
-
-export const EVENT_TYPE_MECHANISM: Partial<Record<EventType, MechanismRef>> = {
-  slashed:                 { label: 'Equivocation fault', url: 'https://nrdax.com', note: 'Documented consensus fault class in NullRabbit’s research registry. Not an assertion that this validator exploited a technique — most double-signs are operator misconfiguration.' },
-  slashed_double_sign:     { label: 'Equivocation fault', url: 'https://nrdax.com', note: 'Documented consensus fault class in NullRabbit’s research registry. Not an assertion that this validator exploited a technique — most double-signs are operator misconfiguration.' },
-  duplicate_block:         { label: 'Equivocation fault', url: 'https://nrdax.com', note: 'Documented consensus fault class in NullRabbit’s research registry. Not an assertion that this validator exploited a technique — usually duplicate validator keys across two machines.' },
-  tia_slashed_double_sign: { label: 'Equivocation fault', url: 'https://nrdax.com', note: 'Documented consensus fault class in NullRabbit’s research registry. Not an assertion that this validator exploited a technique — most double-signs are operator misconfiguration.' },
-  dot_slashed:             { label: 'Equivocation fault', url: 'https://nrdax.com', note: 'Documented consensus fault class in NullRabbit’s research registry. Not an assertion that this validator exploited a technique — equivocation is often operator misconfiguration.' },
-};
+// Mechanism references are now DATA-BACKED: the API carries a class-level
+// mechanism reference on each event (migration 078 → slasher.event_types),
+// consumed via EventListItem.mechanism. The former hard-coded
+// EVENT_TYPE_MECHANISM map was removed so there is one source of truth. The
+// methodology page keeps its own editorial MECHANISM_REFS summary table.
 
 export function getEventLabel(eventType: string, penaltyAmount: number | null, penaltyToken: string | null): string {
   let label = EVENT_TYPE_LABELS[eventType as EventType] ?? eventType.replace(/_/g, ' ');
