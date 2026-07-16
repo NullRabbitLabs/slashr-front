@@ -40,12 +40,12 @@ export default function OverviewPage({ initialStats, initialRisk, initialEvents 
     const crit = validators.filter(v => v.tier === 'critical').length;
     // No aggregate "stake at risk" tile: summing stake across networks with
     // different loss semantics (principal-slashing vs rewards-only chains)
-    // under an "at risk" label is a category error — and the risk endpoint
+    // under an "at risk" label is a category error - and the risk endpoint
     // is capped, so the sum wasn't even complete. Per-validator stake stays
     // visible below, labelled as stake, with loss semantics per network.
     //
     // The headline count is the operational-incident count when the API
-    // provides the class split — configuration/state changes (MEV toggles,
+    // provides the class split - configuration/state changes (MEV toggles,
     // commission moves) are information, but they are not incidents.
     const ct = stats?.class_totals;
     const headline = ct
@@ -57,7 +57,7 @@ export default function OverviewPage({ initialStats, initialRisk, initialEvents 
         ? [{ label: 'Config & state changes · 30d', value: ct.state_changes.last_30d.toLocaleString(), color: 'var(--text)' }]
         : []),
       { label: 'Critical-risk validators', value: String(crit), color: crit > 0 ? 'var(--crit)' : 'var(--text)' },
-      { label: 'Networks monitored', value: stats ? String(stats.networks.length) : '—', color: 'var(--text)' },
+      { label: 'Networks monitored', value: stats ? String(stats.networks.length) : '-', color: 'var(--text)' },
     ];
   }, [validators, stats]);
 
@@ -76,7 +76,7 @@ export default function OverviewPage({ initialStats, initialRisk, initialEvents 
             Validator risk intelligence
           </div>
           <h1 className="rd-hero-headline" style={{ fontSize: 32, lineHeight: 1.12, fontWeight: 700, letterSpacing: '-.025em', color: 'var(--text)', margin: '0 0 12px', whiteSpace: 'nowrap' }}>
-            Know which validators show risk signals — and what stake sits with them.
+            Know which validators show risk signals - and what stake sits with them.
           </h1>
           <p style={{ fontSize: 15, lineHeight: 1.55, color: 'var(--text-2)', margin: 0 }}>
             Continuous slashing, downtime, and commission monitoring across every network we track, for staking

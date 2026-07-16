@@ -41,7 +41,7 @@ export function Layout({ children, stats }: LayoutProps) {
   const [menuOpen, setMenuOpen] = useState(false);
 
   const totalEvents = stats?.totals.all_time;
-  // Derived only — no hardcoded fallback. While /v1/networks is loading the
+  // Derived only, no hardcoded fallback. While /v1/networks is loading the
   // header simply omits the count rather than guessing.
   const netCount = networks.length;
 
@@ -121,13 +121,6 @@ export function Layout({ children, stats }: LayoutProps) {
               >
                 RISK
               </span>
-            </a>
-            <a
-              href="https://nullrabbit.ai"
-              className="rd-parent"
-              style={{ fontSize: 11.5, fontWeight: 500, color: 'var(--text-3)', whiteSpace: 'nowrap', textDecoration: 'none', flex: 'none' }}
-            >
-              by <span style={{ fontWeight: 600, color: 'var(--text-2)' }}>NullRabbit</span>
             </a>
 
             {/* nav */}

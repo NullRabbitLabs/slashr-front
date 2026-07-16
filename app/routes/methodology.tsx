@@ -9,7 +9,7 @@ export async function loader() {
     const res = await fetchNetworks();
     return { networks: res.data };
   } catch {
-    // Degrade gracefully — the page still renders and the client refetch retries.
+    // Degrade gracefully - the page still renders and the client refetch retries.
     return { networks: null };
   }
 }
