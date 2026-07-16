@@ -57,9 +57,11 @@ export default function OverviewPage({ initialStats, initialRisk, initialEvents 
         ? [{ label: 'Config & state changes · 30d', value: ct.state_changes.last_30d.toLocaleString(), color: 'var(--text)' }]
         : []),
       { label: 'Critical-risk validators', value: String(crit), color: crit > 0 ? 'var(--crit)' : 'var(--text)' },
-      { label: 'Networks monitored', value: stats ? String(stats.networks.length) : '-', color: 'var(--text)' },
+      // Derived from the exact list rendered as tiles below, so the number and
+      // the grid can never disagree.
+      { label: 'Networks monitored', value: visibleNets.length > 0 ? String(visibleNets.length) : '-', color: 'var(--text)' },
     ];
-  }, [validators, stats]);
+  }, [validators, stats, visibleNets]);
 
   const explore = [
     { title: 'Slashr Risk Index', desc: 'Every tracked validator ranked 0–100 by risk, with associated stake and incident trend.', cta: 'Open Risk index', path: '/risk' },

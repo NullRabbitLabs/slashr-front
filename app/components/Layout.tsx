@@ -15,13 +15,14 @@ interface LayoutProps {
 }
 
 // Primary nav, ordered by the natural flow: home → the live feed → browse the
-// directory → the risk cuts (index + leaderboard) → reports.
+// directory → the risk index → reports. The Slashr Risk Index (/risk) is the
+// single ranking surface; the old severity-count leaderboard (/rankings) now
+// redirects into it.
 const NAV: Array<{ label: string; path: string }> = [
   { label: 'Overview', path: '/' },
   { label: 'Live Feed', path: '/feed' },
   { label: 'Validators', path: '/validators' },
   { label: 'Risk', path: '/risk' },
-  { label: 'Rankings', path: '/rankings' },
   { label: 'Reports', path: '/reports' },
 ];
 
@@ -110,19 +111,6 @@ export function Layout({ children, stats }: LayoutProps) {
                 </svg>
               </div>
               <span style={{ fontSize: 18, fontWeight: 700, letterSpacing: '-.02em', color: 'var(--text)' }}>slashr</span>
-              <span
-                style={{
-                  fontSize: 11,
-                  fontWeight: 600,
-                  color: 'var(--accent)',
-                  background: 'var(--accent-soft)',
-                  padding: '2px 6px',
-                  borderRadius: 5,
-                  letterSpacing: '.02em',
-                }}
-              >
-                RISK
-              </span>
             </a>
 
             {/* nav */}

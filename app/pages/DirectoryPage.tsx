@@ -167,12 +167,20 @@ export default function DirectoryPage({
                 style={{ display: 'grid', gridTemplateColumns: GRID, alignItems: 'center', gap: 16, padding: '16px 22px', borderBottom: '1px solid var(--border)', boxShadow: `inset 3px 0 0 ${v.clean ? 'var(--ok)' : 'var(--crit)'}`, textDecoration: 'none', color: 'inherit' }}
               >
                 <div style={{ minWidth: 0 }}>
-                  <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--text)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                    {v.moniker || v.address}
-                  </div>
-                  <div style={{ fontFamily: "'Geist Mono', monospace", fontSize: 11, color: 'var(--text-3)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                    {v.address}
-                  </div>
+                  {v.moniker ? (
+                    <>
+                      <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--text)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                        {v.moniker}
+                      </div>
+                      <div style={{ fontFamily: "'Geist Mono', monospace", fontSize: 11, color: 'var(--text-3)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                        {v.address}
+                      </div>
+                    </>
+                  ) : (
+                    <div style={{ fontFamily: "'Geist Mono', monospace", fontSize: 13, color: 'var(--text)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                      {v.address}
+                    </div>
+                  )}
                 </div>
                 <span style={{ textAlign: 'right', fontSize: 13.5, fontWeight: 600, color: 'var(--text)', fontVariantNumeric: 'tabular-nums' }}>
                   {fmtStake(v.stake, v.stake_token)}

@@ -1,6 +1,6 @@
 import { redirect } from "react-router";
 
-// Legacy path - server-side 302 to the canonical /rankings.
+// Legacy path - 301 straight to the canonical ranking surface, the Risk Index.
 export function loader() {
-  return redirect("/rankings");
+  return redirect("/risk", 301);
 }
