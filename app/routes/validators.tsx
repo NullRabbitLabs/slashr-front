@@ -1,29 +1,31 @@
 import type { Route } from "./+types/validators";
-import { fetchRiskValidators } from "@/api/client";
+import { fetchNetworks, fetchNetworkValidators } from "@/api/client";
 import { pageMeta } from "@/lib/pageMeta";
-import ValidatorsPage from "@/pages/ValidatorsPage";
+import DirectoryPage from "@/pages/DirectoryPage";
 
 export async function loader() {
-  // Mirror the page's first-render fetch: default network 'all' → omitted
-  // (useRiskValidators normalises 'all' to undefined), default limit 200.
+  // The directory is per-network; /validators defaults to the first public
+  // network and lets the pills switch. Risk-ranked data lives at /risk.
   try {
-    const res = await fetchRiskValidators({ limit: 200 });
-    return { risk: res.data };
+    const nets = await fetchNetworks();
+    const primary = nets.data[0]?.slug ?? "solana";
+    const data = await fetchNetworkValidators(primary, { limit: 100 });
+    return { network: primary as string, data };
   } catch {
-    // Degrade gracefully - the page still renders and the client refetch retries.
-    return { risk: null };
+    // Degrade gracefully - the page still renders and refetches client-side.
+    return { network: "solana", data: null };
   }
 }
 
 export function meta() {
   return pageMeta({
-    title: "Validator Directory · Stake, Uptime & Risk · slashr",
+    title: "Validator directory · Track record · slashr",
     description:
-      "Every validator we track across Solana, Ethereum, Sui, and Cosmos, with total stake, 30-day uptime, and live risk status. Click any validator for its full risk profile.",
+      "Every validator we track across Solana, Sui, Cosmos and beyond, with total stake and an honest track record. A clean validator shows no incidents recorded since we began monitoring the chain.",
     canonical: "https://slashr.dev/validators",
   });
 }
 
 export default function ValidatorsRoute({ loaderData }: Route.ComponentProps) {
-  return <ValidatorsPage initialRisk={loaderData.risk} />;
+  return <DirectoryPage initialNetwork={loaderData.network} initialData={loaderData.data} />;
 }

@@ -63,19 +63,24 @@ export default function ReportsPage({ initialProviders }: ReportsPageProps = {})
 
   return (
     <div>
-      <h1
-        style={{
-          fontSize: 11,
-          fontFamily: monoFont,
-          textTransform: 'uppercase',
-          letterSpacing: '0.08em',
-          color: 'var(--color-text-dim)',
-          fontWeight: 600,
-          margin: '0 0 16px',
-        }}
-      >
-        Provider Reliability Reports
-      </h1>
+      <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', gap: 12, margin: '0 0 16px' }}>
+        <h1
+          style={{
+            fontSize: 11,
+            fontFamily: monoFont,
+            textTransform: 'uppercase',
+            letterSpacing: '0.08em',
+            color: 'var(--color-text-dim)',
+            fontWeight: 600,
+            margin: 0,
+          }}
+        >
+          Provider Reliability Reports
+        </h1>
+        <Link to="/reports/api" style={{ fontSize: 12.5, fontWeight: 600, color: 'var(--accent)', textDecoration: 'none', whiteSpace: 'nowrap' }}>
+          API &amp; delivery →
+        </Link>
+      </div>
 
       {/* Search input */}
       <input
