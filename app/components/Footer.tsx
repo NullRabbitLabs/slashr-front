@@ -99,6 +99,14 @@ export function Footer({ onOpenWaitlist }: FooterProps) {
             Contact
           </button>
           <Link
+            to="/methodology"
+            style={linkStyle}
+            onMouseEnter={hoverIn}
+            onMouseLeave={hoverOut}
+          >
+            Methodology
+          </Link>
+          <Link
             to="/insights"
             style={linkStyle}
             onMouseEnter={hoverIn}
@@ -124,9 +132,10 @@ export function Footer({ onOpenWaitlist }: FooterProps) {
           >
             <img
               src="/nullrabbit.png"
-              alt="NullRabbit"
+              alt=""
               style={{ height: 16, width: 16, objectFit: 'contain' }}
             />
+            <span style={{ fontSize: 12 }}>a NullRabbit product</span>
           </a>
           <a
             href="https://x.com/SlashrDev"

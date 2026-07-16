@@ -6,7 +6,8 @@ import { useStats } from '@/hooks/useStats';
 import { useEvents } from '@/hooks/useEvents';
 import { useRiskValidators } from '@/hooks/useRiskValidators';
 import { useRiskDrawer } from '@/components/risk/RiskDrawer';
-import { NETWORK_META, NETWORK_ORDER, EVENT_TYPE_LABELS } from '@/lib/constants';
+import { NETWORK_META, EVENT_TYPE_LABELS } from '@/lib/constants';
+import { useVisibleNetworkOrder } from '@/hooks/useVisibleNetworks';
 import { formatUsd } from '@/lib/format';
 import { relativeTime } from '@/lib/time';
 import { netColor, netTicker, tierColor, tierLabel, tierSoft } from '@/lib/risk';
@@ -31,22 +32,37 @@ export default function OverviewPage({ initialStats, initialRisk, initialEvents 
   });
 
   const countByNet = new Map(stats?.networks.map(n => [n.slug, n.counts.last_30d]) ?? []);
+  const visibleNets = useVisibleNetworkOrder();
   const topRisk = validators.slice(0, 8);
   const recent = events.slice(0, 8);
 
   const metrics = useMemo(() => {
     const crit = validators.filter(v => v.tier === 'critical').length;
-    const varTotal = validators.reduce((s, v) => s + (v.value_at_risk_usd ?? 0), 0);
+    // No aggregate "stake at risk" tile: summing stake across networks with
+    // different loss semantics (principal-slashing vs rewards-only chains)
+    // under an "at risk" label is a category error — and the risk endpoint
+    // is capped, so the sum wasn't even complete. Per-validator stake stays
+    // visible below, labelled as stake, with loss semantics per network.
+    //
+    // The headline count is the operational-incident count when the API
+    // provides the class split — configuration/state changes (MEV toggles,
+    // commission moves) are information, but they are not incidents.
+    const ct = stats?.class_totals;
+    const headline = ct
+      ? { label: 'Operational incidents · 30d', value: ct.operational.last_30d.toLocaleString(), color: 'var(--text)' }
+      : { label: 'Events · 30d', value: (stats?.totals.last_30d ?? 0).toLocaleString(), color: 'var(--text)' };
     return [
-      { label: 'Incidents · 30d', value: (stats?.totals.last_30d ?? 0).toLocaleString(), color: 'var(--text)' },
+      headline,
+      ...(ct
+        ? [{ label: 'Config & state changes · 30d', value: ct.state_changes.last_30d.toLocaleString(), color: 'var(--text)' }]
+        : []),
       { label: 'Critical-risk validators', value: String(crit), color: crit > 0 ? 'var(--crit)' : 'var(--text)' },
-      { label: 'Stake value at risk', value: formatUsd(varTotal), color: 'var(--text)' },
-      { label: 'Networks monitored', value: String(stats?.networks.length || NETWORK_ORDER.length), color: 'var(--text)' },
+      { label: 'Networks monitored', value: stats ? String(stats.networks.length) : '—', color: 'var(--text)' },
     ];
   }, [validators, stats]);
 
   const explore = [
-    { title: 'Slashr Risk Index', desc: 'Every tracked validator ranked 0–100 by risk, with stake at risk and incident trend.', cta: 'Open Risk index', path: '/risk' },
+    { title: 'Slashr Risk Index', desc: 'Every tracked validator ranked 0–100 by risk, with associated stake and incident trend.', cta: 'Open Risk index', path: '/risk' },
     { title: 'Live incident feed', desc: 'Downtime, slashing, and commission events across every network as they happen.', cta: 'Open Live feed', path: '/feed' },
     { title: 'Reports & API', desc: 'Pull risk scores and incidents into your own monitoring and treasury systems.', cta: 'View the API', path: '/reports' },
   ];
@@ -60,7 +76,7 @@ export default function OverviewPage({ initialStats, initialRisk, initialEvents 
             Validator risk intelligence
           </div>
           <h1 className="rd-hero-headline" style={{ fontSize: 32, lineHeight: 1.12, fontWeight: 700, letterSpacing: '-.025em', color: 'var(--text)', margin: '0 0 12px', whiteSpace: 'nowrap' }}>
-            Know which validators put stake at risk before they do.
+            Know which validators show risk signals — and what stake sits with them.
           </h1>
           <p style={{ fontSize: 15, lineHeight: 1.55, color: 'var(--text-2)', margin: 0 }}>
             Continuous slashing, downtime, and commission monitoring across every network we track, for staking
@@ -81,7 +97,7 @@ export default function OverviewPage({ initialStats, initialRisk, initialEvents 
 
       {/* network strip */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(96px, 1fr))', gap: 10, marginBottom: 18 }}>
-        {NETWORK_ORDER.map(slug => (
+        {visibleNets.map(slug => (
           <div key={slug} style={{ background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 11, padding: '13px 14px', boxShadow: 'var(--shadow)' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 7, marginBottom: 9 }}>
               <span style={{ width: 8, height: 8, borderRadius: '50%', background: NETWORK_META[slug].color }} />
@@ -90,7 +106,7 @@ export default function OverviewPage({ initialStats, initialRisk, initialEvents 
             <div style={{ fontSize: 21, fontWeight: 700, letterSpacing: '-.02em', color: 'var(--text)', fontVariantNumeric: 'tabular-nums', lineHeight: 1 }}>
               {(countByNet.get(slug) ?? 0).toLocaleString()}
             </div>
-            <div style={{ fontSize: 11, color: 'var(--text-3)', marginTop: 4 }}>incidents / 30d</div>
+            <div style={{ fontSize: 11, color: 'var(--text-3)', marginTop: 4 }}>events / 30d</div>
           </div>
         ))}
       </div>
@@ -125,7 +141,10 @@ export default function OverviewPage({ initialStats, initialRisk, initialEvents 
                   <div style={{ fontSize: 13.5, fontWeight: 600, color: 'var(--text)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{v.moniker || v.address}</div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 2 }}>
                     <span style={{ width: 6, height: 6, borderRadius: '50%', background: netColor(v.network) }} />
-                    <span style={{ fontSize: 11, color: 'var(--text-3)' }}>{netTicker(v.network)} · {formatUsd(v.value_at_risk_usd)} at risk</span>
+                    <span style={{ fontSize: 11, color: 'var(--text-3)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                      {netTicker(v.network)} · {formatUsd(v.value_at_risk_usd)} staked
+                      {v.slashes_principal === false ? ' · no principal slashing' : ''}
+                    </span>
                   </div>
                 </div>
                 <span style={{ fontSize: 11, fontWeight: 600, padding: '3px 8px', borderRadius: 20, color: tierColor(v.tier), background: tierSoft(v.tier), justifySelf: 'start' }}>{tierLabel(v.tier)}</span>
@@ -144,7 +163,7 @@ export default function OverviewPage({ initialStats, initialRisk, initialEvents 
         {/* recent incidents */}
         <div style={{ background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 14, boxShadow: 'var(--shadow)', overflow: 'hidden' }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '16px 18px', borderBottom: '1px solid var(--border)' }}>
-            <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--text)' }}>Recent incidents</div>
+            <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--text)' }}>Recent events</div>
             <button onClick={() => navigate('/feed')} style={{ fontSize: 12.5, fontWeight: 600, color: 'var(--accent)', background: 'none', border: 'none', cursor: 'pointer' }}>
               Live feed →
             </button>
@@ -166,7 +185,7 @@ export default function OverviewPage({ initialStats, initialRisk, initialEvents 
                 </div>
               );
             })}
-            {recent.length === 0 && <div style={{ padding: 24, fontSize: 13, color: 'var(--text-3)' }}>No recent incidents.</div>}
+            {recent.length === 0 && <div style={{ padding: 24, fontSize: 13, color: 'var(--text-3)' }}>No recent events.</div>}
           </div>
         </div>
       </div>
