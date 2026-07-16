@@ -132,7 +132,7 @@ export default function FeedPage({ initialData }: FeedPageProps = {}) {
                   <div>
                     <span style={{ fontSize: 11, color: 'var(--text-3)' }}>At risk </span>
                     <span style={{ fontSize: 12.5, fontWeight: 600, color: 'var(--text)', fontVariantNumeric: 'tabular-nums' }}>
-                      {e.validator_stake != null && e.validator_stake_token ? `${formatStakeCompact(e.validator_stake)} ${e.validator_stake_token}` : '—'}
+                      {e.validator_stake != null && e.validator_stake_token ? `${formatStakeCompact(e.validator_stake)} ${e.validator_stake_token}` : '-'}
                     </span>
                   </div>
                   <div>
@@ -142,7 +142,7 @@ export default function FeedPage({ initialData }: FeedPageProps = {}) {
                   <div>
                     <span style={{ fontSize: 11, color: 'var(--text-3)' }}>Commission </span>
                     <span style={{ fontSize: 12.5, fontWeight: 600, color: 'var(--text)', fontVariantNumeric: 'tabular-nums' }}>
-                      {e.validator_commission_pct != null ? `${e.validator_commission_pct}%` : '—'}
+                      {e.validator_commission_pct != null ? `${e.validator_commission_pct}%` : '-'}
                     </span>
                   </div>
                 </div>

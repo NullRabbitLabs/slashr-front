@@ -10,7 +10,7 @@ export async function loader() {
     const res = await fetchRiskValidators({ limit: 200 });
     return { risk: res.data };
   } catch {
-    // Degrade gracefully — the page still renders and the client refetch retries.
+    // Degrade gracefully - the page still renders and the client refetch retries.
     return { risk: null };
   }
 }

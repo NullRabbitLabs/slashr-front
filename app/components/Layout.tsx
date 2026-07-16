@@ -161,12 +161,14 @@ export function Layout({ children, stats }: LayoutProps) {
                     animation: 'slashr-pulse 2.4s ease-in-out infinite',
                   }}
                 />
-                <span>
-                  <span style={{ color: 'var(--text)', fontWeight: 600, fontVariantNumeric: 'tabular-nums' }}>
-                    {totalEvents != null ? totalEvents.toLocaleString() : '—'}
-                  </span>{' '}
-                  events{netCount > 0 ? ` · ${netCount} networks` : ''}
-                </span>
+                {totalEvents != null && (
+                  <span>
+                    <span style={{ color: 'var(--text)', fontWeight: 600, fontVariantNumeric: 'tabular-nums' }}>
+                      {totalEvents.toLocaleString()}
+                    </span>{' '}
+                    events{netCount > 0 ? ` · ${netCount} networks` : ''}
+                  </span>
+                )}
               </div>
               <button
                 onClick={toggleTheme}

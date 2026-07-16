@@ -79,7 +79,7 @@ export default function ValidatorsPage({ initialRisk }: { initialRisk?: RiskList
                   <span style={{ fontSize: 12.5, color: 'var(--text-2)' }}>{netTicker(v.network)}</span>
                 </div>
                 <span style={{ textAlign: 'right', fontSize: 13.5, fontWeight: 600, color: 'var(--text)', fontVariantNumeric: 'tabular-nums' }}>{formatUsd(v.stake_usd)}</span>
-                <span style={{ textAlign: 'right', fontSize: 13, color: 'var(--text-2)', fontVariantNumeric: 'tabular-nums' }}>{v.uptime_30d != null ? `${v.uptime_30d.toFixed(1)}%` : '—'}</span>
+                <span style={{ textAlign: 'right', fontSize: 13, color: 'var(--text-2)', fontVariantNumeric: 'tabular-nums' }}>{v.uptime_30d != null ? `${v.uptime_30d.toFixed(1)}%` : '-'}</span>
                 <span style={{ textAlign: 'right', fontSize: 11, fontWeight: 600, justifySelf: 'end', padding: '3px 9px', borderRadius: 20, color: tierColor(v.tier), background: tierSoft(v.tier) }}>{v.risk_score} · {tierLabel(v.tier)}</span>
                 <div style={{ textAlign: 'right', display: 'flex', alignItems: 'center', gap: 6, justifyContent: 'flex-end' }}>
                   <span style={{ width: 7, height: 7, borderRadius: '50%', background: sm.color }} />
