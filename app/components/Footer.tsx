@@ -107,6 +107,14 @@ export function Footer({ onOpenWaitlist }: FooterProps) {
             Methodology
           </Link>
           <Link
+            to="/check"
+            style={linkStyle}
+            onMouseEnter={hoverIn}
+            onMouseLeave={hoverOut}
+          >
+            Check a wallet
+          </Link>
+          <Link
             to="/insights"
             style={linkStyle}
             onMouseEnter={hoverIn}

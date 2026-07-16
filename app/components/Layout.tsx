@@ -14,19 +14,21 @@ interface LayoutProps {
   stats: StatsResponse | null;
 }
 
+// Primary nav, ordered by the natural flow: home → the live feed → browse the
+// directory → the risk cuts (index + leaderboard) → reports.
 const NAV: Array<{ label: string; path: string }> = [
   { label: 'Overview', path: '/' },
-  { label: 'Risk', path: '/risk' },
   { label: 'Live Feed', path: '/feed' },
-  { label: 'Check a wallet', path: '/check' },
   { label: 'Validators', path: '/validators' },
+  { label: 'Risk', path: '/risk' },
+  { label: 'Rankings', path: '/rankings' },
   { label: 'Reports', path: '/reports' },
 ];
 
-// Secondary destinations, surfaced in the mobile menu (off the desktop nav).
+// Secondary destinations (tools + deeper cuts): mobile menu + footer.
 const SECONDARY: Array<{ label: string; path: string }> = [
+  { label: 'Check a wallet', path: '/check' },
   { label: 'Insights', path: '/insights' },
-  { label: 'Rankings', path: '/rankings' },
   { label: 'Alerts', path: '/alerts' },
   { label: 'Developers / API', path: '/developers' },
 ];
