@@ -716,7 +716,7 @@ export function ValidatorProfile({
         </div>
       )}
 
-      {/* Track record — the honest "no incidents recorded since <date>" claim.
+      {/* Track record: the honest "no incidents recorded since <date>" claim.
           Only asserted when the chain has a resolved monitoring anchor. */}
       {validator.track_record?.monitoring_since && (
         <div style={{ marginBottom: 24, paddingBottom: 24, borderBottom: '1px solid var(--color-border)' }}>

@@ -37,7 +37,7 @@ export function formatUtcTime(isoString: string): string {
   return `${mon} ${day} ${yr}, ${h}:${m} UTC`;
 }
 
-/** Compact UTC date, e.g. "Mar 23, 2026" — used for the track-record anchor. */
+/** Compact UTC date, e.g. "Mar 23, 2026", used for the track-record anchor. */
 export function formatDate(isoString: string): string {
   const d = new Date(isoString);
   return `${SHORT_MONTHS[d.getUTCMonth()]} ${d.getUTCDate()}, ${d.getUTCFullYear()}`;

@@ -9,7 +9,7 @@ export async function loader({ params }: Route.LoaderArgs) {
     const data = await fetchNetworkValidators(params.network, { limit: 100 });
     return { data };
   } catch {
-    // Degrade gracefully — unknown/gated network or API hiccup.
+    // Degrade gracefully: unknown/gated network or API hiccup.
     return { data: null };
   }
 }
@@ -26,7 +26,7 @@ export function meta({ params }: Route.MetaArgs) {
 const GRID = "minmax(200px,2fr) 150px minmax(160px,1fr)";
 
 function fmtStake(stake: number | null, token: string | null): string {
-  if (stake == null) return "—";
+  if (stake == null) return "n/a";
   return `${Math.round(stake).toLocaleString("en-US")}${token ? ` ${token}` : ""}`;
 }
 
@@ -45,7 +45,7 @@ export default function NetworkDirectoryRoute({ loaderData, params }: Route.Comp
           {titleCase(network)} validator directory
         </h1>
         <p style={{ fontSize: 14, color: "var(--text-2)", margin: 0 }}>
-          Every validator we track on {network} — clean or not.
+          Every validator we track on {network}, clean or not.
           {data?.monitoring_since && (
             <>
               {" "}A clean validator shows{" "}
@@ -111,7 +111,7 @@ export default function NetworkDirectoryRoute({ loaderData, params }: Route.Comp
           </div>
           {data.pagination.has_more && (
             <p style={{ fontSize: 12, color: "var(--text-3)", marginTop: 12, textAlign: "center" }}>
-              Showing the first {data.validators.length} by stake — more available.
+              Showing the first {data.validators.length} by stake. More are available.
             </p>
           )}
         </div>
