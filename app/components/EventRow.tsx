@@ -43,6 +43,9 @@ export function EventRow({
   const contentIndent = 0;
 
   const eventDescription = EVENT_TYPE_DESCRIPTIONS[event.event_type as keyof typeof EVENT_TYPE_DESCRIPTIONS] ?? null;
+  // Data-backed: the API carries the class-level mechanism reference on the
+  // event itself (migration 078), so there is one source of truth.
+  const mechanism = event.mechanism ?? null;
 
   return (
     <div
@@ -213,6 +216,30 @@ export function EventRow({
             }}
           >
             {eventDescription}
+          </div>
+        )}
+        {/* mechanism reference (equivocation classes → NRDAX). Class-level and
+            reference-only - see EVENT_TYPE_MECHANISM. */}
+        {showDescription && mechanism && (
+          <div
+            style={{
+              fontSize: 11.5,
+              color: 'var(--color-text-tertiary)',
+              fontFamily: "'Inter', sans-serif",
+              marginTop: 5,
+              lineHeight: 1.4,
+            }}
+          >
+            <span title={mechanism.note}>Mechanism: {mechanism.label}</span>{' '}
+            <a
+              href={mechanism.url}
+              target="_blank"
+              rel="noopener noreferrer"
+              title={mechanism.note}
+              style={{ color: 'var(--accent, #2f6bff)', fontWeight: 600, textDecoration: 'none' }}
+            >
+              NRDAX ↗
+            </a>
           </div>
         )}
       </div>

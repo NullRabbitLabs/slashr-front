@@ -73,7 +73,7 @@ export function Heatmap({ daily }: HeatmapProps) {
       current.setDate(current.getDate() + 1);
     }
 
-    // Month labels — first Monday of each month
+    // Month labels - first Monday of each month
     const monthLabels: { label: string; week: number }[] = [];
     let lastMonth = -1;
     for (const c of cells) {
@@ -92,7 +92,7 @@ export function Heatmap({ daily }: HeatmapProps) {
     return { grid: cells, months: monthLabels, max: maxCount, dataStartDate: firstDataDate };
   }, [daily]);
 
-  // Compute cell size — min 12px step so labels stay readable, scroll if needed
+  // Compute cell size - min 12px step so labels stay readable, scroll if needed
   const availW = containerW > 0 ? containerW - LABEL_W : 0;
   const rawStep = availW > 0 ? Math.floor(availW / WEEKS) : 0;
   const step = Math.max(12, rawStep);

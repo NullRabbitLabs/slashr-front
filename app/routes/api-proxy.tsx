@@ -3,7 +3,7 @@ import { apiBase, apiAuthHeaders } from "@/api/upstream.server";
 
 // Same-origin /api/* proxy for browser fetches. Forwards to the API upstream
 // (api.slashr.dev + Bearer when the secret is set; slashr.pages.dev/api
-// fallback otherwise — see upstream.server.ts). Forwards cookie/CSRF for the
+// fallback otherwise - see upstream.server.ts). Forwards cookie/CSRF for the
 // auth cluster and the real client IP for the API's rate-limiter.
 async function proxy(request: Request): Promise<Response> {
   const url = new URL(request.url);

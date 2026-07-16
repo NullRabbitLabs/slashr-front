@@ -257,7 +257,7 @@ export default function ReportDetailPage({
           <Stat label="incidents" value={data.cross_chain_summary.total_events} />
           <Stat label="severity score" value={data.cross_chain_summary.aggregate_severity_score} />
           {data.cross_chain_summary.aggregate_stake_at_risk && (
-            <Stat label="stake at risk" value={data.cross_chain_summary.aggregate_stake_at_risk} />
+            <Stat label="aggregate stake tracked" value={data.cross_chain_summary.aggregate_stake_at_risk} />
           )}
         </div>
       </div>

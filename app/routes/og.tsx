@@ -1,5 +1,5 @@
-// @ts-nocheck — cf-wasm types use workerd bindings; satori virtual DOM ≠ React.ReactNode
-// GET /og/:network/:address(.png) — dynamic 1200x630 OG image per validator.
+// @ts-nocheck - cf-wasm types use workerd bindings; satori virtual DOM ≠ React.ReactNode
+// GET /og/:network/:address(.png) - dynamic 1200x630 OG image per validator.
 // Ported from the Pages Function functions/og/[network]/[address].ts.
 // Fetches the PUBLIC prod API (zero secrets).
 // Force the workerd variant: it imports the .wasm as a static module (allowed

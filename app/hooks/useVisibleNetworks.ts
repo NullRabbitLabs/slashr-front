@@ -8,7 +8,7 @@ import { useNetworks } from './useNetworks';
  *
  * Background: NETWORK_ORDER is a static const that lists every chain we
  * have UI assets for (color, ticker, label). The API gates some chains
- * via `networks.is_public=false` (migration 052) — and unlocks them per
+ * via `networks.is_public=false` (migration 052) - and unlocks them per
  * request when `?preview=all` is on the URL. The dynamic /v1/networks
  * endpoint already respects both. This hook is the single bridge: any
  * UI that wants a stable rendering order must go through here so it

@@ -15,6 +15,7 @@ export default [
   // Dynamic per-validator OG image (satori + resvg WASM).
   route("og/:network/:address", "routes/og.tsx"),
   route("risk", "routes/risk.tsx"),
+  route("methodology", "routes/methodology.tsx"),
   route("feed", "routes/feed.tsx"),
   route("check", "routes/check.tsx"),
   route("validators", "routes/validators.tsx"),

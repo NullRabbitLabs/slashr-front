@@ -7,7 +7,7 @@ export async function copyToClipboard(text: string): Promise<boolean> {
       await navigator.clipboard.writeText(text);
       return true;
     } catch {
-      // Clipboard API failed (likely insecure context) — fall through
+      // Clipboard API failed (likely insecure context) - fall through
     }
   }
 

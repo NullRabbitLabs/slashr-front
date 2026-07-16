@@ -346,7 +346,7 @@ function SolanaChainSections({
           // Mirror of slasher-solana's classify_jito_version: any version
           // containing "jito" (case-insensitive) is Jito-Solana; anything
           // else is vanilla Agave. Vanilla validators forfeit MEV tip
-          // revenue that would otherwise flow to delegators — that's the
+          // revenue that would otherwise flow to delegators - that's the
           // chip's product story. We deliberately do not chip "Jito" as
           // green because being on Jito is the expected state, not an
           // achievement; we only call out the deviation.
@@ -729,7 +729,7 @@ function EthereumChainSections({
 }
 
 /// Convert planck (u128 wire-string) to a human-readable DOT figure.
-/// Uses BigInt to avoid Number's 53-bit precision ceiling — top
+/// Uses BigInt to avoid Number's 53-bit precision ceiling - top
 /// validators have stake well above 2^53 planck.
 function planckToDot(planckStr: string): string {
   try {
@@ -737,7 +737,7 @@ function planckToDot(planckStr: string): string {
     const denom = 10_000_000_000n; // 10^10
     const whole = planck / denom;
     const frac = planck % denom;
-    // Show 4 fractional digits — beyond that the value is noise for UI.
+    // Show 4 fractional digits - beyond that the value is noise for UI.
     const fracStr = (frac / 1_000_000n).toString().padStart(4, '0');
     return `${whole.toLocaleString()}.${fracStr}`;
   } catch {
@@ -753,7 +753,7 @@ function PolkadotChainSections({
   isMobile: boolean;
 }) {
   // Replaces the demoted dot_not_elected feed event. Render only when
-  // the worker has populated chain_data.is_elected — during the deploy
+  // the worker has populated chain_data.is_elected - during the deploy
   // gap window where worker is_elected hasn't reached prod yet,
   // undefined would render falsy and incorrectly show "No". Better to
   // render nothing than to show wrong data.

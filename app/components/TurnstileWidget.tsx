@@ -14,7 +14,7 @@ interface Props {
 
 /**
  * Cloudflare Turnstile widget. Lazy-loads the script once and renders a single
- * widget. Renders nothing (and never blocks) when no site key is configured —
+ * widget. Renders nothing (and never blocks) when no site key is configured -
  * useful for local dev where captcha is disabled.
  */
 export function TurnstileWidget({ onToken }: Props) {

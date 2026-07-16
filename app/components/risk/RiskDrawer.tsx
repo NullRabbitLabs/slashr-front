@@ -53,9 +53,20 @@ function RiskDrawer({ sel, onClose }: { sel: RiskValidatorItem; onClose: () => v
   const moniker = sel.moniker || sel.address;
 
   const stats: Array<{ label: string; value: string; color?: string }> = [
-    { label: 'Value at risk', value: formatUsd(sel.value_at_risk_usd) },
+    // value_at_risk_usd equals stake_usd server-side, so showing both was
+    // the same number twice - once under a loss-implying label. Show the
+    // stake once, plus the network's loss semantics.
     { label: 'Total staked', value: formatUsd(sel.stake_usd) },
-    { label: 'Uptime (30d)', value: sel.uptime_30d != null ? `${sel.uptime_30d.toFixed(2)}%` : '—' },
+    {
+      label: 'Loss semantics',
+      value:
+        sel.slashes_principal == null
+          ? '-'
+          : sel.slashes_principal
+            ? 'Principal slashable'
+            : 'No principal slashing',
+    },
+    { label: 'Uptime (30d)', value: sel.uptime_30d != null ? `${sel.uptime_30d.toFixed(2)}%` : '-' },
     {
       label: 'Slashing events',
       value: String(sel.slashing_count),
@@ -64,7 +75,7 @@ function RiskDrawer({ sel, onClose }: { sel: RiskValidatorItem; onClose: () => v
     { label: 'Incidents (30d)', value: String(sel.incident_count_30d) },
     {
       label: 'Commission',
-      value: sel.commission_pct != null ? `${sel.commission_pct}%` : '—',
+      value: sel.commission_pct != null ? `${sel.commission_pct}%` : '-',
       color: (sel.commission_pct ?? 0) >= 50 ? 'var(--crit)' : 'var(--text)',
     },
   ];

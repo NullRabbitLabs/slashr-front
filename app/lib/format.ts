@@ -5,7 +5,9 @@ export function truncateMiddle(text: string, maxLen: number): string {
 }
 
 export function formatStake(amount: number | string, token: string): string {
-  return `${Math.round(Number(amount)).toLocaleString()} ${token} at risk`;
+  // "staked", not "at risk": this is the validator's delegated stake, and on
+  // several networks the protocol cannot slash principal at all.
+  return `${Math.round(Number(amount)).toLocaleString()} ${token} staked`;
 }
 
 export function formatCompact(n: number | string): string {
@@ -38,17 +40,19 @@ export function stripCidr(ip: string): string {
 }
 
 export function formatUsd(amount: number | null | undefined): string {
-  if (amount == null) return '—';
+  if (amount == null) return '-';
   if (amount === 0) return '$0';
   if (amount < 0.01) return '<$0.01';
+  if (amount >= 1_000_000_000) return `$${strip(amount / 1_000_000_000, 2)}B`;
   if (amount >= 1_000_000) return `$${strip(amount / 1_000_000, 2)}M`;
   if (amount >= 10_000) return `$${strip(amount / 1_000, 1)}K`;
   return `$${amount.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 }
 
 export function formatUsdLarge(amount: number | null | undefined): string {
-  if (amount == null) return '—';
+  if (amount == null) return '-';
   if (amount === 0) return '$0.00';
+  if (amount >= 1_000_000_000) return `$${strip(amount / 1_000_000_000, 2)}B`;
   if (amount >= 1_000_000) return `$${strip(amount / 1_000_000, 2)}M`;
   if (amount >= 100_000) return `$${strip(amount / 1_000, 0)}K`;
   return `$${amount.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;

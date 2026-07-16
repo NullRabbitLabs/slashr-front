@@ -41,7 +41,9 @@ export function Layout({ children, stats }: LayoutProps) {
   const [menuOpen, setMenuOpen] = useState(false);
 
   const totalEvents = stats?.totals.all_time;
-  const netCount = networks.length || 8;
+  // Derived only, no hardcoded fallback. While /v1/networks is loading the
+  // header simply omits the count rather than guessing.
+  const netCount = networks.length;
 
   const isActive = (path: string) =>
     path === '/' ? pathname === '/' : pathname.startsWith(path);
@@ -159,12 +161,14 @@ export function Layout({ children, stats }: LayoutProps) {
                     animation: 'slashr-pulse 2.4s ease-in-out infinite',
                   }}
                 />
-                <span>
-                  <span style={{ color: 'var(--text)', fontWeight: 600, fontVariantNumeric: 'tabular-nums' }}>
-                    {totalEvents != null ? totalEvents.toLocaleString() : '—'}
-                  </span>{' '}
-                  events · {netCount} networks
-                </span>
+                {totalEvents != null && (
+                  <span>
+                    <span style={{ color: 'var(--text)', fontWeight: 600, fontVariantNumeric: 'tabular-nums' }}>
+                      {totalEvents.toLocaleString()}
+                    </span>{' '}
+                    events{netCount > 0 ? ` · ${netCount} networks` : ''}
+                  </span>
+                )}
               </div>
               <button
                 onClick={toggleTheme}

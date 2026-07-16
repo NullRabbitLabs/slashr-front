@@ -17,7 +17,7 @@ export function useLeaderboard(
   const [error, setError] = useState<string | null>(null);
   const [hasMore, setHasMore] = useState(initial ? initial.validators.length >= PER_PAGE : false);
   const pageRef = useRef(1);
-  // When seeded from a loader, page 1 is already present — skip the first fetch.
+  // When seeded from a loader, page 1 is already present - skip the first fetch.
   const skipFirst = useRef(initial != null);
 
   // Reset and fetch page 1 when filters change
