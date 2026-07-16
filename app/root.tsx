@@ -69,11 +69,18 @@ const JSON_LD = {
     {
       "@type": "SoftwareApplication",
       name: "Slashr",
+      description:
+        "Live validator risk intelligence — slashing, downtime, and operator behaviour across proof-of-stake networks. NullRabbit's observation layer.",
       applicationCategory: "SecurityApplication",
       operatingSystem: "Web",
       url: "https://slashr.dev",
       offers: { "@type": "Offer", price: "0", priceCurrency: "USD" },
       publisher: { "@id": "https://slashr.dev/#organization" },
+      producer: {
+        "@type": "Organization",
+        name: "NullRabbit",
+        url: "https://nullrabbit.ai",
+      },
     },
   ],
 };
