@@ -13,9 +13,13 @@ const e = env as unknown as {
   API_JWT_TOKEN?: string;
   CF_ACCESS_CLIENT_ID?: string;
   CF_ACCESS_CLIENT_SECRET?: string;
+  LOCAL_API_URL?: string;
 };
 
 export function apiBase(): string {
+  // Local-dev override: point SSR/proxy at a locally-run API (set in .dev.vars).
+  // Never set in prod, so this is inert there.
+  if (e.LOCAL_API_URL) return e.LOCAL_API_URL;
   return e.API_JWT_TOKEN ? "https://api.slashr.dev" : "https://slashr.pages.dev/api";
 }
 
