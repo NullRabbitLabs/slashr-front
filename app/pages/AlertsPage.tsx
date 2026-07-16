@@ -9,7 +9,7 @@ export default function AlertsPage() {
 
   usePageMeta({
     title: 'Get alerts · slashr',
-    description: 'Subscribe to email alerts for validator incidents across Solana, Ethereum, Cosmos, and Sui.',
+    description: 'Subscribe to email alerts for validator incidents across every network we track.',
   });
 
   return (

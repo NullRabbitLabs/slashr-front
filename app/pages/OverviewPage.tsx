@@ -28,7 +28,7 @@ export default function OverviewPage({ initialStats, initialRisk, initialEvents 
   usePageMeta({
     title: 'Slashr · Validator Risk Index & Live Slashing Feed',
     description:
-      'Track validator slashing, downtime, and commission risk across Solana, Ethereum, Sui, and Cosmos. The Slashr Risk Index scores every validator 0–100.',
+      'Track validator slashing, downtime, and commission risk across every network we track. The Slashr Risk Index scores every validator 0–100.',
   });
 
   const countByNet = new Map(stats?.networks.map(n => [n.slug, n.counts.last_30d]) ?? []);

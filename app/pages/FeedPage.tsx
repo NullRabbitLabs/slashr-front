@@ -34,7 +34,7 @@ const FEED_DATASET = {
   '@type': 'Dataset',
   name: 'Slashr validator incident feed',
   description:
-    'A live feed of validator slashing, downtime, and commission events across Solana, Ethereum, Sui, and Cosmos.',
+    'A live feed of validator slashing, downtime, and commission events across every network we track.',
   url: 'https://slashr.dev/feed',
   keywords: ['validator slashing incidents', 'validator downtime', 'slashing events', 'staking incidents'],
   isAccessibleForFree: true,
@@ -83,7 +83,7 @@ export default function FeedPage({ initialData }: FeedPageProps = {}) {
   usePageMeta({
     title: 'Live Validator Incident Feed · Slashing & Downtime',
     description:
-      'Every validator slashing, downtime, and commission event across Solana, Ethereum, Sui, and Cosmos, as it happens.',
+      'Every validator slashing, downtime, and commission event across every network we track, as it happens.',
   });
   useJsonLd(FEED_DATASET);
 

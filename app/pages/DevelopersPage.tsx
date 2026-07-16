@@ -89,7 +89,7 @@ export default function DevelopersPage() {
   usePageMeta({
     title: 'Developers \u2014 Slashr',
     description:
-      'Integrate validator incident data into your AI agent via MCP. Query delinquency, slashing, infrastructure scans, and delegation health across Solana, Ethereum, Sui, and Cosmos.',
+      'Integrate validator incident data into your AI agent via MCP. Query delinquency, slashing, infrastructure scans, and delegation health across every network we track.',
   });
 
   const mcpConfig = getMcpConfig('YOUR_API_KEY');
@@ -146,7 +146,7 @@ export default function DevelopersPage() {
             Model Context Protocol
           </a>
           . Query delinquency, slashing, scan results, and
-          delegation health across Solana, Ethereum, Sui, and Cosmos.
+          delegation health across every network we track.
         </p>
       </div>
 

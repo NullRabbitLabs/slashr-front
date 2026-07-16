@@ -91,7 +91,7 @@ export const FEED_META = {
   rssUrl: `${BASE}/feed/incidents.rss`,
   jsonUrl: `${BASE}/feed/incidents.json`,
   description:
-    'Live validator slashing, downtime, and commission incidents across Solana, Ethereum, Sui, and Cosmos.',
+    'Live validator slashing, downtime, and commission incidents across every network we track.',
 };
 
 function shortAddr(a: string): string {

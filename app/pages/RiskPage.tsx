@@ -14,7 +14,7 @@ const RISK_DATASET = {
   '@type': 'Dataset',
   name: 'Slashr Risk Index',
   description:
-    'A per-validator 0–100 risk score across Solana, Ethereum, Sui, and Cosmos, a transparent composite of downtime, slashing history, commission behavior, and infrastructure health.',
+    'A per-validator 0–100 risk score across every network we track, a transparent composite of downtime, slashing history, commission behavior, and infrastructure health.',
   url: 'https://slashr.dev/risk',
   keywords: ['validator risk', 'validator slashing', 'staking risk', 'validator integrity', 'delegation risk'],
   isAccessibleForFree: true,
@@ -75,7 +75,7 @@ export default function RiskPage({ initialRisk }: { initialRisk?: RiskListRespon
   usePageMeta({
     title: 'Slashr Risk Index · Validator Risk Scores (0–100)',
     description:
-      'An independent 0–100 risk score for every validator we track across Solana, Ethereum, Sui, and Cosmos, a composite of downtime, slashing history, commission, and infrastructure health.',
+      'An independent 0–100 risk score for every validator we track across every network we track, a composite of downtime, slashing history, commission, and infrastructure health.',
   });
   useJsonLd(RISK_DATASET);
 

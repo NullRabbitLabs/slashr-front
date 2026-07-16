@@ -19,7 +19,7 @@ export function meta() {
   return pageMeta({
     title: "Slashr Risk Index · Validator Risk Scores (0–100)",
     description:
-      "An independent 0–100 risk score for every validator we track across Solana, Ethereum, Sui, and Cosmos, a transparent composite of downtime, slashing history, commission, and infrastructure health.",
+      "An independent 0–100 risk score for every validator we track across every network we track, a transparent composite of downtime, slashing history, commission, and infrastructure health.",
     canonical: "https://slashr.dev/risk",
   });
 }

@@ -30,7 +30,7 @@ export function meta() {
   return pageMeta({
     title: "Validator Rankings · slashr",
     description:
-      "Worst offenders and most reliable validators across Solana, Ethereum, Sui, and Cosmos.",
+      "Worst offenders and most reliable validators across every network we track.",
     canonical: "https://slashr.dev/rankings",
   });
 }

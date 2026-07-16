@@ -37,7 +37,7 @@ export function isPeriod(s: string): s is LeaderboardPeriod {
 export default function LeaderboardPage({ initialLeaderboard }: { initialLeaderboard?: LeaderboardResponse | null } = {}) {
   usePageMeta({
     title: 'Validator Rankings \u00b7 slashr',
-    description: 'Worst offenders and most reliable validators across Solana, Ethereum, Sui, and Cosmos.',
+    description: 'Worst offenders and most reliable validators across every network we track.',
   });
   const isMobile = useIsMobile();
   const visibleNetworks = useVisibleNetworkOrder();

@@ -9,7 +9,7 @@ interface PageMeta {
 const BASE_URL = 'https://slashr.dev';
 const DEFAULT_TITLE = 'slashr \u2014 live validator incident feed';
 const DEFAULT_DESCRIPTION =
-  'Real-time slashing, delinquency, and missed vote tracking across Solana, Ethereum, Sui, and Cosmos.';
+  'Real-time slashing, delinquency, and missed vote tracking across every network we track.';
 
 function setMetaContent(selector: string, content: string) {
   const el = document.querySelector(selector);

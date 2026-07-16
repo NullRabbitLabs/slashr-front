@@ -24,7 +24,7 @@ export function meta() {
   return pageMeta({
     title: "Slashr · Validator Risk Index & Live Slashing Feed",
     description:
-      "Track validator slashing, downtime, and commission risk across Solana, Ethereum, Sui, and Cosmos. The Slashr Risk Index scores every validator 0–100.",
+      "Track validator slashing, downtime, and commission risk across every network we track. The Slashr Risk Index scores every validator 0–100.",
     canonical: "https://slashr.dev",
   });
 }

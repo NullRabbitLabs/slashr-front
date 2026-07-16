@@ -45,7 +45,7 @@ const JSON_LD = {
       url: "https://slashr.dev",
       logo: "https://slashr.dev/nullrabbit.png",
       description:
-        "Multi-chain validator risk intelligence: slashing, downtime, and commission monitoring across Solana, Ethereum, Sui, and Cosmos.",
+        "Multi-chain validator risk intelligence: slashing, downtime, and commission monitoring across every network we track.",
       parentOrganization: {
         "@type": "Organization",
         name: "NullRabbit",
@@ -63,7 +63,7 @@ const JSON_LD = {
       name: "Slashr",
       url: "https://slashr.dev",
       description:
-        "Live validator incident feed and the Slashr Risk Index across Solana, Ethereum, Sui, and Cosmos.",
+        "Live validator incident feed and the Slashr Risk Index across every network we track.",
       publisher: { "@id": "https://slashr.dev/#organization" },
     },
     {
@@ -107,7 +107,7 @@ export const meta: Route.MetaFunction = () =>
   pageMeta({
     title: "slashr · live validator incident feed",
     description:
-      "Real-time slashing, delinquency, and missed vote tracking across Solana, Ethereum, Sui, and Cosmos.",
+      "Real-time slashing, delinquency, and missed vote tracking across every network we track.",
     canonical: "https://slashr.dev",
   });
 
