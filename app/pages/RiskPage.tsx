@@ -86,7 +86,7 @@ export default function RiskPage({ initialRisk }: { initialRisk?: RiskListRespon
     return [
       { label: 'Validators tracked', value: String(validators.length), sub: 'with recent incidents', color: 'var(--text)' },
       { label: 'Critical-risk validators', value: String(crit), sub: 'score 75+ · judgement band, not calibrated', color: 'var(--crit)' },
-      { label: 'Delegated stake · listed validators', value: formatUsd(varTotal), sub: 'stake associated with listed validators — not expected loss', color: 'var(--text)' },
+      { label: 'Delegated stake · listed validators', value: formatUsd(varTotal), sub: 'stake associated with listed validators - not expected loss', color: 'var(--text)' },
       { label: 'Slashing events', value: String(slashTotal), sub: 'confirmed on-chain · 30d', color: 'var(--text)' },
     ];
   }, [validators]);
@@ -138,20 +138,6 @@ export default function RiskPage({ initialRisk }: { initialRisk?: RiskListRespon
 
   return (
     <div>
-      {/* correction notice — scores must not move silently (see /methodology) */}
-      <div
-        role="note"
-        style={{ display: 'flex', gap: 10, alignItems: 'flex-start', background: 'var(--surface-2)', border: '1px solid var(--border)', borderRadius: 12, padding: '11px 14px', marginBottom: 20, fontSize: 12.5, lineHeight: 1.5, color: 'var(--text-2)' }}
-      >
-        <span aria-hidden style={{ flex: 'none', marginTop: 1 }}>↻</span>
-        <span>
-          <strong style={{ color: 'var(--text)' }}>Scores corrected 15 Jul 2026.</strong> Configuration and lifecycle
-          events (MEV client toggles, commission changes, voluntary exits) no longer count as incidents. Scores are
-          computed live, so the correction is already reflected here.{' '}
-          <Link to="/methodology#corrections" style={{ color: 'var(--accent)', fontWeight: 600, textDecoration: 'none' }}>What changed →</Link>
-        </span>
-      </div>
-
       {/* hero + distribution */}
       <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', gap: 36, marginBottom: 28, flexWrap: 'wrap' }}>
         <div style={{ maxWidth: 600 }}>
@@ -162,7 +148,7 @@ export default function RiskPage({ initialRisk }: { initialRisk?: RiskListRespon
             Slashr Risk Index
           </h1>
           <p style={{ fontSize: 15, lineHeight: 1.6, color: 'var(--text-2)', margin: 0 }}>
-            A risk score for every validator we track — a transparent composite of incident frequency (including slashing
+            A risk score for every validator we track - a transparent composite of incident frequency (including slashing
             events), downtime, recovery speed, repeat-failure patterns, and infrastructure health. Scores describe observed
             behaviour; they are not predictions and do not measure expected loss.{' '}
             <Link to="/methodology" style={{ color: 'var(--accent)', fontWeight: 600, textDecoration: 'none' }}>How the score works →</Link>
@@ -311,10 +297,10 @@ export default function RiskPage({ initialRisk }: { initialRisk?: RiskListRespon
                   </span>
                 )}
               </div>
-              <span style={{ textAlign: 'right', fontSize: 13, color: 'var(--text-3)', fontVariantNumeric: 'tabular-nums' }}>{v.uptime_30d != null ? `${v.uptime_30d.toFixed(1)}%` : '—'}</span>
+              <span style={{ textAlign: 'right', fontSize: 13, color: 'var(--text-3)', fontVariantNumeric: 'tabular-nums' }}>{v.uptime_30d != null ? `${v.uptime_30d.toFixed(1)}%` : '-'}</span>
               <span style={{ textAlign: 'right', fontSize: 13, fontWeight: 600, color: v.slashing_count > 0 ? 'var(--crit)' : 'var(--text-2)', fontVariantNumeric: 'tabular-nums' }}>{v.slashing_count}</span>
               <span style={{ textAlign: 'right', fontSize: 13, color: (v.commission_pct ?? 0) >= 50 ? 'var(--crit)' : 'var(--text-2)', fontWeight: (v.commission_pct ?? 0) >= 50 ? 700 : 400, fontVariantNumeric: 'tabular-nums' }}>
-                {v.commission_pct != null ? `${v.commission_pct}%` : '—'}
+                {v.commission_pct != null ? `${v.commission_pct}%` : '-'}
               </span>
             </Link>
           ))}

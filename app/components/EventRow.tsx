@@ -219,7 +219,7 @@ export function EventRow({
           </div>
         )}
         {/* mechanism reference (equivocation classes → NRDAX). Class-level and
-            reference-only — see EVENT_TYPE_MECHANISM. */}
+            reference-only - see EVENT_TYPE_MECHANISM. */}
         {showDescription && mechanism && (
           <div
             style={{

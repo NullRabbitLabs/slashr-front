@@ -7,7 +7,7 @@ import type { NetworkInfo } from '@/types/api';
  *
  * Every statement on this page is derived from the actual implementation
  * (slasher-api grading.rs / risk.rs / queries/risk.rs). If the model
- * changes, this page must change with it — it is the falsifiability
+ * changes, this page must change with it - it is the falsifiability
  * contract for the score.
  */
 
@@ -15,7 +15,7 @@ const FACTORS: Array<{ name: string; weight: string; how: string }> = [
   {
     name: 'Incident frequency',
     weight: '30%',
-    how: 'Operational incidents over the last 90 days. Each incident adds 10 penalty points, capped at 100. Configuration and lifecycle events — MEV client toggles, commission changes, voluntary exits — are not incidents and are excluded from every component below.',
+    how: 'Operational incidents over the last 90 days. Each incident adds 10 penalty points, capped at 100. Configuration and lifecycle events - MEV client toggles, commission changes, voluntary exits - are not incidents and are excluded from every component below.',
   },
   {
     name: 'Total downtime',
@@ -30,7 +30,7 @@ const FACTORS: Array<{ name: string; weight: string; how: string }> = [
   {
     name: 'Infrastructure scan',
     weight: '15%',
-    how: 'From NullRabbit’s non-invasive scan of a validator’s publicly-exposed infrastructure: 15 points per known CVE (capped at 60) plus 5 per exposed service / open port (capped at 40). See “What the infrastructure scan reads” below — the scanner IPs are published and an opt-out is available.',
+    how: 'From NullRabbit’s non-invasive scan of a validator’s publicly-exposed infrastructure: 15 points per known CVE (capped at 60) plus 5 per exposed service / open port (capped at 40). See “What the infrastructure scan reads” below - the scanner IPs are published and an opt-out is available.',
   },
   {
     name: 'Repeat-failure pattern',
@@ -51,10 +51,10 @@ const MECHANISM_REFS: Array<{ group: string; classes: string; mechanism: React.R
     classes: 'Slashed / double-sign / duplicate-block events on Ethereum, Cosmos, Solana, Celestia, Polkadot',
     mechanism: (
       <>
-        A documented consensus fault. NullRabbit catalogues equivocation mechanisms in its research registry —{' '}
+        A documented consensus fault. NullRabbit catalogues equivocation mechanisms in its research registry -{' '}
         <a href="https://nrdax.com" style={{ color: 'var(--accent)', fontWeight: 600, textDecoration: 'none' }}>NRDAX</a>.
         A slashing event records that the fault occurred on-chain; it does <em>not</em> indicate the validator
-        exploited a technique — most are operator misconfiguration (for example two signing instances running at
+        exploited a technique - most are operator misconfiguration (for example two signing instances running at
         once).
       </>
     ),
@@ -67,7 +67,7 @@ const MECHANISM_REFS: Array<{ group: string; classes: string; mechanism: React.R
   {
     group: 'Configuration & lifecycle',
     classes: 'Commission changes, MEV-client (Jito) toggles, voluntary exits',
-    mechanism: <>Operator configuration or protocol-designed events — not incidents, and no mechanism applies.</>,
+    mechanism: <>Operator configuration or protocol-designed events - not incidents, and no mechanism applies.</>,
   },
 ];
 
@@ -76,7 +76,7 @@ const CORRECTIONS = [
     date: '15 July 2026',
     title: 'Incident classification corrected',
     body:
-      'The grade previously counted every published event as an incident, including configuration and lifecycle events — MEV client (Jito) opt-in/opt-out toggles, commission changes, and Ethereum voluntary exits. These are not operational incidents, and on some networks they were the large majority of events. From this date the incident, downtime, recovery, and repeat-failure components count operational incidents only. Scores are recomputed live from event data on every request, so this correction applied to every score at once; earlier scores are not restated as though they were always calculated this way.',
+      'The grade previously counted every published event as an incident, including configuration and lifecycle events - MEV client (Jito) opt-in/opt-out toggles, commission changes, and Ethereum voluntary exits. These are not operational incidents, and on some networks they were the large majority of events. From this date the incident, downtime, recovery, and repeat-failure components count operational incidents only. Scores are recomputed live from event data on every request, so this correction applied to every score at once; earlier scores are not restated as though they were always calculated this way.',
   },
 ];
 
@@ -100,7 +100,6 @@ const p: React.CSSProperties = {
   lineHeight: 1.65,
   color: 'var(--text-2)',
   margin: '0 0 12px',
-  maxWidth: 760,
 };
 
 const th: React.CSSProperties = {
@@ -142,7 +141,7 @@ export default function MethodologyPage({ initialNetworks }: { initialNetworks?:
   });
 
   return (
-    <div style={{ maxWidth: 860 }}>
+    <div>
       <div style={{ fontSize: 11, fontWeight: 600, letterSpacing: '.1em', textTransform: 'uppercase', color: 'var(--accent)', marginBottom: 11 }}>
         Methodology
       </div>
@@ -152,7 +151,7 @@ export default function MethodologyPage({ initialNetworks }: { initialNetworks?:
       <p style={p}>
         Every validator we track gets a score from 0 to 100, where higher means riskier. The score is fully
         mechanical: it is the inverse of an internal operational health grade, recomputed continuously from the
-        published events and infrastructure scans you can see on this site. Nothing on this page is aspirational —
+        published events and infrastructure scans you can see on this site. Nothing on this page is aspirational -
         it describes the code that runs today, and every score can be traced back to the inputs that produced it.
       </p>
 
@@ -184,7 +183,7 @@ export default function MethodologyPage({ initialNetworks }: { initialNetworks?:
       <p style={{ ...p, marginTop: 12 }}>
         Deliberately <strong style={{ color: 'var(--text)' }}>not</strong> inputs: commission level or commission
         changes (shown on the surface, but not scored), stake size, and token price. A slashing event contributes
-        to the incident count like any other published event — slashing history is not separately weighted.
+        to the incident count like any other published event - slashing history is not separately weighted.
       </p>
 
       <h2 style={h2}>Tiers</h2>
@@ -210,8 +209,8 @@ export default function MethodologyPage({ initialNetworks }: { initialNetworks?:
         <strong style={{ color: 'var(--text)' }}>These thresholds are operator-set judgement bands, not a
         derivation.</strong> They divide the 0–100 score into four ranks at round numbers we chose; they are not
         fitted to realized outcomes such as actual slashing or failure rates, because that calibration has not yet
-        been done. A tier is therefore a <em>ranking band</em> — where a validator sits relative to others on the
-        score — and not a prediction that a Critical validator will fail or that a Low one will not. We state this
+        been done. A tier is therefore a <em>ranking band</em> - where a validator sits relative to others on the
+        score - and not a prediction that a Critical validator will fail or that a Low one will not. We state this
         plainly rather than imply a derivation that does not exist. Calibrating the bands against outcome data is
         open work; when it is done, this section will say what they were fitted to.
       </p>
@@ -219,7 +218,7 @@ export default function MethodologyPage({ initialNetworks }: { initialNetworks?:
       <h2 style={h2}>What the stake figures mean</h2>
       <p style={p}>
         Where the surface shows a dollar figure next to a validator, it is that validator&rsquo;s total delegated
-        stake (native stake times a live token price) — stake <em>associated with</em> a validator currently
+        stake (native stake times a live token price) - stake <em>associated with</em> a validator currently
         meeting risk conditions. It is never a prediction of loss, an expected-loss estimate, or a claim that the
         protocol will confiscate anything.
       </p>
@@ -241,10 +240,10 @@ export default function MethodologyPage({ initialNetworks }: { initialNetworks?:
                 <td style={{ ...td, fontWeight: 600, color: 'var(--text)' }}>{n.name}</td>
                 <td style={td}>
                   {n.slashes_principal == null
-                    ? '—'
+                    ? '-'
                     : n.slashes_principal
-                      ? 'Slashing enforced — a protocol violation can destroy part of delegated principal.'
-                      : 'No principal slashing — protocol penalties affect rewards or eligibility only; delegated principal is not slashed.'}
+                      ? 'Slashing enforced - a protocol violation can destroy part of delegated principal.'
+                      : 'No principal slashing - protocol penalties affect rewards or eligibility only; delegated principal is not slashed.'}
                 </td>
               </tr>
             ))}
@@ -257,7 +256,7 @@ export default function MethodologyPage({ initialNetworks }: { initialNetworks?:
         </table>
       </div>
       <p style={{ ...p, marginTop: 12 }}>
-        For example: Solana does not enforce slashing today — SIMD-0204 deploys the Slashing Program for
+        For example: Solana does not enforce slashing today - SIMD-0204 deploys the Slashing Program for
         observability, giving the protocol a cryptographically-proven view of violations without modifying stakes
         or rewards. Sui&rsquo;s tallying rule withholds an epoch&rsquo;s staking rewards. On Ethereum, Cosmos Hub,
         Celestia and Polkadot, protocol violations destroy part of the bonded stake itself. Incidents on this site
@@ -269,7 +268,7 @@ export default function MethodologyPage({ initialNetworks }: { initialNetworks?:
       <p style={p}>
         The 15% infrastructure factor uses two numbers from NullRabbit’s security scanner: the count of known CVEs
         associated with the software your node exposes, and the number of open, publicly-reachable services (ports)
-        on the host your validator advertises. It reads only what is already public-facing — the scan is
+        on the host your validator advertises. It reads only what is already public-facing - the scan is
         non-invasive: it does not attempt to exploit anything, access data, brute-force credentials, run
         denial-of-service tests, or touch private networks.
       </p>
@@ -277,7 +276,7 @@ export default function MethodologyPage({ initialNetworks }: { initialNetworks?:
         You can verify this against your own host. NullRabbit publishes every IP it scans from and offers an
         opt-out, on its{' '}
         <a href="https://nullrabbit.ai/scanning" style={{ color: 'var(--accent)', fontWeight: 600, textDecoration: 'none' }}>scanner transparency page</a>.
-        A validator with no scannable public IP — most chains identify validators by an on-chain key, not a host —
+        A validator with no scannable public IP - most chains identify validators by an on-chain key, not a host -
         simply has no scan data, and the infrastructure factor contributes nothing (neither penalty nor credit) to
         its score.
       </p>
@@ -296,7 +295,7 @@ export default function MethodologyPage({ initialNetworks }: { initialNetworks?:
       <p style={p}>
         Slashr is NullRabbit’s live observation layer: it shows validator faults happening in the real world. Where
         an incident class corresponds to a documented fault mechanism, we point to the research registry that names
-        it. Where no mechanism applies — the majority of incidents, which are operational or configuration events —
+        it. Where no mechanism applies - the majority of incidents, which are operational or configuration events -
         we say so plainly.
       </p>
       <div style={{ ...card, maxWidth: 760 }}>
@@ -326,7 +325,7 @@ export default function MethodologyPage({ initialNetworks }: { initialNetworks?:
         The index describes observed operational behaviour. It is not a prediction of future incidents, not a
         probability of slashing, not an expected-loss model, not a security audit, and not delegation advice. A
         low score is not an endorsement. Networks and detectors in their soak window are excluded from the public
-        surface until they meet go-public criteria, so coverage differs by chain — a quiet chain may be quiet
+        surface until they meet go-public criteria, so coverage differs by chain - a quiet chain may be quiet
         because it is quiet, or because a detector class is not yet public.
       </p>
 
@@ -335,14 +334,14 @@ export default function MethodologyPage({ initialNetworks }: { initialNetworks?:
         <li>One global formula: weights and thresholds are currently identical across networks with very different penalty regimes.</li>
         <li>Tier thresholds are operator-set judgement bands, not yet calibrated against realized outcomes.</li>
         <li>The window is 90 days: older history does not affect the score.</li>
-        <li>Only published events count — gated chains and gated detector classes are excluded until their soak completes.</li>
+        <li>Only published events count - gated chains and gated detector classes are excluded until their soak completes.</li>
         <li>Infrastructure scan coverage is partial; validators without a scan are not penalised on that factor.</li>
         <li>Uptime percentage is not yet an input.</li>
       </ul>
 
       <h2 style={h2}>Disputes</h2>
       <p style={p}>
-        Operators will sometimes disagree with a score. There is no formal dispute process today — we would rather
+        Operators will sometimes disagree with a score. There is no formal dispute process today - we would rather
         say that plainly than imply one exists. What we do offer: every score is mechanically reproducible from
         the published events shown on the validator&rsquo;s profile, so a dispute is always a dispute about a
         specific event. If an underlying event is factually wrong (for example a detector fault), reach us on X

@@ -135,7 +135,7 @@ export function Footer({ onOpenWaitlist }: FooterProps) {
               alt=""
               style={{ height: 16, width: 16, objectFit: 'contain' }}
             />
-            <span style={{ fontSize: 12 }}>a NullRabbit product</span>
+            <span style={{ fontSize: 12 }}>By NullRabbit</span>
           </a>
           <a
             href="https://x.com/SlashrDev"

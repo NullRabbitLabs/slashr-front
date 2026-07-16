@@ -55,7 +55,7 @@ export interface NetworkInfo {
   poll_interval_secs: number;
   /**
    * Whether the chain's protocol currently enforces slashing of delegated
-   * principal. Optional: absent on API versions before migration 076 —
+   * principal. Optional: absent on API versions before migration 076 -
    * render loss-semantics copy only when the field is present.
    */
   slashes_principal?: boolean;
@@ -87,7 +87,7 @@ export interface EventListItem {
   scan?: InlineScanAnalysis | null;
   is_test_software?: boolean;
   /// Publish state from the worker pipeline (migration 047). Absent
-  /// for 'live' events (the steady-state default — API skips the
+  /// for 'live' events (the steady-state default - API skips the
   /// field for payload size). Present as 'timed_out' when the event
   /// went public without full validator-level enrichment.
   feed_state?: 'live' | 'timed_out';
@@ -516,7 +516,7 @@ export interface EthereumChainData {
 }
 
 export interface PolkadotValidatorPrefs {
-  /// Commission expressed in basis points (0..=10000) — converted from
+  /// Commission expressed in basis points (0..=10000) - converted from
   /// the chain's Perbill so the wire format matches Solana's commission
   /// field. Frontend formats as `bps / 100` to display percent.
   commission_bps: number;
@@ -525,7 +525,7 @@ export interface PolkadotValidatorPrefs {
 
 export interface PolkadotEraExposure {
   era_index: number;
-  /// Planck values are emitted as strings — JS Number can't represent
+  /// Planck values are emitted as strings - JS Number can't represent
   /// u128 losslessly. Frontend converts to DOT via BigInt division by
   /// 10^10.
   total_planck: string;
@@ -648,13 +648,13 @@ export interface RiskValidatorItem {
   stake_usd: number | null;
   /**
    * Delegated stake associated with this validator's risk conditions, in
-   * USD (equals stake_usd). NOT expected or guaranteed loss — when
+   * USD (equals stake_usd). NOT expected or guaranteed loss - when
    * slashes_principal is false the protocol cannot slash principal at all.
    */
   value_at_risk_usd: number | null;
   /**
    * Whether this validator's network enforces slashing of delegated
-   * principal. Optional: absent on API versions before migration 076 —
+   * principal. Optional: absent on API versions before migration 076 -
    * render loss-semantics copy only when the field is present.
    */
   slashes_principal?: boolean;
