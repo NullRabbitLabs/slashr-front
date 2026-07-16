@@ -40,6 +40,25 @@ export interface PaginationInfo {
   next_cursor: string | null;
 }
 
+/** A row in the network validator directory (GET /v1/networks/:network/validators). */
+export interface NetworkValidatorItem {
+  address: string;
+  moniker: string | null;
+  stake: number | null;
+  stake_token: string | null;
+  incident_count: number;
+  clean: boolean;
+  last_incident_at: string | null;
+}
+
+/** Response body for GET /v1/networks/:network/validators (not envelope-wrapped). */
+export interface NetworkDirectoryResponse {
+  network: string;
+  monitoring_since: string | null;
+  validators: NetworkValidatorItem[];
+  pagination: PaginationInfo;
+}
+
 export interface ErrorResponse {
   error: { code: string; message: string };
 }

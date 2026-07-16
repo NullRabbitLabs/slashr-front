@@ -11,6 +11,8 @@ import type {
   LeaderboardSort,
   PaginatedResponse,
   DataResponse,
+  NetworkDirectoryResponse,
+  NetworkValidatorItem,
   NetworkSlug,
 } from '@/types/api';
 
@@ -503,5 +505,37 @@ export async function getMockHealthCheck(_address: string): Promise<DataResponse
         },
       ],
     },
+  };
+}
+
+export function getMockNetworkValidators(network: string): NetworkDirectoryResponse {
+  const token = network === 'sui' ? 'SUI' : network === 'cosmos' ? 'ATOM' : 'SOL';
+  const mk = (
+    address: string,
+    moniker: string | null,
+    stake: number,
+    incident_count: number,
+    last_incident_at: string | null,
+  ): NetworkValidatorItem => ({
+    address,
+    moniker,
+    stake,
+    stake_token: token,
+    incident_count,
+    clean: incident_count === 0,
+    last_incident_at,
+  });
+  return {
+    network,
+    monitoring_since: '2026-03-23T21:30:05Z',
+    validators: [
+      mk('7Np41oeYqPefeNQEHSv1UDhYrehxin3NStELsSKCT4K2', 'Everstake', 1_204_318, 0, null),
+      mk('Fd7btgySsrjuo25CJCj7oE7VPMyezDhnx7pZkj2v69Nk', 'Figment', 987_402, 0, null),
+      mk('CcaHc2L43ZWjwCHART3oZoJvHLAe9hzT2DJNUpBzoTN1', 'Chorus One', 802_115, 0, null),
+      mk('BLKb4637cFxoBM4Nf5f8i2mFsq2sub9BQzYAmyD9Kg9d', 'Coinbase Cloud', 588_204, 0, null),
+      mk('DErwoLdEyzeBpM6dnkQFdvY3n8w2ru3aB1p2q3r4s5t6', 'P2P.org', 613_990, 1, '2026-05-02T11:20:00Z'),
+      mk('9SoLfLareVaLXm3jv1De8m0Nq2Rt4Yu6Ip8As0Df2Gh4', 'Solflare', 342_871, 3, '2026-06-14T09:05:00Z'),
+    ],
+    pagination: { limit: 100, has_more: false, next_cursor: null },
   };
 }

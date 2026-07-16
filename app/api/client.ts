@@ -15,6 +15,7 @@ import type {
   HealthCheckResponse,
   PaginatedResponse,
   DataResponse,
+  NetworkDirectoryResponse,
   NetworkSlug,
   SubscribeAlertResponse,
   VerifyAlertResponse,
@@ -22,7 +23,7 @@ import type {
   UnsubscribeConfirmResponse,
   ManageAlertsResponse,
 } from '@/types/api';
-import { getMockEvents, getMockNetworks, getMockStats, getMockValidator, getMockDelegations, getMockLeaderboard, getMockChainData, getMockHealthCheck } from './mock';
+import { getMockEvents, getMockNetworks, getMockStats, getMockValidator, getMockDelegations, getMockLeaderboard, getMockChainData, getMockHealthCheck, getMockNetworkValidators } from './mock';
 
 const USE_MOCK = import.meta.env.VITE_USE_MOCK === 'true';
 
@@ -137,6 +138,23 @@ export async function fetchValidator(
   const res = await apiFetch(`/v1/validators/${encodeURIComponent(network)}/${encodeURIComponent(address)}`);
   if (!res.ok) throw new Error(`API error: ${res.status}`);
   return res.json() as Promise<DataResponse<ValidatorProfile>>;
+}
+
+export async function fetchNetworkValidators(
+  network: string,
+  opts?: { limit?: number; cursor?: string },
+): Promise<NetworkDirectoryResponse> {
+  if (USE_MOCK) return getMockNetworkValidators(network);
+
+  const params = new URLSearchParams();
+  if (opts?.limit) params.set('limit', String(opts.limit));
+  if (opts?.cursor) params.set('cursor', opts.cursor);
+  const qs = params.toString();
+  const res = await apiFetch(
+    `/v1/networks/${encodeURIComponent(network)}/validators${qs ? `?${qs}` : ''}`,
+  );
+  if (!res.ok) throw new Error(`API error: ${res.status}`);
+  return res.json() as Promise<NetworkDirectoryResponse>;
 }
 
 export async function resolveShortCode(

@@ -18,6 +18,7 @@ export default [
   route("feed", "routes/feed.tsx"),
   route("check", "routes/check.tsx"),
   route("validators", "routes/validators.tsx"),
+  route("networks/:network/validators", "routes/networks.$network.validators.tsx"),
   route("validator/:network/:address", "routes/validator.tsx"),
   route("reports", "routes/reports.tsx"),
   route("reports/providers", "routes/reports.providers.tsx"),
