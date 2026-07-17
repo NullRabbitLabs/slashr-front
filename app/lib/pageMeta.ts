@@ -3,6 +3,7 @@ interface PageMetaOpts {
   description: string;
   canonical: string; // absolute URL
   image?: string;    // absolute URL; defaults to the static OG image
+  robots?: string;   // defaults to "index, follow"; use "noindex, follow" for auth pages
 }
 
 const DEFAULT_IMAGE = "https://slashr.dev/og-image.png";
@@ -10,11 +11,11 @@ const DEFAULT_IMAGE = "https://slashr.dev/og-image.png";
 // Returns the COMPLETE meta descriptor set for a page (title + description +
 // robots + og:* + twitter:* + canonical link). RR route meta replaces ancestor
 // meta, so every route's meta must return a full set - use this.
-export function pageMeta({ title, description, canonical, image = DEFAULT_IMAGE }: PageMetaOpts) {
+export function pageMeta({ title, description, canonical, image = DEFAULT_IMAGE, robots = "index, follow" }: PageMetaOpts) {
   return [
     { title },
     { name: "description", content: description },
-    { name: "robots", content: "index, follow" },
+    { name: "robots", content: robots },
     { property: "og:type", content: "website" },
     { property: "og:title", content: title },
     { property: "og:description", content: description },

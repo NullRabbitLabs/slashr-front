@@ -6,8 +6,7 @@ import { useStats } from '@/hooks/useStats';
 import { useEvents } from '@/hooks/useEvents';
 import { useRiskValidators } from '@/hooks/useRiskValidators';
 import { useRiskDrawer } from '@/components/risk/RiskDrawer';
-import { NETWORK_META, EVENT_TYPE_LABELS } from '@/lib/constants';
-import { useVisibleNetworkOrder } from '@/hooks/useVisibleNetworks';
+import { NETWORK_META, NETWORK_ORDER, EVENT_TYPE_LABELS } from '@/lib/constants';
 import { formatUsd } from '@/lib/format';
 import { relativeTime } from '@/lib/time';
 import { netColor, netTicker, tierColor, tierLabel, tierSoft } from '@/lib/risk';
@@ -32,7 +31,13 @@ export default function OverviewPage({ initialStats, initialRisk, initialEvents 
   });
 
   const countByNet = new Map(stats?.networks.map(n => [n.slug, n.counts.last_30d]) ?? []);
-  const visibleNets = useVisibleNetworkOrder();
+  // Network strip + "Networks monitored" count both derive from stats.networks
+  // (provided by the SSR loader), ordered canonically. Server-rendered and
+  // single-sourced, so the tiles and the count can never disagree.
+  const stripNets = useMemo(
+    () => NETWORK_ORDER.filter(slug => (stats?.networks ?? []).some(n => n.slug === slug)),
+    [stats],
+  );
   const topRisk = validators.slice(0, 8);
   const recent = events.slice(0, 8);
 
@@ -59,9 +64,9 @@ export default function OverviewPage({ initialStats, initialRisk, initialEvents 
       { label: 'Critical-risk validators', value: String(crit), color: crit > 0 ? 'var(--crit)' : 'var(--text)' },
       // Derived from the exact list rendered as tiles below, so the number and
       // the grid can never disagree.
-      { label: 'Networks monitored', value: visibleNets.length > 0 ? String(visibleNets.length) : '-', color: 'var(--text)' },
+      { label: 'Networks monitored', value: stripNets.length > 0 ? String(stripNets.length) : '-', color: 'var(--text)' },
     ];
-  }, [validators, stats, visibleNets]);
+  }, [validators, stats, stripNets]);
 
   const explore = [
     { title: 'Slashr Risk Index', desc: 'Every tracked validator ranked 0–100 by risk, with associated stake and incident trend.', cta: 'Open Risk index', path: '/risk' },
@@ -99,7 +104,7 @@ export default function OverviewPage({ initialStats, initialRisk, initialEvents 
 
       {/* network strip */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(96px, 1fr))', gap: 10, marginBottom: 18 }}>
-        {visibleNets.map(slug => (
+        {stripNets.map(slug => (
           <div key={slug} style={{ background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 11, padding: '13px 14px', boxShadow: 'var(--shadow)' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 7, marginBottom: 9 }}>
               <span style={{ width: 8, height: 8, borderRadius: '50%', background: NETWORK_META[slug].color }} />
