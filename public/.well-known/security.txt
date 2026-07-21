@@ -1,0 +1,16 @@
+# Slashr (NullRabbit) — security contact and disclosure policy (RFC 9116)
+# https://slashr.dev
+
+Contact: mailto:security@nullrabbit.ai
+Contact: https://nullrabbit.ai/security
+Expires: 2027-07-20T00:00:00.000Z
+Canonical: https://slashr.dev/.well-known/security.txt
+Policy: https://nullrabbit.ai/security
+Policy: https://nullrabbit.ai/research
+Preferred-Languages: en
+
+# Slashr is NullRabbit's validator risk-intelligence surface. For vulnerabilities
+# in the Slashr site or API, contact the address above. Disclosure doctrine: we
+# publish node-availability findings vendors declare out-of-scope; we do not
+# cold-pitch vendor security@ inboxes. Advisory corpus:
+# https://github.com/NullRabbitLabs/nullrabbit-advisories
