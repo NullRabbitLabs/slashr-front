@@ -71,6 +71,9 @@ export async function fetchEvents(params?: {
   search?: string;
   cursor?: string;
   limit?: number;
+  /** "Show all events" toggle: reveals soft-hidden noise types
+   * (feed_default_visible=false, api migration 087). Sends ?include=all. */
+  includeAll?: boolean;
 }): Promise<PaginatedResponse<EventListItem>> {
   if (USE_MOCK) return getMockEvents(params);
 
@@ -79,6 +82,7 @@ export async function fetchEvents(params?: {
   if (params?.search) qs.set('search', params.search);
   if (params?.cursor) qs.set('cursor', params.cursor);
   if (params?.limit) qs.set('limit', String(params.limit));
+  if (params?.includeAll) qs.set('include', 'all');
   const pv = previewParam();
   if (pv) qs.set('preview', pv);
   const query = qs.toString();

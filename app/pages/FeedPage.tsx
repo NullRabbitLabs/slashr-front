@@ -27,6 +27,7 @@ const EVENT_SHORT: Partial<Record<EventType, string>> = {
   dot_not_elected: 'Not elected',
   avax_uptime_below_threshold: 'Uptime below threshold',
   near_kicked_out: 'Ejected from set',
+  voluntary_exit: 'Voluntary exit',
 };
 
 const FEED_DATASET = {
@@ -74,9 +75,11 @@ interface FeedPageProps {
 
 export default function FeedPage({ initialData }: FeedPageProps = {}) {
   const [net, setNet] = useState('all');
+  const [showAll, setShowAll] = useState(false);
   const { events, loading, error, hasMore, loadMore, loadingMore } = useEvents({
     network: net === 'all' ? null : net,
     search: '',
+    showAll,
     initialData,
   });
 
@@ -97,8 +100,36 @@ export default function FeedPage({ initialData }: FeedPageProps = {}) {
         </p>
       </div>
 
-      <div style={{ marginBottom: 16 }}>
+      <div style={{ marginBottom: 16, display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, flexWrap: 'wrap' }}>
         <NetPills value={net} onChange={setNet} />
+        <button
+          onClick={() => setShowAll(v => !v)}
+          aria-pressed={showAll}
+          title="Reveal high-volume, low-signal events (exits, MEV opt in/out) that are hidden from the default feed"
+          style={{
+            display: 'inline-flex', alignItems: 'center', gap: 7,
+            padding: '6px 11px', borderRadius: 8,
+            background: showAll ? 'var(--surface-2)' : 'var(--surface)',
+            border: `1px solid ${showAll ? 'var(--text-3)' : 'var(--border)'}`,
+            color: showAll ? 'var(--text)' : 'var(--text-3)',
+            fontSize: 12, fontWeight: 600, cursor: 'pointer',
+            whiteSpace: 'nowrap', transition: 'all .15s ease',
+          }}
+        >
+          <span
+            aria-hidden="true"
+            style={{
+              width: 13, height: 13, borderRadius: 3, flex: 'none',
+              border: `1.5px solid ${showAll ? 'var(--text)' : 'var(--text-3)'}`,
+              background: showAll ? 'var(--text)' : 'transparent',
+              display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
+              color: 'var(--surface)', fontSize: 10, lineHeight: 1,
+            }}
+          >
+            {showAll ? '✓' : ''}
+          </span>
+          Show all events
+        </button>
       </div>
 
       {loading && <div style={{ padding: 30, color: 'var(--text-3)', fontSize: 13 }}>Loading feed…</div>}

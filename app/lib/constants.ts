@@ -37,6 +37,7 @@ export const EVENT_TYPE_LABELS: Record<EventType, string> = {
   tia_slashed_double_sign: 'Signed conflicting blocks at the same height on Celestia. Tombstoned.',
   avax_uptime_below_threshold: 'Uptime fell below the Avalanche reward threshold. Stakers earn nothing this period.',
   near_kicked_out:             'Kicked from the Near validator set. Delegators earn nothing this epoch.',
+  voluntary_exit:              'Left the validator set. Voluntary exit, not a penalty.',
 };
 
 export const EVENT_TYPE_DESCRIPTIONS: Record<EventType, string> = {
@@ -57,6 +58,7 @@ export const EVENT_TYPE_DESCRIPTIONS: Record<EventType, string> = {
   tia_slashed_double_sign: 'Validator signed two different blocks at the same height on Celestia. A slashing penalty is applied to all bonded stake: the validator\'s and all delegators\' proportionally. The validator is permanently tombstoned and cannot rejoin the active set.',
   avax_uptime_below_threshold: 'Validator\'s uptime over its current validation period dropped below the threshold (Avalanche convention is 80%). Validators below the threshold at the end of the period forfeit ALL rewards, for themselves and their delegators, even if their stake remains untouched. Recovers if uptime climbs back above the threshold before the period ends.',
   near_kicked_out:             'Validator was kicked out of the Near active set at the last epoch boundary. Reasons include not producing enough blocks, not validating enough chunks, unstaking, or losing the seat auction. Stake is not slashed, but the validator earns nothing for the kicked epoch and must be re-elected to resume rewards.',
+  voluntary_exit:              'Validator initiated a voluntary exit from the Ethereum validator set. This is a normal scheduled departure, not a penalty or misbehaviour. Once the exit is processed the validator stops proposing and attesting, and its stake plus accrued rewards become withdrawable. Worth knowing when a validator you stake with is winding down.',
 };
 
 // Mechanism references are now DATA-BACKED: the API carries a class-level

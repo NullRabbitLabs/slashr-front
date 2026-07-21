@@ -8,12 +8,14 @@ const STAGGER_DELAY = 120;
 interface UseEventsOptions {
   network: string | null;
   search: string;
+  /** "Show all events" toggle: include soft-hidden noise types (api ?include=all). */
+  showAll?: boolean;
   initialCursor?: string | null;
   onCursorChange?: (cursor: string | null) => void;
   initialData?: { events: EventListItem[]; hasMore: boolean; cursor: string | null } | null;
 }
 
-export function useEvents({ network, search, initialCursor, onCursorChange, initialData }: UseEventsOptions) {
+export function useEvents({ network, search, showAll = false, initialCursor, onCursorChange, initialData }: UseEventsOptions) {
   const [events, setEvents] = useState<EventListItem[]>(initialData?.events ?? []);
   const [visibleIds, setVisibleIds] = useState<Set<number>>(
     () => new Set(initialData?.events.map(e => e.id) ?? []),
@@ -74,6 +76,7 @@ export function useEvents({ network, search, initialCursor, onCursorChange, init
       search: search || undefined,
       cursor: initialCursor ?? undefined,
       limit: 25,
+      includeAll: showAll,
     })
       .then(res => {
         if (cancelled) return;
@@ -98,14 +101,14 @@ export function useEvents({ network, search, initialCursor, onCursorChange, init
 
     return () => { cancelled = true; };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [network, search, startStagger]);
+  }, [network, search, showAll, startStagger]);
 
   // Polling
   useEffect(() => {
     const poll = () => {
       if (document.visibilityState !== 'visible') return;
 
-      fetchEvents({ network: network ?? undefined, search: search || undefined, limit: 25 })
+      fetchEvents({ network: network ?? undefined, search: search || undefined, limit: 25, includeAll: showAll })
         .then(res => {
           const newItems = res.data.filter(e => !knownIdsRef.current.has(e.id));
           if (newItems.length > 0) {
@@ -137,7 +140,7 @@ export function useEvents({ network, search, initialCursor, onCursorChange, init
       clearInterval(intervalId);
       document.removeEventListener('visibilitychange', onVisibility);
     };
-  }, [network, search, startStagger]);
+  }, [network, search, showAll, startStagger]);
 
   // Cleanup stagger timer on unmount
   useEffect(() => {
@@ -150,7 +153,7 @@ export function useEvents({ network, search, initialCursor, onCursorChange, init
     if (!cursor || !hasMore || loadingMore) return;
     setLoadingMore(true);
 
-    fetchEvents({ network: network ?? undefined, search: search || undefined, cursor, limit: 25 })
+    fetchEvents({ network: network ?? undefined, search: search || undefined, cursor, limit: 25, includeAll: showAll })
       .then(res => {
         const appended = res.data;
         setEvents(prev => [...prev, ...appended]);
@@ -171,7 +174,7 @@ export function useEvents({ network, search, initialCursor, onCursorChange, init
       .finally(() => {
         setLoadingMore(false);
       });
-  }, [cursor, hasMore, loadingMore, network, search, startStagger]);
+  }, [cursor, hasMore, loadingMore, network, search, showAll, startStagger]);
 
   return { events, loading, loadingMore, error, hasMore, loadMore, visibleIds };
 }

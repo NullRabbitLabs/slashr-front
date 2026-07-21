@@ -19,7 +19,8 @@ export type EventType =
   | 'tia_slashed_downtime'
   | 'tia_slashed_double_sign'
   | 'avax_uptime_below_threshold'
-  | 'near_kicked_out';
+  | 'near_kicked_out'
+  | 'voluntary_exit';
 
 export type Severity = 'info' | 'warning' | 'critical';
 
