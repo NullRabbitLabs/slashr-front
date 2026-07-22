@@ -1089,7 +1089,7 @@ export function ValidatorProfile({
         </div>
       )}
       {network && address && validator && (
-        <BadgeEmbed network={network} address={address} trackRecord={validator.track_record} />
+        <BadgeEmbed network={network} address={address} trackRecord={validator.track_record ?? null} />
       )}
     </div>
   );

@@ -2,6 +2,7 @@ import { createContext, useCallback, useContext, useMemo, useState } from 'react
 import type { ReactNode } from 'react';
 import { useNavigate } from 'react-router';
 import type { RiskValidatorItem } from '@/types/api';
+import { BadgeEmbed } from '@/components/BadgeEmbed';
 import { formatUsd } from '@/lib/format';
 import {
   netColor,
@@ -256,6 +257,8 @@ function RiskDrawer({ sel, onClose }: { sel: RiskValidatorItem; onClose: () => v
               View incidents
             </button>
           </div>
+
+          <BadgeEmbed network={sel.network} address={sel.address} compact />
         </div>
       </div>
     </div>
