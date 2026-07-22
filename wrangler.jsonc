@@ -7,5 +7,21 @@
 	// Non-secret defaults. Secrets (API_ORIGIN, CF_ACCESS_CLIENT_ID,
 	// CF_ACCESS_CLIENT_SECRET, API_JWT_TOKEN) are set via
 	// `wrangler secret put` or a local `.dev.vars` file — never committed.
-	"vars": {}
+	"vars": {},
+	// NRP edge request-logging (see workers/app.ts + workers/edge-log.ts). Logs referer / user-agent /
+	// path / host for /llms.txt, /llms-full.txt, *.md and embedded /badge/ SVGs to the SAME Analytics
+	// Engine dataset as nrdax-web (`nr_edge_hits`) — NRP reads both host-agnostically. A config binding
+	// (re-applied on every build); requires Workers Paid. If absent the middleware is a silent no-op.
+	"analytics_engine_datasets": [
+		{ "binding": "NR_AE", "dataset": "nr_edge_hits" }
+	],
+	// The AI-answer corpus files (llms.txt / llms-full.txt) live in public/ as STATIC assets,
+	// which are served by the asset layer and bypass the Worker by default — so the edge logger
+	// never sees them. run_worker_first routes those exact paths through the Worker first (it logs,
+	// then serves the file via env.ASSETS.fetch — see workers/app.ts). Everything else keeps the
+	// fast asset-first path. Badges are SSR routes, already Worker-served, so they aren't listed.
+	"assets": {
+		"binding": "ASSETS",
+		"run_worker_first": ["/llms.txt", "/llms-full.txt"]
+	}
 }

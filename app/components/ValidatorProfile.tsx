@@ -9,6 +9,7 @@ import type {
 } from '@/types/api';
 import { getEventLabel } from '@/lib/constants';
 import { useIsMobile } from '@/hooks/useIsMobile';
+import { BadgeEmbed } from '@/components/BadgeEmbed';
 import { usePageMeta } from '@/hooks/usePageMeta';
 import { formatUtcTime, formatDate } from '@/lib/time';
 import { truncateMiddle, formatStakeCompact, formatCompact, formatUsd } from '@/lib/format';
@@ -1086,6 +1087,9 @@ export function ValidatorProfile({
             ) : null}
           </div>
         </div>
+      )}
+      {network && address && validator && (
+        <BadgeEmbed network={network} address={address} trackRecord={validator.track_record} />
       )}
     </div>
   );

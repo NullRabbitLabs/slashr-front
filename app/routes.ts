@@ -14,6 +14,9 @@ export default [
   route("sitemap.xml", "routes/sitemap.tsx"),
   // Dynamic per-validator OG image (satori + resvg WASM).
   route("og/:network/:address", "routes/og.tsx"),
+  // Embeddable SVG trust shields (SSR -> logged by the NRP edge observer).
+  route("badge/monitored.svg", "routes/badge.monitored.tsx"),
+  route("badge/:network/:address", "routes/badge.tsx"),
   route("risk", "routes/risk.tsx"),
   route("methodology", "routes/methodology.tsx"),
   route("feed", "routes/feed.tsx"),
