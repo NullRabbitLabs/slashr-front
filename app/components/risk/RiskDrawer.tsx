@@ -5,8 +5,10 @@ import type { RiskValidatorItem } from '@/types/api';
 import { BadgeEmbed } from '@/components/BadgeEmbed';
 import { formatUsd } from '@/lib/format';
 import {
+  hasSlashing,
   netColor,
   netTicker,
+  penaltyNoun,
   recommendationFor,
   signalsFor,
   summaryFor,
@@ -68,12 +70,24 @@ function RiskDrawer({ sel, onClose }: { sel: RiskValidatorItem; onClose: () => v
             : 'No principal slashing',
     },
     { label: 'Uptime (30d)', value: sel.uptime_30d != null ? `${sel.uptime_30d.toFixed(2)}%` : '-' },
-    {
-      label: 'Slashing events',
-      value: String(sel.slashing_count),
-      color: sel.slashing_count > 0 ? 'var(--crit)' : 'var(--text)',
-    },
-    { label: 'Incidents (30d)', value: String(sel.incident_count_30d) },
+    // Slashing chains show the slash count + total incidents (slashes are a subset).
+    // Non-slashing chains show their real penalty count instead — never "0 slashes".
+    ...(hasSlashing(sel.network)
+      ? [
+          {
+            label: 'Slashing events',
+            value: String(sel.slashing_count),
+            color: sel.slashing_count > 0 ? 'var(--crit)' : 'var(--text)',
+          },
+          { label: 'Incidents (30d)', value: String(sel.incident_count_30d) },
+        ]
+      : [
+          {
+            label: `${penaltyNoun(sel.network)} (30d)`,
+            value: String(sel.incident_count_30d),
+            color: sel.incident_count_30d > 0 ? 'var(--warn)' : 'var(--text)',
+          },
+        ]),
     {
       label: 'Commission',
       value: sel.commission_pct != null ? `${sel.commission_pct}%` : '-',

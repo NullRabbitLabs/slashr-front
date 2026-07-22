@@ -7,7 +7,7 @@ import { NetPills } from '@/components/risk/NetPills';
 import { usePageMeta } from '@/hooks/usePageMeta';
 import { useJsonLd } from '@/hooks/useJsonLd';
 import { formatUsd } from '@/lib/format';
-import { netColor, sparkPoints, tierColor, tierLabel, tierSoft } from '@/lib/risk';
+import { hasSlashing, netColor, sparkPoints, tierColor, tierLabel, tierSoft } from '@/lib/risk';
 
 const RISK_DATASET = {
   '@context': 'https://schema.org',
@@ -39,7 +39,7 @@ const COLUMNS: Array<{ key: SortKey; label: string; align: 'left' | 'right'; sor
   { key: 'inc30', label: 'Incidents 30d', align: 'left', sortable: true },
   { key: 'var', label: 'Stake (USD)', align: 'right', sortable: true },
   { key: 'uptime', label: 'Uptime 30d', align: 'right', sortable: false },
-  { key: 'slashing', label: 'Slashes', align: 'right', sortable: true },
+  { key: 'slashing', label: 'Penalties', align: 'right', sortable: true },
   { key: 'comm', label: 'Commission', align: 'right', sortable: false },
 ];
 
@@ -112,7 +112,7 @@ export default function RiskPage({ initialRisk }: { initialRisk?: RiskListRespon
       inc30: v => v.incident_count_30d,
       var: v => v.value_at_risk_usd ?? 0,
       uptime: v => v.uptime_30d ?? 0,
-      slashing: v => v.slashing_count,
+      slashing: v => (hasSlashing(v.network) ? v.slashing_count : v.incident_count_30d),
       comm: v => v.commission_pct ?? 0,
     };
     const kf = keyf[sortKey];
@@ -298,7 +298,7 @@ export default function RiskPage({ initialRisk }: { initialRisk?: RiskListRespon
                 )}
               </div>
               <span style={{ textAlign: 'right', fontSize: 13, color: 'var(--text-3)', fontVariantNumeric: 'tabular-nums' }}>{v.uptime_30d != null ? `${v.uptime_30d.toFixed(1)}%` : '-'}</span>
-              <span style={{ textAlign: 'right', fontSize: 13, fontWeight: 600, color: v.slashing_count > 0 ? 'var(--crit)' : 'var(--text-2)', fontVariantNumeric: 'tabular-nums' }}>{v.slashing_count}</span>
+              <span style={{ textAlign: 'right', fontSize: 13, fontWeight: 600, color: (hasSlashing(v.network) ? v.slashing_count : v.incident_count_30d) > 0 ? (hasSlashing(v.network) ? 'var(--crit)' : 'var(--warn)') : 'var(--text-2)', fontVariantNumeric: 'tabular-nums' }}>{hasSlashing(v.network) ? v.slashing_count : v.incident_count_30d}</span>
               <span style={{ textAlign: 'right', fontSize: 13, color: (v.commission_pct ?? 0) >= 50 ? 'var(--crit)' : 'var(--text-2)', fontWeight: (v.commission_pct ?? 0) >= 50 ? 700 : 400, fontVariantNumeric: 'tabular-nums' }}>
                 {v.commission_pct != null ? `${v.commission_pct}%` : '-'}
               </span>

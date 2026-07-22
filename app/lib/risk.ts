@@ -86,6 +86,27 @@ function signalColor(val: number): string {
   return 'var(--ok)';
 }
 
+// Only these chains slash delegated principal (migration 076). Everywhere else the
+// severe penalty is reward/eligibility loss, NOT slashing — so we never say "slashing"
+// for a Solana / Sui / Avalanche / Near validator.
+const SLASHING_CHAINS = new Set(['ethereum', 'cosmos', 'celestia', 'polkadot']);
+
+/** True if the validator's chain can slash delegated principal. */
+export function hasSlashing(network: string): boolean {
+  return SLASHING_CHAINS.has(network);
+}
+
+/** The chain's real severe-penalty noun, for per-validator labels. */
+export function penaltyNoun(network: string): string {
+  switch (network) {
+    case 'solana': return 'Downtime';
+    case 'sui': return 'Tallying penalty';
+    case 'avalanche': return 'Uptime forfeit';
+    case 'near': return 'Ejection';
+    default: return 'Slashing'; // ethereum, cosmos, celestia, polkadot
+  }
+}
+
 /**
  * Risk-signal breakdown for the detail drawer, derived from the fields the
  * API serves today. Vote participation is a placeholder until the 30-day
@@ -94,9 +115,14 @@ function signalColor(val: number): string {
 export function signalsFor(v: RiskValidatorItem): RiskSignal[] {
   const incidents = v.incident_count_30d;
   const comm = v.commission_pct ?? 0;
+  // On slashing chains this is the slash history; elsewhere it's the chain's real
+  // severe-penalty history (downtime/tallying/etc.), never mislabelled "slashing".
+  const severe = hasSlashing(v.network)
+    ? { label: 'Slashing history', val: clamp(v.slashing_count * 28 + v.risk_score / 4) }
+    : { label: `${penaltyNoun(v.network)} history`, val: clamp(incidents * 10 + v.risk_score / 4) };
   const raw = [
     { label: 'Downtime risk', val: clamp(incidents * 7 + v.risk_score / 3) },
-    { label: 'Slashing history', val: clamp(v.slashing_count * 28 + v.risk_score / 4) },
+    severe,
     { label: 'Commission behavior', val: comm >= 50 ? 96 : clamp(comm * 6 + v.risk_score / 4) },
     {
       label: 'Vote participation',
@@ -118,7 +144,7 @@ export function recommendationFor(risk: number): string {
     return 'Elevated risk from recent downtime or commission moves. Suitable only with active monitoring and alerting in place.';
   if (risk >= 40)
     return 'Moderate risk. Acceptable for diversified delegation with standard monitoring; watch commission and uptime trend.';
-  return 'Low risk. Strong uptime and clean slashing history. Suitable for institutional and treasury delegation.';
+  return 'Low risk. Strong uptime and a clean penalty record. Suitable for institutional and treasury delegation.';
 }
 
 export function summaryFor(risk: number): string {
