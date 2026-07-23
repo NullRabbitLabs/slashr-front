@@ -10,6 +10,7 @@ import type {
   ReportProviderItem,
   ReportResponse,
   RiskListResponse,
+  RiskSignalsResponse,
   ChainDataResponse,
   DelegationResponse,
   HealthCheckResponse,
@@ -125,6 +126,19 @@ export async function fetchRiskValidators(params?: {
   const res = await apiFetch(`/v1/risk/validators${query ? `?${query}` : ''}`);
   if (!res.ok) throw new Error(`API error: ${res.status}`);
   return res.json() as Promise<DataResponse<RiskListResponse>>;
+}
+
+export async function fetchValidatorRiskSignals(
+  network: string,
+  address: string,
+): Promise<DataResponse<RiskSignalsResponse>> {
+  const pv = previewParam();
+  const qs = pv ? `?preview=${pv}` : '';
+  const res = await apiFetch(
+    `/v1/risk/validators/${encodeURIComponent(network)}/${encodeURIComponent(address)}/signals${qs}`,
+  );
+  if (!res.ok) throw new Error(`API error: ${res.status}`);
+  return res.json() as Promise<DataResponse<RiskSignalsResponse>>;
 }
 
 export async function fetchInsights(): Promise<DataResponse<InsightsResponse>> {

@@ -3,6 +3,7 @@ import type { ReactNode } from 'react';
 import { useNavigate } from 'react-router';
 import type { RiskValidatorItem } from '@/types/api';
 import { BadgeEmbed } from '@/components/BadgeEmbed';
+import { useNrdaxTechniques } from '@/hooks/useNrdaxTechniques';
 import { formatUsd } from '@/lib/format';
 import {
   hasSlashing,
@@ -53,6 +54,9 @@ function RiskDrawer({ sel, onClose }: { sel: RiskValidatorItem; onClose: () => v
   const col = tierColor(sel.tier);
   const soft = tierSoft(sel.tier);
   const signals = signalsFor(sel);
+  // Additive NRDAX join: the technique(s) the validator's mapped signals point
+  // to. Empty (and the block omitted) when nothing maps or the join is down.
+  const nrdaxTechniques = useNrdaxTechniques(sel.network, sel.address);
   const moniker = sel.moniker || sel.address;
 
   const stats: Array<{ label: string; value: string; color?: string }> = [
@@ -250,6 +254,35 @@ function RiskDrawer({ sel, onClose }: { sel: RiskValidatorItem; onClose: () => v
               </div>
             ))}
           </div>
+
+          {/* NRDAX techniques — additive; only shown for mapped signals */}
+          {nrdaxTechniques.length > 0 && (
+            <div style={{ marginBottom: 22 }}>
+              <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--text)', marginBottom: 4 }}>
+                Attack techniques (NRDAX)
+              </div>
+              <div style={{ fontSize: 11.5, color: 'var(--text-3)', marginBottom: 12 }}>
+                What the mapped risk signals correspond to in the NullRabbit Decentralised Attack indeX.
+              </div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                {nrdaxTechniques.map(t => (
+                  <a
+                    key={t.id}
+                    href={t.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    style={{ display: 'block', textDecoration: 'none', border: '1px solid var(--border)', borderRadius: 9, padding: '10px 12px' }}
+                  >
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                      <span style={{ fontSize: 12.5, fontWeight: 700, color: 'var(--accent)' }}>{t.id}</span>
+                      <span style={{ marginLeft: 'auto', fontSize: 11, color: 'var(--text-3)' }}>NRDAX ↗</span>
+                    </div>
+                    <div style={{ fontSize: 11.5, color: 'var(--text-3)', marginTop: 4, lineHeight: 1.4 }}>{t.basis}</div>
+                  </a>
+                ))}
+              </div>
+            </div>
+          )}
 
           {/* recommendation */}
           <div style={{ border: `1px solid ${col}`, borderRadius: 12, padding: 15, background: soft }}>

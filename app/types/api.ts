@@ -707,3 +707,33 @@ export interface RiskListResponse {
   total: number;
   validators: RiskValidatorItem[];
 }
+
+// --- NRDAX join (Objective 2): technique links behind a validator's score ---
+
+/** A canonical NRDAX technique link with the recorded basis for the mapping. */
+export interface NrdaxTechniqueLink {
+  id: string;
+  url: string;
+  basis: string;
+}
+
+/** One real signal behind a validator's score. `techniques` is empty for
+ * unmapped signals — they render exactly as before, carrying no link. */
+export interface RiskSignalDetail {
+  signal: string;
+  kind: string;
+  code: string;
+  label: string;
+  count: number;
+  techniques: NrdaxTechniqueLink[];
+}
+
+export interface RiskSignalsResponse {
+  network: string;
+  address: string;
+  short_code: string;
+  generated_at: string;
+  nrdax_base: string;
+  signals: RiskSignalDetail[];
+  coverage: { mapped: number; unmapped: number };
+}
