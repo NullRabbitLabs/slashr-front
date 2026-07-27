@@ -9,6 +9,7 @@
     "deploy": "npm run build && wrangler deploy -c build/server/wrangler.json",
     "preview": "npm run build && vite preview",
     "typecheck": "wrangler types && react-router typegen && tsc -b",
+    "test": "node --test 'app/**/*.test.ts'",
     "cf-typegen": "wrangler types",
     "postinstall": "wrangler types"
   },
