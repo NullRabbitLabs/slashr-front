@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router';
 import type { RiskValidatorItem } from '@/types/api';
 import { BadgeEmbed } from '@/components/BadgeEmbed';
 import { useNrdaxTechniques } from '@/hooks/useNrdaxTechniques';
+import { nrdaxBadge } from '@/lib/nrdaxTechniques';
 import { formatUsd } from '@/lib/format';
 import {
   hasSlashing,
@@ -265,21 +266,21 @@ function RiskDrawer({ sel, onClose }: { sel: RiskValidatorItem; onClose: () => v
                 What the mapped risk signals correspond to in the NullRabbit Decentralised Attack indeX.
               </div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-                {nrdaxTechniques.map(t => (
-                  <a
-                    key={t.id}
-                    href={t.url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    style={{ display: 'block', textDecoration: 'none', border: '1px solid var(--border)', borderRadius: 9, padding: '10px 12px' }}
-                  >
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                      <span style={{ fontSize: 12.5, fontWeight: 700, color: 'var(--accent)' }}>{t.id}</span>
-                      <span style={{ marginLeft: 'auto', fontSize: 11, color: 'var(--text-3)' }}>NRDAX ↗</span>
-                    </div>
-                    <div style={{ fontSize: 11.5, color: 'var(--text-3)', marginTop: 4, lineHeight: 1.4 }}>{t.basis}</div>
-                  </a>
-                ))}
+                {nrdaxTechniques.map(t => {
+                  const badge = nrdaxBadge(t, 'risk-drawer');
+                  return (
+                    <a
+                      key={t.id}
+                      href={badge.href}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      style={{ display: 'block', textDecoration: 'none', border: '1px solid var(--border)', borderRadius: 9, padding: '10px 12px' }}
+                    >
+                      <img src={badge.badgeSrc} alt={badge.alt} height={20} loading="lazy" style={{ display: 'block' }} />
+                      <div style={{ fontSize: 11.5, color: 'var(--text-3)', marginTop: 6, lineHeight: 1.4 }}>{t.basis}</div>
+                    </a>
+                  );
+                })}
               </div>
             </div>
           )}

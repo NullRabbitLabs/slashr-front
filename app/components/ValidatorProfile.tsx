@@ -10,6 +10,7 @@ import type {
 import { getEventLabel } from '@/lib/constants';
 import { useIsMobile } from '@/hooks/useIsMobile';
 import { useNrdaxTechniques } from '@/hooks/useNrdaxTechniques';
+import { nrdaxBadge } from '@/lib/nrdaxTechniques';
 import { BadgeEmbed } from '@/components/BadgeEmbed';
 import { usePageMeta } from '@/hooks/usePageMeta';
 import { formatUtcTime, formatDate } from '@/lib/time';
@@ -1104,21 +1105,19 @@ export function ValidatorProfile({
             Attack indeX &mdash; a surface/precondition mapping, not a claim it was attacked.
           </p>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-            {nrdaxTechniques.map(t => (
-              <div key={t.id}>
-                <a
-                  href={t.url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  style={{ fontSize: 13, fontWeight: 600, color: 'var(--color-accent-dim)', textDecoration: 'none' }}
-                >
-                  {t.id} &#8599;
-                </a>
-                <div style={{ fontSize: 12, color: 'var(--color-text-dim)', marginTop: 3, lineHeight: 1.45 }}>
-                  {t.basis}
+            {nrdaxTechniques.map(t => {
+              const badge = nrdaxBadge(t, 'validator-profile');
+              return (
+                <div key={t.id}>
+                  <a href={badge.href} target="_blank" rel="noopener noreferrer" style={{ display: 'inline-block' }}>
+                    <img src={badge.badgeSrc} alt={badge.alt} height={20} loading="lazy" style={{ display: 'block' }} />
+                  </a>
+                  <div style={{ fontSize: 12, color: 'var(--color-text-dim)', marginTop: 5, lineHeight: 1.45 }}>
+                    {t.basis}
+                  </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
       )}
