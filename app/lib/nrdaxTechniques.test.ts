@@ -5,7 +5,7 @@
 
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { collectNrdaxTechniques } from './nrdaxTechniques.ts';
+import { collectNrdaxTechniques, nrdaxBadge } from './nrdaxTechniques.ts';
 
 const link = (id: string) => ({ id, url: `https://nrdax.com/techniques/${id}`, basis: `basis for ${id}` });
 const signal = (s: string, techniques: Array<ReturnType<typeof link>>) => ({
@@ -48,4 +48,31 @@ test('is null/undefined tolerant (degrades to empty)', () => {
   assert.deepEqual(collectNrdaxTechniques(undefined), []);
   // @ts-expect-error a signal missing its techniques array
   assert.deepEqual(collectNrdaxTechniques([{ signal: 'x' }]), []);
+});
+
+const UTM = 'utm_source=slashr.dev&utm_medium=validator-profile&utm_campaign=nrdax-join';
+
+test('nrdaxBadge builds the badge src + a utm-tagged technique link', () => {
+  const b = nrdaxBadge(
+    { id: 'NRDAX-T0001', url: 'https://nrdax.com/techniques/NRDAX-T0001', basis: 'x' },
+    'validator-profile',
+  );
+  assert.equal(b.href, `https://nrdax.com/techniques/NRDAX-T0001?${UTM}`);
+  assert.equal(b.badgeSrc, `https://nrdax.com/badge/NRDAX-T0001.svg?${UTM}`);
+  assert.equal(b.alt, 'NRDAX-T0001 in the NRDAX registry');
+});
+
+test('nrdaxBadge derives the badge origin from the technique url + varies medium', () => {
+  const b = nrdaxBadge(
+    { id: 'NRDAX-T0002', url: 'https://staging.nrdax.com/techniques/NRDAX-T0002', basis: 'x' },
+    'risk-drawer',
+  );
+  assert.ok(b.badgeSrc.startsWith('https://staging.nrdax.com/badge/NRDAX-T0002.svg?'));
+  assert.ok(b.badgeSrc.includes('utm_medium=risk-drawer'));
+  assert.ok(b.href.includes('utm_medium=risk-drawer'));
+});
+
+test('nrdaxBadge falls back to nrdax.com origin on a malformed url', () => {
+  const b = nrdaxBadge({ id: 'NRDAX-T0003', url: 'not a url', basis: 'x' }, 'x');
+  assert.ok(b.badgeSrc.startsWith('https://nrdax.com/badge/NRDAX-T0003.svg?'));
 });
