@@ -1,6 +1,8 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router';
-import type { NetworkDirectoryResponse, NetworkInfo } from '@/types/api';
+import type { NetworkDirectoryResponse, NetworkInfo, NetworkValidatorItem } from '@/types/api';
+import { fetchNetworkValidators } from '@/api/client';
+import { useDebouncedValue } from '@/hooks/useDebouncedValue';
 import { formatDate } from '@/lib/time';
 
 const GRID = 'minmax(200px,2fr) 150px minmax(160px,1fr)';
@@ -36,8 +38,35 @@ export default function DirectoryPage({
   const [sortCol, setSortCol] = useState<SortCol>('stake');
   const [sortDir, setSortDir] = useState<'asc' | 'desc'>('desc');
 
-  const validators = data?.validators ?? [];
+  const loaded = data?.validators ?? [];
   const monitoringSince = data?.monitoring_since ?? null;
+
+  // Server-side search: the loaded page is only the top of a stake-ranked,
+  // paginated directory, so a lower-ranked validator can't be found by filtering
+  // it client-side. When the user types (>=2 chars), query the server for the
+  // match across the whole directory. The client filter below still runs for
+  // instant feedback over the loaded page while the request is in flight.
+  const [serverResults, setServerResults] = useState<NetworkValidatorItem[] | null>(null);
+  const debouncedQuery = useDebouncedValue(query.trim(), 250);
+  useEffect(() => {
+    let cancelled = false;
+    if (debouncedQuery.length < 2) {
+      setServerResults(null);
+      return;
+    }
+    fetchNetworkValidators(network, { search: debouncedQuery, limit: 50 })
+      .then(res => {
+        if (!cancelled) setServerResults(res.validators ?? []);
+      })
+      .catch(() => {
+        if (!cancelled) setServerResults(null); // degrade to the loaded page
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [debouncedQuery, network]);
+
+  const validators = serverResults ?? loaded;
 
   const rows = useMemo(() => {
     const q = query.trim().toLowerCase();
@@ -151,7 +180,7 @@ export default function DirectoryPage({
 
           {rows.length === 0 && (
             <div style={{ padding: 40, textAlign: 'center', color: 'var(--text-3)', fontSize: 13 }}>
-              {validators.length === 0 ? 'No validators registered yet.' : 'No validators match your search.'}
+              {query.trim() ? 'No validators match your search.' : 'No validators registered yet.'}
             </div>
           )}
 

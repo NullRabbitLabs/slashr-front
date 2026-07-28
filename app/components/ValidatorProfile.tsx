@@ -9,6 +9,7 @@ import type {
 } from '@/types/api';
 import { getEventLabel } from '@/lib/constants';
 import { useIsMobile } from '@/hooks/useIsMobile';
+import { useNrdaxTechniques } from '@/hooks/useNrdaxTechniques';
 import { BadgeEmbed } from '@/components/BadgeEmbed';
 import { usePageMeta } from '@/hooks/usePageMeta';
 import { formatUtcTime, formatDate } from '@/lib/time';
@@ -169,6 +170,10 @@ export function ValidatorProfile({
 }: ValidatorProfileProps) {
   const { network, address } = useParams<{ network: string; address: string }>();
   const isMobile = useIsMobile();
+  // NRDAX join: the technique(s) this validator's mapped risk signals point to
+  // (e.g. an exposed RPC surface -> T0001/T0002). Best-effort — empty if nothing
+  // maps or the join is unavailable, so the page is unchanged in that case.
+  const nrdaxTechniques = useNrdaxTechniques(network ?? '', address ?? '');
 
   // Keybase avatar for Cosmos validators
   const [keybaseAvatar, setKeybaseAvatar] = useState<string | null>(null);
@@ -1088,6 +1093,36 @@ export function ValidatorProfile({
           </div>
         </div>
       )}
+
+      {/* NRDAX join: attack techniques this validator's exposed surface maps to.
+          Additive — only shown when a signal maps; degrades to nothing. */}
+      {nrdaxTechniques.length > 0 && (
+        <div style={{ marginTop: 32 }}>
+          <div style={sectionHeadingStyle}>attack techniques (NRDAX)</div>
+          <p style={{ fontSize: 12.5, color: 'var(--color-text-dim)', margin: '6px 0 14px', lineHeight: 1.5 }}>
+            What this validator&rsquo;s exposed surface corresponds to in the NullRabbit Decentralised
+            Attack indeX &mdash; a surface/precondition mapping, not a claim it was attacked.
+          </p>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+            {nrdaxTechniques.map(t => (
+              <div key={t.id}>
+                <a
+                  href={t.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  style={{ fontSize: 13, fontWeight: 600, color: 'var(--color-accent-dim)', textDecoration: 'none' }}
+                >
+                  {t.id} &#8599;
+                </a>
+                <div style={{ fontSize: 12, color: 'var(--color-text-dim)', marginTop: 3, lineHeight: 1.45 }}>
+                  {t.basis}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
       {network && address && validator && (
         <BadgeEmbed network={network} address={address} trackRecord={validator.track_record ?? null} />
       )}
