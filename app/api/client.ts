@@ -160,13 +160,14 @@ export async function fetchValidator(
 
 export async function fetchNetworkValidators(
   network: string,
-  opts?: { limit?: number; cursor?: string },
+  opts?: { limit?: number; cursor?: string; search?: string },
 ): Promise<NetworkDirectoryResponse> {
   if (USE_MOCK) return getMockNetworkValidators(network);
 
   const params = new URLSearchParams();
   if (opts?.limit) params.set('limit', String(opts.limit));
   if (opts?.cursor) params.set('cursor', opts.cursor);
+  if (opts?.search) params.set('search', opts.search);
   const qs = params.toString();
   const res = await apiFetch(
     `/v1/networks/${encodeURIComponent(network)}/validators${qs ? `?${qs}` : ''}`,
