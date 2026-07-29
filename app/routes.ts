@@ -19,6 +19,8 @@ export default [
   route("badge/:network/:address", "routes/badge.tsx"),
   route("risk", "routes/risk.tsx"),
   route("methodology", "routes/methodology.tsx"),
+  // Per-incident permalink: the destination for every breaking-lane post.
+  route("incident/:slug", "routes/incident.$slug.tsx"),
   route("feed", "routes/feed.tsx"),
   route("check", "routes/check.tsx"),
   route("validators", "routes/validators.tsx"),

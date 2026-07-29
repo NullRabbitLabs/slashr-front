@@ -23,6 +23,8 @@ import type {
   UnsubscribeInfoResponse,
   UnsubscribeConfirmResponse,
   ManageAlertsResponse,
+  IncidentDetail,
+  IncidentSummary,
 } from '@/types/api';
 import { getMockEvents, getMockNetworks, getMockStats, getMockValidator, getMockDelegations, getMockLeaderboard, getMockChainData, getMockHealthCheck, getMockNetworkValidators } from './mock';
 
@@ -145,6 +147,30 @@ export async function fetchInsights(): Promise<DataResponse<InsightsResponse>> {
   const res = await apiFetch(`/v1/insights`);
   if (!res.ok) throw new Error(`API error: ${res.status}`);
   return res.json() as Promise<DataResponse<InsightsResponse>>;
+}
+
+export async function fetchIncident(
+  slug: string,
+): Promise<DataResponse<IncidentDetail>> {
+  const preview = previewParam();
+  const res = await apiFetch(
+    `/v1/incidents/${encodeURIComponent(slug)}${preview ? `?preview=${preview}` : ""}`,
+  );
+  if (!res.ok) throw new Error(`API error: ${res.status}`);
+  return res.json() as Promise<DataResponse<IncidentDetail>>;
+}
+
+export async function fetchIncidents(params?: {
+  network?: string;
+}): Promise<DataResponse<IncidentSummary[]>> {
+  const qs = new URLSearchParams();
+  if (params?.network) qs.set('network', params.network);
+  const preview = previewParam();
+  if (preview) qs.set('preview', preview);
+  const q = qs.toString();
+  const res = await apiFetch(`/v1/incidents${q ? `?${q}` : ''}`);
+  if (!res.ok) throw new Error(`API error: ${res.status}`);
+  return res.json() as Promise<DataResponse<IncidentSummary[]>>;
 }
 
 export async function fetchValidator(
