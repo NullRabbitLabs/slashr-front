@@ -736,4 +736,42 @@ export interface RiskSignalsResponse {
   nrdax_base: string;
   signals: RiskSignalDetail[];
   coverage: { mapped: number; unmapped: number };
+
+/**
+ * A tracked incident: something the breaking lane announced, plus every update
+ * we posted while it ran. Written by the worker (slasher-insights::incidents),
+ * read-only here. This is what /incident/:slug renders and what the permalink
+ * in a breaking tweet points at.
+ */
+export interface IncidentSummary {
+  slug: string;
+  /** Detector kind, e.g. mass_down_burst. Never rendered raw - see incidentKindLabel. */
+  kind: string;
+  chain: string | null;
+  /** active | resolved | retracted */
+  status: IncidentStatus;
+  started_at: string;
+  resolved_at: string | null;
+  /** Observed recovery minus first event. null while still running. */
+  duration_seconds: number | null;
+  current_magnitude: number;
+  peak_magnitude: number;
+}
+
+export type IncidentStatus = 'active' | 'resolved' | 'retracted';
+
+export interface IncidentUpdate {
+  /** open | growth | status | resolve | retract */
+  kind: string;
+  text: string;
+  magnitude: number | null;
+  /** The tweet this update became, when it was posted publicly. */
+  tweet_id: string | null;
+  posted_at: string;
+}
+
+export interface IncidentDetail extends IncidentSummary {
+  /** The tweet that opened the thread. */
+  root_tweet_id: string | null;
+  updates: IncidentUpdate[];
 }
