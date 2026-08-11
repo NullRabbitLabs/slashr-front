@@ -16,6 +16,10 @@ export default [
   route("feed/slashing.rss", "routes/feed.slashing.rss.tsx"),
   route("feed/slashing.atom", "routes/feed.slashing.atom.tsx"),
   route("feed/slashing.json", "routes/feed.slashing.json.tsx"),
+  // One item per confirmed incident episode, not per validator (WS-C).
+  route("feed/stories.rss", "routes/feed.stories.rss.tsx"),
+  route("feed/stories.atom", "routes/feed.stories.atom.tsx"),
+  route("feed/stories.json", "routes/feed.stories.json.tsx"),
   route("sitemap.xml", "routes/sitemap.tsx"),
   // Dynamic per-validator OG image (satori + resvg WASM).
   route("og/:network/:address", "routes/og.tsx"),

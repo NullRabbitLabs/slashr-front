@@ -14,12 +14,18 @@ import {
   type FeedMeta,
 } from './feedIncidents';
 import { fetchFeedItems } from './feedIncidents.server';
+import { fetchStoryItems } from './feedStories.server';
+import { STORIES_FEED } from './feedStories';
 
 const CACHE = 'public, max-age=300, s-maxage=300';
 
 async function itemsOrEmpty(meta: FeedMeta, label: string): Promise<FeedItem[]> {
   try {
-    return await fetchFeedItems(new Date(), meta);
+    // The story feed reads episodes, not events, so it has its own source.
+    // Everything downstream of here is identical.
+    return meta === STORIES_FEED
+      ? await fetchStoryItems()
+      : await fetchFeedItems(new Date(), meta);
   } catch (err) {
     console.error(`${label}: fetch failed:`, String(err));
     return [];
