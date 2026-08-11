@@ -26,6 +26,7 @@ export default [
   route("methodology", "routes/methodology.tsx"),
   // The citable dataset: coverage manifest + monthly CSV partitions (WS-A).
   route("data", "routes/data.tsx"),
+  route("data/:month", "routes/data.$month.tsx"),
   // Per-incident permalink: the destination for every breaking-lane post.
   route("incident/:slug", "routes/incident.$slug.tsx"),
   route("feed", "routes/feed.tsx"),

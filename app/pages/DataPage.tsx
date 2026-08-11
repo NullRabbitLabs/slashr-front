@@ -44,6 +44,11 @@ export default function DataPage({ manifest }: Props) {
   }
 
   const total = manifest.networks.reduce((sum, n) => sum + n.event_count, 0);
+  // Every month any chain has data for, newest first. The release series is
+  // cross-chain, so it is the union rather than any one chain's list.
+  const allMonths = [
+    ...new Set(manifest.networks.flatMap((n) => n.months.map((m) => m.month))),
+  ].sort((a, b) => b.localeCompare(a));
 
   return (
     <main className="page">
@@ -91,6 +96,21 @@ export default function DataPage({ manifest }: Props) {
             </tbody>
           </table>
         </div>
+      </section>
+
+      <section>
+        <h2>Releases</h2>
+        <p>
+          Each month has a dated release: the headline figures for that window at a
+          permanent URL. A closed month is marked final and never changes.
+        </p>
+        <ul className="release-list">
+          {allMonths.map((m) => (
+            <li key={m}>
+              <a href={`/data/${m}`}>{m}</a>
+            </li>
+          ))}
+        </ul>
       </section>
 
       <section>

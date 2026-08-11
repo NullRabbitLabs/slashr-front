@@ -806,3 +806,32 @@ export interface ExportManifest {
   schema: string[];
   networks: ExportNetworkCoverage[];
 }
+
+/** One chain's figures in a dated release (WS-E). */
+export interface ChainRelease {
+  slug: string;
+  name: string;
+  monitoring_since: string | null;
+  events: number;
+  slashing_events: number;
+  validators: number;
+  loss_usd: number | null;
+}
+
+/** A dated release: the citable unit of the dataset series. */
+export interface Release {
+  month: string;
+  /** "final" once the month has closed, "provisional" while still accruing. */
+  status: string;
+  license: string;
+  cite_as: string;
+  coverage_note: string;
+  dataset_url: string;
+  totals: {
+    events: number;
+    slashing_events: number;
+    validators: number;
+    loss_usd: number;
+  };
+  chains: ChainRelease[];
+}
