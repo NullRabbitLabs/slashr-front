@@ -24,6 +24,9 @@ const STATIC_PAGES: { path: string; priority: string; changefreq: string }[] = [
   { path: "/insights", priority: "0.7", changefreq: "daily" },
   { path: "/reports", priority: "0.7", changefreq: "daily" },
   { path: "/reports/providers", priority: "0.6", changefreq: "daily" },
+  // The dataset is a linkable, citable artefact — it wants to be found.
+  { path: "/data", priority: "0.8", changefreq: "daily" },
+  { path: "/methodology", priority: "0.6", changefreq: "monthly" },
   { path: "/check", priority: "0.5", changefreq: "monthly" },
   { path: "/developers", priority: "0.5", changefreq: "monthly" },
 ];

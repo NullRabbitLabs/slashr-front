@@ -10,7 +10,16 @@ export default [
   route("api/*", "routes/api-proxy.tsx"),
   // Machine-readable feeds + sitemap (ported from Pages Functions).
   route("feed/incidents.rss", "routes/feed.incidents.rss.tsx"),
+  route("feed/incidents.atom", "routes/feed.incidents.atom.tsx"),
   route("feed/incidents.json", "routes/feed.incidents.json.tsx"),
+  // The curated feed: real penalties only, low volume by design (WS-D).
+  route("feed/slashing.rss", "routes/feed.slashing.rss.tsx"),
+  route("feed/slashing.atom", "routes/feed.slashing.atom.tsx"),
+  route("feed/slashing.json", "routes/feed.slashing.json.tsx"),
+  // One item per confirmed incident episode, not per validator (WS-C).
+  route("feed/stories.rss", "routes/feed.stories.rss.tsx"),
+  route("feed/stories.atom", "routes/feed.stories.atom.tsx"),
+  route("feed/stories.json", "routes/feed.stories.json.tsx"),
   route("sitemap.xml", "routes/sitemap.tsx"),
   // Dynamic per-validator OG image (satori + resvg WASM).
   route("og/:network/:address", "routes/og.tsx"),
@@ -19,6 +28,9 @@ export default [
   route("badge/:network/:address", "routes/badge.tsx"),
   route("risk", "routes/risk.tsx"),
   route("methodology", "routes/methodology.tsx"),
+  // The citable dataset: coverage manifest + monthly CSV partitions (WS-A).
+  route("data", "routes/data.tsx"),
+  route("data/:month", "routes/data.$month.tsx"),
   // Per-incident permalink: the destination for every breaking-lane post.
   route("incident/:slug", "routes/incident.$slug.tsx"),
   route("feed", "routes/feed.tsx"),

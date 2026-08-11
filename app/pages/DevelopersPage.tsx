@@ -396,6 +396,69 @@ curl -X POST https://mcp.slashr.dev/mcp \\
         </a>
       </div>
 
+      {/* Feeds + dataset. No key needed: these are the surfaces meant to be
+          read by a person or a feed reader, not an integration. */}
+      <div style={{ marginBottom: 48 }}>
+        <h2 style={{ ...heading, fontSize: isMobile ? 18 : 20, marginBottom: 12 }}>
+          Feeds and dataset
+        </h2>
+        <p
+          style={{
+            fontFamily: "'Inter', sans-serif",
+            fontSize: 14,
+            color: 'var(--color-text-secondary)',
+            lineHeight: 1.6,
+            margin: '0 0 16px',
+            maxWidth: 640,
+          }}
+        >
+          No key required. Each feed is available as RSS, Atom and JSON Feed — swap the
+          extension. Everything here is free to quote and excerpt with attribution.
+        </p>
+        <ul
+          style={{
+            fontFamily: "'Inter', sans-serif",
+            fontSize: 14,
+            color: 'var(--color-text-secondary)',
+            lineHeight: 1.8,
+            margin: 0,
+            paddingLeft: 20,
+            maxWidth: 640,
+          }}
+        >
+          <li>
+            <code>/feed/slashing.rss</code> — real penalties only, on the chains whose
+            protocol reduces stake. Roughly 15 items a week. Start here.
+          </li>
+          <li>
+            <code>/feed/stories.rss</code> — one item per confirmed multi-validator
+            incident rather than one per validator. Very quiet.
+          </li>
+          <li>
+            <code>/feed/incidents.rss</code> — everything, roughly 175 items a week and
+            mostly routine downtime.
+          </li>
+          <li>
+            <a href="/data">/data</a> — the full event history as monthly CSV partitions,
+            with per-chain coverage bounds and a dated release for each month. CC BY 4.0.
+          </li>
+        </ul>
+        <p
+          style={{
+            fontFamily: "'Inter', sans-serif",
+            fontSize: 13,
+            color: 'var(--color-text-dim)',
+            lineHeight: 1.6,
+            margin: '16px 0 0',
+            maxWidth: 640,
+          }}
+        >
+          Building your own view? <code>/v1/events</code> takes{' '}
+          <code>severity</code>, <code>category</code>, <code>class</code> and{' '}
+          <code>slashing</code> filters, which is how the curated feed above is defined.
+        </p>
+      </div>
+
       {/* Footer */}
       <div
         style={{
