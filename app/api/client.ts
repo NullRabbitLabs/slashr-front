@@ -25,6 +25,7 @@ import type {
   ManageAlertsResponse,
   IncidentDetail,
   IncidentSummary,
+  ExportManifest,
 } from '@/types/api';
 import { getMockEvents, getMockNetworks, getMockStats, getMockValidator, getMockDelegations, getMockLeaderboard, getMockChainData, getMockHealthCheck, getMockNetworkValidators } from './mock';
 
@@ -414,4 +415,12 @@ export async function fetchAlertSubscriptions(
     throw new Error(message);
   }
   return res.json() as Promise<DataResponse<ManageAlertsResponse>>;
+}
+
+export async function fetchExportManifest(): Promise<DataResponse<ExportManifest>> {
+  const pv = previewParam();
+  const suffix = pv ? `?preview=${pv}` : '';
+  const res = await apiFetch(`/v1/exports${suffix}`);
+  if (!res.ok) throw new Error(`API error: ${res.status}`);
+  return res.json() as Promise<DataResponse<ExportManifest>>;
 }

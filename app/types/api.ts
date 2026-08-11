@@ -775,3 +775,34 @@ export interface IncidentDetail extends IncidentSummary {
   root_tweet_id: string | null;
   updates: IncidentUpdate[];
 }
+
+/** One month's partition of the citable dataset (WS-A). */
+export interface ExportMonth {
+  month: string;
+  event_count: number;
+  csv_url: string;
+}
+
+/** Per-chain coverage in the export manifest. */
+export interface ExportNetworkCoverage {
+  slug: string;
+  name: string;
+  /**
+   * When comprehensive monitoring began for this chain (migration 077).
+   * Null means no anchor is established, and every count for the chain reads
+   * as "events we observed", never "all events".
+   */
+  monitoring_since: string | null;
+  first_event_at: string | null;
+  last_event_at: string | null;
+  event_count: number;
+  months: ExportMonth[];
+}
+
+export interface ExportManifest {
+  license: string;
+  cite_as: string;
+  coverage_note: string;
+  schema: string[];
+  networks: ExportNetworkCoverage[];
+}
