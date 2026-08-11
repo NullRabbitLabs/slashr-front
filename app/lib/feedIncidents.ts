@@ -1,9 +1,9 @@
 // Shared logic for the machine-readable incident feeds (RSS + JSON Feed),
 // ported from the old Cloudflare Pages Function functions/feed/_incidents.ts.
-// Event codes are NEVER shown raw (repo rule). Fetches the PUBLIC prod API
-// (zero secrets); for the prod flip, point UPSTREAM at api.slashr.dev + secrets.
-
-import { apiBase, apiAuthHeaders } from '@/api/upstream.server';
+// Event codes are NEVER shown raw (repo rule).
+//
+// This module is PURE and has no aliased imports, so `node --test` can load it
+// without a bundler. The fetch lives in feedIncidents.server.ts.
 
 const BASE = 'https://slashr.dev';
 
@@ -58,7 +58,33 @@ const EVENT_SHORT: Record<string, string> = {
   near_kicked_out: 'Ejected from set',
 };
 
-interface ApiEvent {
+/// How far back a feed request reaches. The feed used to be "the last 50 events"
+/// with no time floor; at ~24 default-visible events/day that covered barely two
+/// days, so anyone polling daily or weekly saw an arbitrary slice and silently
+/// missed the rest. A time floor is what makes the feed safe to read on a
+/// human's schedule rather than a poller's.
+export const FEED_WINDOW_DAYS = 7;
+
+/// Ceiling on rows per request. Matches the API's own `limit` cap.
+export const FEED_MAX_ITEMS = 200;
+
+/// Reuse terms, stated in the feed itself. A curator deciding whether they may
+/// excerpt us should not have to go looking for the answer.
+export const FEED_RIGHTS =
+  'Free to quote and excerpt with attribution and a link to slashr.dev.';
+
+export interface FeedWindow {
+  from: string;
+  limit: number;
+}
+
+/// Pure: the window a feed request should ask the API for.
+export function feedWindow(now: Date): FeedWindow {
+  const from = new Date(now.getTime() - FEED_WINDOW_DAYS * 86_400_000);
+  return { from: from.toISOString(), limit: FEED_MAX_ITEMS };
+}
+
+export interface ApiEvent {
   id: number;
   network: string;
   validator_address: string;
@@ -108,10 +134,15 @@ function withThousands(n: number): string {
 
 function describe(e: ApiEvent): string {
   let d = EVENT_LABELS[e.event_type] ?? titleCase(e.event_type);
-  if (e.penalty_amount != null && e.penalty_token) {
+  // Zero is not a measurement. Most Cosmos-family jailings carry no measurable
+  // loss, and the live feed rendered those as "~$0 estimated loss", which reads
+  // as a broken number rather than an absent one. Say nothing instead.
+  if (e.penalty_amount != null && e.penalty_amount > 0 && e.penalty_token) {
     d += ` Lost ${e.penalty_amount} ${e.penalty_token}.`;
   }
-  if (e.estimated_loss_usd != null) {
+  // Guard on the ROUNDED figure, not the raw one: a 40-cent loss is > 0 but
+  // still prints as "~$0", which was the original complaint.
+  if (e.estimated_loss_usd != null && Math.round(e.estimated_loss_usd) >= 1) {
     d += ` ~$${withThousands(e.estimated_loss_usd)} estimated loss.`;
   }
   d += e.resolved_at ? ' (Resolved.)' : ' (Ongoing.)';
@@ -127,7 +158,12 @@ export function mapEvents(events: ApiEvent[]): FeedItem[] {
     return {
       id: `slashr-event-${e.id}`,
       title: `${name} · ${networkName} · ${short}`,
-      url: `${BASE}/validator/${encodeURIComponent(e.network)}/${encodeURIComponent(e.validator_address)}`,
+      // Anchored at the event, so a reader arriving from the feed lands on the
+      // thing the item is about rather than the top of a validator page.
+      // (An /incident/:slug permalink would be better still, but incidents key
+      // on a burst, not on individual penalty_events, so there is no mapping to
+      // follow yet. See the WS-C note in plans/BLOCKTHREAT-FEEDS-PLAN.md.)
+      url: `${BASE}/validator/${encodeURIComponent(e.network)}/${encodeURIComponent(e.validator_address)}#event-${e.id}`,
       network: e.network,
       networkName,
       severity: e.severity,
@@ -136,15 +172,6 @@ export function mapEvents(events: ApiEvent[]): FeedItem[] {
       startedAt: e.started_at,
     };
   });
-}
-
-export async function fetchFeedItems(limit = 50): Promise<FeedItem[]> {
-  const res = await fetch(`${apiBase()}/v1/events?limit=${limit}`, {
-    headers: { ...apiAuthHeaders(), Accept: 'application/json' },
-  });
-  if (!res.ok) throw new Error(`events fetch failed: ${res.status}`);
-  const json = (await res.json()) as { data: ApiEvent[] };
-  return mapEvents(json.data);
 }
 
 export function escapeXml(s: string): string {
@@ -161,8 +188,16 @@ function rfc822(iso: string): string {
   return isNaN(d.getTime()) ? '' : d.toUTCString();
 }
 
-// Pure: render an RSS 2.0 document from feed items. `nowUtc` = channel build date.
+// Pure: render an RSS 2.0 document from feed items. `nowUtc` is the fallback
+// build date, used only when the feed is empty: dating the channel by the newest
+// item instead of the request clock is what lets a conditional GET short-circuit
+// (otherwise every poll looks like a change).
 export function renderRss(items: FeedItem[], nowUtc: string): string {
+  const newest = items.reduce<string>((acc, it) => {
+    const t = rfc822(it.startedAt);
+    return t && (!acc || new Date(it.startedAt) > new Date(acc)) ? it.startedAt : acc;
+  }, '');
+  const buildDate = newest ? rfc822(newest) : nowUtc;
   const lines: string[] = [
     '<?xml version="1.0" encoding="UTF-8"?>',
     '<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">',
@@ -172,7 +207,9 @@ export function renderRss(items: FeedItem[], nowUtc: string): string {
     `    <atom:link href="${FEED_META.rssUrl}" rel="self" type="application/rss+xml" />`,
     `    <description>${escapeXml(FEED_META.description)}</description>`,
     '    <language>en</language>',
-    `    <lastBuildDate>${nowUtc}</lastBuildDate>`,
+    `    <lastBuildDate>${buildDate}</lastBuildDate>`,
+    `    <copyright>${escapeXml(FEED_RIGHTS)}</copyright>`,
+    `    <docs>${FEED_META.homeUrl}</docs>`,
     '    <ttl>60</ttl>',
   ];
   for (const it of items) {
@@ -200,6 +237,9 @@ export function renderJsonFeed(items: FeedItem[]): unknown {
     home_page_url: FEED_META.homeUrl,
     feed_url: FEED_META.jsonUrl,
     description: FEED_META.description,
+    // JSON Feed has no rights field; user_comment is where a human-readable
+    // note belongs, and the reuse terms are the note that matters here.
+    user_comment: FEED_RIGHTS,
     items: items.map((it) => ({
       id: it.id,
       url: it.url,

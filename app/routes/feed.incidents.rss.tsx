@@ -1,11 +1,12 @@
 // GET /feed/incidents.rss - RSS 2.0 feed of recent validator incidents.
 // Ported from the Pages Function functions/feed/incidents.rss.ts.
-import { fetchFeedItems, renderRss } from "@/lib/feedIncidents";
+import { renderRss } from "@/lib/feedIncidents";
+import { fetchFeedItems } from "@/lib/feedIncidents.server";
 
 export async function loader() {
   let items;
   try {
-    items = await fetchFeedItems(50);
+    items = await fetchFeedItems();
   } catch (err) {
     console.error("incidents.rss: fetch failed:", String(err));
     items = [];
