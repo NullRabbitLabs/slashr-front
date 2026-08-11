@@ -17,10 +17,13 @@ import assert from 'node:assert/strict';
 import {
   mapEvents,
   renderRss,
+  renderAtom,
   renderJsonFeed,
   feedWindow,
   FEED_WINDOW_DAYS,
   FEED_MAX_ITEMS,
+  INCIDENTS_FEED,
+  SLASHING_FEED,
 } from './feedIncidents.ts';
 
 const event = (over: Record<string, unknown> = {}) => ({
@@ -127,4 +130,69 @@ test('XML-hostile characters in a moniker cannot break the document', () => {
   const xml = renderRss([item], 'Wed, 20 Aug 2026 09:00:00 GMT');
   assert.ok(!xml.includes('<staking>'));
   assert.match(xml, /A &amp; B &lt;staking&gt;/);
+});
+
+// --- WS-D: Atom, and the one curated feed -----------------------------------
+
+test('atom renders a valid-looking feed with self and alternate links', () => {
+  const xml = renderAtom(mapEvents([event()] as never), '2026-08-20T09:00:00Z', INCIDENTS_FEED);
+  assert.match(xml, /^<\?xml version="1\.0" encoding="UTF-8"\?>/);
+  assert.match(xml, /<feed xmlns="http:\/\/www\.w3\.org\/2005\/Atom">/);
+  assert.match(xml, /<link href="[^"]+" rel="self"\/>/);
+  assert.match(xml, /<entry>/);
+  assert.match(xml, /<id>[^<]+<\/id>/);
+});
+
+test('atom dates the feed from the newest entry', () => {
+  const items = mapEvents([
+    event({ id: 'old', started_at: '2026-08-01T00:00:00.000Z' }),
+    event({ id: 'new', started_at: '2026-08-11T14:02:21.000Z' }),
+  ] as never);
+  const xml = renderAtom(items, '2026-08-20T09:00:00Z', INCIDENTS_FEED);
+  assert.match(xml, /<updated>2026-08-11T14:02:21\.000Z<\/updated>/);
+});
+
+test('atom escapes XML-hostile characters in titles', () => {
+  const [item] = mapEvents([event({ validator_moniker: 'A & B <x>' })] as never);
+  const xml = renderAtom([item], '2026-08-20T09:00:00Z', INCIDENTS_FEED);
+  assert.ok(!xml.includes('<x>'));
+  assert.match(xml, /A &amp; B &lt;x&gt;/);
+});
+
+test('atom carries the reuse terms', () => {
+  const xml = renderAtom(mapEvents([event()] as never), '2026-08-20T09:00:00Z', INCIDENTS_FEED);
+  assert.match(xml, /<rights>[^<]*attribution[^<]*<\/rights>/i);
+});
+
+test('the curated feed is a distinct document, not a relabelled firehose', () => {
+  const items = mapEvents([event()] as never);
+  const firehose = renderRss(items, 'Wed, 20 Aug 2026 09:00:00 GMT', INCIDENTS_FEED);
+  const curated = renderRss(items, 'Wed, 20 Aug 2026 09:00:00 GMT', SLASHING_FEED);
+
+  assert.notEqual(INCIDENTS_FEED.rssUrl, SLASHING_FEED.rssUrl);
+  assert.ok(curated.includes(SLASHING_FEED.rssUrl), 'self link must point at itself');
+  assert.ok(!curated.includes(INCIDENTS_FEED.rssUrl), 'must not self-link to the firehose');
+  assert.notEqual(firehose, curated);
+});
+
+test('the curated feed asks the API for real penalties only', () => {
+  // The filter lives in the feed definition rather than the route, so the
+  // query and the title can never drift apart.
+  //
+  // `slashing=true` resolves against networks.slashes_principal, so the feed
+  // cannot contain a chain that has no slashing mechanism; `class=operational`
+  // drops commission changes on the chains that do.
+  assert.equal(SLASHING_FEED.query, 'slashing=true&class=operational');
+});
+
+test('the curated feed may only say "slashing" because it filters on it', () => {
+  // The repo terminology rule: never call a Solana/Sui/Avalanche/Near penalty
+  // slashing. The title here DOES say slashing, which is only defensible
+  // because the query restricts the feed to chains that slash principal. If
+  // that filter is ever dropped, this pairing must be revisited.
+  assert.ok(SLASHING_FEED.title.toLowerCase().includes('slashing'));
+  assert.ok(
+    SLASHING_FEED.query.includes('slashing=true'),
+    'the slashing claim is only honest while the slashing filter is applied',
+  );
 });

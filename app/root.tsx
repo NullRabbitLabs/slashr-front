@@ -99,6 +99,20 @@ export const links: Route.LinksFunction = () => [
     title: "Slashr · validator incidents",
     href: "https://slashr.dev/feed/incidents.json",
   },
+  // The curated feed is advertised alongside the firehose so a reader who wants
+  // signal rather than volume can find it without reading documentation.
+  {
+    rel: "alternate",
+    type: "application/atom+xml",
+    title: "Slashr · slashing events",
+    href: "https://slashr.dev/feed/slashing.atom",
+  },
+  {
+    rel: "alternate",
+    type: "application/rss+xml",
+    title: "Slashr · slashing events",
+    href: "https://slashr.dev/feed/slashing.rss",
+  },
 ];
 
 // Default (homepage) meta. Individual routes override title/description/canonical

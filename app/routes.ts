@@ -10,7 +10,12 @@ export default [
   route("api/*", "routes/api-proxy.tsx"),
   // Machine-readable feeds + sitemap (ported from Pages Functions).
   route("feed/incidents.rss", "routes/feed.incidents.rss.tsx"),
+  route("feed/incidents.atom", "routes/feed.incidents.atom.tsx"),
   route("feed/incidents.json", "routes/feed.incidents.json.tsx"),
+  // The curated feed: real penalties only, low volume by design (WS-D).
+  route("feed/slashing.rss", "routes/feed.slashing.rss.tsx"),
+  route("feed/slashing.atom", "routes/feed.slashing.atom.tsx"),
+  route("feed/slashing.json", "routes/feed.slashing.json.tsx"),
   route("sitemap.xml", "routes/sitemap.tsx"),
   // Dynamic per-validator OG image (satori + resvg WASM).
   route("og/:network/:address", "routes/og.tsx"),

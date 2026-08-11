@@ -110,15 +110,68 @@ export interface FeedItem {
   startedAt: string;
 }
 
-export const FEED_META = {
+/// A feed variant: its identity, and the API query that fills it.
+///
+/// The query lives here rather than in the route so a feed's title and its
+/// contents cannot drift apart. Renaming the feed without changing what it asks
+/// for is the failure mode this prevents.
+export interface FeedMeta {
+  base: string;
+  title: string;
+  homeUrl: string;
+  rssUrl: string;
+  atomUrl: string;
+  jsonUrl: string;
+  description: string;
+  /// Extra query string appended to the events request. Empty = everything.
+  query: string;
+}
+
+/// The firehose. High volume, ~175 items/week, mostly Solana downtime.
+export const INCIDENTS_FEED: FeedMeta = {
   base: BASE,
   title: 'Slashr · validator incidents',
   homeUrl: `${BASE}/feed`,
   rssUrl: `${BASE}/feed/incidents.rss`,
+  atomUrl: `${BASE}/feed/incidents.atom`,
   jsonUrl: `${BASE}/feed/incidents.json`,
   description:
     'Live validator slashing, downtime, and commission incidents across every network we track.',
+  query: '',
 };
+
+/// The curated feed: real penalties only.
+///
+/// Defined as `slashing=true` + `class=operational`, which the API resolves
+/// against `networks.slashes_principal` (migration 076). That means the chains
+/// whose protocol actually reduces stake — Ethereum, Cosmos, Celestia,
+/// Polkadot — and only their fault events, never their commission changes.
+///
+/// Two definitions were tried and rejected against live data before this one:
+///   * `category=equivocation` (double-signing) produced ZERO events in 90
+///     days. Correct, unimpeachable, and a permanently empty feed.
+///   * `class=operational` alone is ~78% Solana delinquency, which is the
+///     noise this feed exists to escape.
+/// This definition runs at roughly 15 items/week, all of them real penalties.
+///
+/// Calling it "slashing" is accurate here precisely BECAUSE of the
+/// slashes_principal filter: every chain that can appear in it does slash.
+/// Solana, Sui, Avalanche and Near cannot appear, so the feed never applies
+/// the word to a chain that has no such mechanism.
+export const SLASHING_FEED: FeedMeta = {
+  base: BASE,
+  title: 'Slashr · slashing events',
+  homeUrl: `${BASE}/feed`,
+  rssUrl: `${BASE}/feed/slashing.rss`,
+  atomUrl: `${BASE}/feed/slashing.atom`,
+  jsonUrl: `${BASE}/feed/slashing.json`,
+  description:
+    'Validator slashing on the chains whose protocol reduces stake: Ethereum, Cosmos, Celestia and Polkadot. Roughly 15 items a week, no downtime noise.',
+  query: 'slashing=true&class=operational',
+};
+
+/// Back-compat alias for the firehose.
+export const FEED_META = INCIDENTS_FEED;
 
 function shortAddr(a: string): string {
   return a.length <= 16 ? a : `${a.slice(0, 8)}…${a.slice(-4)}`;
@@ -188,24 +241,34 @@ function rfc822(iso: string): string {
   return isNaN(d.getTime()) ? '' : d.toUTCString();
 }
 
+/// The newest valid `startedAt` in the set, or '' when there is none.
+/// Both renderers date their document from this rather than from the request
+/// clock, so a poll that changes nothing looks unchanged to the client.
+function newestStartedAt(items: FeedItem[]): string {
+  return items.reduce<string>((acc, it) => {
+    if (!rfc822(it.startedAt)) return acc;
+    return !acc || new Date(it.startedAt) > new Date(acc) ? it.startedAt : acc;
+  }, '');
+}
+
 // Pure: render an RSS 2.0 document from feed items. `nowUtc` is the fallback
 // build date, used only when the feed is empty: dating the channel by the newest
 // item instead of the request clock is what lets a conditional GET short-circuit
 // (otherwise every poll looks like a change).
-export function renderRss(items: FeedItem[], nowUtc: string): string {
-  const newest = items.reduce<string>((acc, it) => {
-    const t = rfc822(it.startedAt);
-    return t && (!acc || new Date(it.startedAt) > new Date(acc)) ? it.startedAt : acc;
-  }, '');
-  const buildDate = newest ? rfc822(newest) : nowUtc;
+export function renderRss(
+  items: FeedItem[],
+  nowUtc: string,
+  meta: FeedMeta = INCIDENTS_FEED,
+): string {
+  const buildDate = newestStartedAt(items) ? rfc822(newestStartedAt(items)) : nowUtc;
   const lines: string[] = [
     '<?xml version="1.0" encoding="UTF-8"?>',
     '<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">',
     '  <channel>',
-    `    <title>${escapeXml(FEED_META.title)}</title>`,
-    `    <link>${FEED_META.homeUrl}</link>`,
-    `    <atom:link href="${FEED_META.rssUrl}" rel="self" type="application/rss+xml" />`,
-    `    <description>${escapeXml(FEED_META.description)}</description>`,
+    `    <title>${escapeXml(meta.title)}</title>`,
+    `    <link>${meta.homeUrl}</link>`,
+    `    <atom:link href="${meta.rssUrl}" rel="self" type="application/rss+xml" />`,
+    `    <description>${escapeXml(meta.description)}</description>`,
     '    <language>en</language>',
     `    <lastBuildDate>${buildDate}</lastBuildDate>`,
     `    <copyright>${escapeXml(FEED_RIGHTS)}</copyright>`,
@@ -229,14 +292,60 @@ export function renderRss(items: FeedItem[], nowUtc: string): string {
   return lines.join('\n');
 }
 
+/// Pure: render an Atom 1.0 document. `nowUtc` is an ISO-8601 fallback, used
+/// only when the feed is empty.
+///
+/// Atom exists alongside RSS because some readers and aggregators only accept
+/// it, and because its per-entry <updated> is better defined than RSS's
+/// pubDate. Same items, same rights, different envelope.
+export function renderAtom(
+  items: FeedItem[],
+  nowUtc: string,
+  meta: FeedMeta = INCIDENTS_FEED,
+): string {
+  const newest = newestStartedAt(items);
+  const updated = newest || nowUtc;
+  const lines: string[] = [
+    '<?xml version="1.0" encoding="UTF-8"?>',
+    '<feed xmlns="http://www.w3.org/2005/Atom">',
+    `  <title>${escapeXml(meta.title)}</title>`,
+    `  <subtitle>${escapeXml(meta.description)}</subtitle>`,
+    `  <link href="${meta.homeUrl}"/>`,
+    `  <link href="${meta.atomUrl}" rel="self"/>`,
+    `  <id>${meta.atomUrl}</id>`,
+    `  <updated>${updated}</updated>`,
+    `  <rights>${escapeXml(FEED_RIGHTS)}</rights>`,
+  ];
+  for (const it of items) {
+    lines.push(
+      '  <entry>',
+      `    <title>${escapeXml(it.title)}</title>`,
+      `    <link href="${escapeXml(it.url)}"/>`,
+      `    <id>${it.id}</id>`,
+      `    <updated>${it.startedAt}</updated>`,
+      `    <published>${it.startedAt}</published>`,
+      `    <summary>${escapeXml(it.description)}</summary>`,
+      `    <category term="${escapeXml(it.networkName)}"/>`,
+      `    <category term="${escapeXml(it.severity)}"/>`,
+      `    <category term="${escapeXml(it.eventType)}"/>`,
+      '  </entry>',
+    );
+  }
+  lines.push('</feed>');
+  return lines.join('\n');
+}
+
 // Pure: render a JSON Feed 1.1 object from feed items.
-export function renderJsonFeed(items: FeedItem[]): unknown {
+export function renderJsonFeed(
+  items: FeedItem[],
+  meta: FeedMeta = INCIDENTS_FEED,
+): unknown {
   return {
     version: 'https://jsonfeed.org/version/1.1',
-    title: FEED_META.title,
-    home_page_url: FEED_META.homeUrl,
-    feed_url: FEED_META.jsonUrl,
-    description: FEED_META.description,
+    title: meta.title,
+    home_page_url: meta.homeUrl,
+    feed_url: meta.jsonUrl,
+    description: meta.description,
     // JSON Feed has no rights field; user_comment is where a human-readable
     // note belongs, and the reuse terms are the note that matters here.
     user_comment: FEED_RIGHTS,
