@@ -28,6 +28,7 @@ const EVENT_LABELS: Record<string, string> = {
   duplicate_block: 'Produced duplicate blocks in the same slot.',
   dot_slashed: 'Slashed on-chain. Stake reduced.',
   dot_not_elected: 'Dropped from active validator set.',
+  dot_chilled: 'Stopped participating in staking. No stake deducted.',
   commission_increase: 'Raised commission. Delegators earn less.',
   vanilla_solana: 'Running vanilla Solana. MEV tips forfeited.',
   jito_opted_out: 'Stopped running Jito-Solana. Delegators no longer earn MEV tips.',
@@ -54,6 +55,7 @@ const EVENT_SHORT: Record<string, string> = {
   jito_opted_out: 'MEV disabled',
   jito_opted_in: 'MEV re-enabled',
   dot_not_elected: 'Not elected',
+  dot_chilled: 'Stopped staking',
   avax_uptime_below_threshold: 'Uptime below threshold',
   near_kicked_out: 'Ejected from set',
 };
