@@ -26,6 +26,7 @@ const EVENT_SHORT: Partial<Record<EventType, string>> = {
   jito_opted_in: 'MEV re-enabled',
   dot_not_elected: 'Not elected',
   dot_chilled: 'Stopped staking',
+  dot_offence: 'Offence reported',
   avax_uptime_below_threshold: 'Uptime below threshold',
   near_kicked_out: 'Ejected from set',
   voluntary_exit: 'Voluntary exit',
