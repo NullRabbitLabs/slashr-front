@@ -12,6 +12,7 @@ export type EventType =
   | 'duplicate_block'
   | 'dot_slashed'
   | 'dot_not_elected'
+  | 'dot_chilled'
   | 'commission_increase'
   | 'vanilla_solana'
   | 'jito_opted_out'
