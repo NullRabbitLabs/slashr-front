@@ -16,7 +16,7 @@ export type EventType =
   | 'vanilla_solana'
   | 'jito_opted_out'
   | 'jito_opted_in'
-  | 'tia_slashed_downtime'
+  | 'tia_jailed_downtime'
   | 'tia_slashed_double_sign'
   | 'avax_uptime_below_threshold'
   | 'near_kicked_out'

@@ -15,7 +15,7 @@ const EVENT_SHORT: Partial<Record<EventType, string>> = {
   slashed_double_sign: 'Slashing',
   slashed_downtime: 'Slashing',
   dot_slashed: 'Slashing',
-  tia_slashed_downtime: 'Slashing',
+  tia_jailed_downtime: 'Jailed',
   tia_slashed_double_sign: 'Slashing',
   inactivity_leak: 'Inactivity',
   duplicate_block: 'Duplicate block',
