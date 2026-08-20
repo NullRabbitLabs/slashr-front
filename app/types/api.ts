@@ -13,6 +13,7 @@ export type EventType =
   | 'dot_slashed'
   | 'dot_not_elected'
   | 'dot_chilled'
+  | 'dot_offence'
   | 'commission_increase'
   | 'vanilla_solana'
   | 'jito_opted_out'
